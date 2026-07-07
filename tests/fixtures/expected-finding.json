@@ -1,0 +1,9 @@
+{
+  "project_name": "FixtureLegacyProcess",
+  "package_name": "UiPath.Legacy.Activities",
+  "current_version": "1.2.3",
+  "classification": "Already Removed",
+  "risk_level": "Critical",
+  "urgency": "Immediate",
+  "recommendation": "Replace with UiPath.Modern.Activities."
+}

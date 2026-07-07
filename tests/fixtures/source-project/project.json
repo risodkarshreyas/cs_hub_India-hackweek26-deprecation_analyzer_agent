@@ -1,0 +1,13 @@
+{
+  "name": "FixtureLegacyProcess",
+  "description": "Fixture project for UiPath deprecation analyzer validation.",
+  "projectVersion": "1.0.0",
+  "runtimeOptions": {
+    "targetFramework": "Legacy",
+    "studioProjectType": "Process"
+  },
+  "dependencies": {
+    "UiPath.Legacy.Activities": "1.2.3",
+    "UiPath.Excel.Activities": "2.0.0"
+  }
+}

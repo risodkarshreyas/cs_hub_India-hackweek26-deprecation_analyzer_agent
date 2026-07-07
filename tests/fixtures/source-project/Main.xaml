@@ -1,0 +1,4 @@
+<Activity xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+          xmlns:legacy="clr-namespace:UiPath.Legacy.Activities;assembly=UiPath.Legacy.Activities">
+  <legacy:DoThing DisplayName="Legacy activity" />
+</Activity>

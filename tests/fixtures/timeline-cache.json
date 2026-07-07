@@ -1,0 +1,20 @@
+{
+  "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+  "fetched_at": "2026-07-07T00:00:00Z",
+  "entries": [
+    {
+      "package_name": "UiPath.Legacy.Activities",
+      "affected_version": "",
+      "deprecation_date": "2025-01-01",
+      "removal_date": "2026-01-01",
+      "replacement_package": "UiPath.Modern.Activities",
+      "compatibility_scope": "windows_legacy_only",
+      "project_compatibility_impact": "Package remains relevant only for Windows-Legacy/.NET Framework 4.6.1 compatibility review.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section_title": "Activity package deprecations",
+      "source_text": "UiPath.Legacy.Activities package | Replace with UiPath.Modern.Activities. Windows-Legacy .NET Framework 4.6.1 support drops.",
+      "confidence": "high",
+      "fetched_at": "2026-07-07T00:00:00Z"
+    }
+  ]
+}
