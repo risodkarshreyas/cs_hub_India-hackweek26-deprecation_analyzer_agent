@@ -1,4 +1,4 @@
-# [Project Name]
+# Deprecation Analyzer Agent
 > One sentence describing what this automates or solves.
 
 ## Prerequisites
