@@ -1,0 +1,42 @@
+# UiPath Studio runtime artifacts
+.local/
+.objects/
+.autopilot/
+
+# Lock files
+*.lck
+
+# NuGet packages
+packages/
+
+# User-specific Studio settings
+*.settings.json
+
+# Coded Web App — Node.js artifacts
+node_modules/
+dist/
+build/
+.next/
+
+# Coded Agents — Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Coded Agents — .NET build artifacts
+bin/
+obj/
+
+# Sensitive / credential files
+.env
+.env.*
+!.env.example
+appsettings.Production.json
+appsettings.Staging.json
+*.pfx
+*.p12
+credentials.json
+connection_strings.json
