@@ -1,6 +1,6 @@
-# Risk Scoring Model
+# Legacy Client Risk Scoring Model
 
-Risk is conservative and date-driven.
+The client scripts use conservative date-driven raw risk fields. Final user-facing severity must use the common model in `references/common_analysis_rules.md`.
 
 | Classification | Risk | Urgency |
 |---|---|---|
@@ -8,6 +8,15 @@ Risk is conservative and date-driven.
 | Removal Imminent | High | Next 0-6 months |
 | Removal Scheduled | Medium | Plan within 6-18 months |
 | Windows-Legacy/.NET Framework impact | High | Prioritize compatibility migration planning |
+
+Map raw `Risk` to lowercase common `severity`:
+
+| Raw risk | Common severity |
+|---|---|
+| `Critical` | `critical` |
+| `High` | `high` |
+| `Medium` | `medium` |
+| `Low` | `low` |
 
 Effort estimates:
 

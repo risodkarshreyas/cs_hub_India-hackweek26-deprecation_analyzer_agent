@@ -1,0 +1,7 @@
+interface:
+  display_name: "UiPath Deprecation Analyzer"
+  short_description: "Route UiPath deprecation analysis"
+  default_prompt: "Use $uipath-deprecation-analyzer to analyze UiPath client/server artifacts for deprecation risk and return normalized findings."
+
+policy:
+  allow_implicit_invocation: true

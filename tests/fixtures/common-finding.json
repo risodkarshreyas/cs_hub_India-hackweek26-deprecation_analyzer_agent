@@ -1,0 +1,32 @@
+{
+  "id": "F-001",
+  "severity": "high",
+  "status": "removal_scheduled",
+  "domain": "server",
+  "product": "Orchestrator",
+  "feature_or_package": "Testing Module in Orchestrator",
+  "environment": "Automation Cloud tenant",
+  "evidence": [
+    {
+      "path": "tenant-export/orchestrator/test_sets.json",
+      "object": "Regression Suite",
+      "matched_value": "Orchestrator test set"
+    }
+  ],
+  "impact": "Detected usage is scheduled for removal and requires migration planning.",
+  "deadline": "2026-06-30",
+  "recommended_action": "Migrate impacted artifacts to the UiPath-recommended replacement path.",
+  "mitigation_route": "ai_assisted_change",
+  "recommended_skill": "uipath-test",
+  "time_savings_kpi": {
+    "manual_baseline_hours": 8.0,
+    "ai_assisted_hours": 2.0,
+    "hours_saved": 6.0,
+    "percent_saved": 75,
+    "basis": "AI matched environment evidence to common rules and drafted the remediation route.",
+    "confidence": "medium"
+  },
+  "owner_hint": "QA/Test Manager owner",
+  "confidence": "high",
+  "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline"
+}

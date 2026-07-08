@@ -1,8 +1,8 @@
 # UiPath Deprecation Analyzer Skill
 
-Portable coding-agent skill for auditing UiPath RPA projects and package artifacts for deprecated, removed, or soon-to-be-removed NuGet activity packages.
+Portable Codex skill for routing UiPath deprecation analysis across client-side automation artifacts, server-side platform evidence, or mixed client/server inputs.
 
-The skill uses the live UiPath deprecation timeline as the source of truth:
+The live UiPath deprecation timeline is the default source of truth:
 
 ```text
 https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
@@ -10,18 +10,19 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 
 ## What This Skill Does
 
-- Scans UiPath source projects, GitHub checkouts, mixed folders, and `.nupkg` package folders.
-- Extracts package evidence from `project.json`, `.xaml`, `.nuspec`, and `.nupkg` contents.
-- Fetches and normalizes package-like entries from the UiPath deprecation timeline.
-- Matches project package usage against deprecated, removed, and scheduled-removal package entries.
-- Flags Windows-Legacy / `.NET Framework 4.6.1` compatibility impact.
-- Generates Markdown, JSON, CSV, and Excel reports with recommendations and impact analysis.
+- Routes RPA projects, XAML, `project.json`, `.nupkg`, Studio, Robot, and activity package requests to the client-side analyzer.
+- Routes Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, and tenant/platform configuration requests to the server-side analyzer.
+- Routes mixed repositories or mixed export folders to both analyzers and merges findings into one normalized report shape.
+- Applies shared matching, classification, severity, mitigation-route, KPI, evidence, and reporting rules from `references/common_analysis_rules.md`.
+- Preserves the existing Python client analyzer as raw client tooling for package/XAML inventory and reports.
 
 ## Project Structure
 
 ```text
 .
 |-- SKILL.md
+|-- agents/
+|   `-- openai.yaml
 |-- scripts/
 |   |-- uipath_deprecation_analyzer.py
 |   |-- project_inventory.py
@@ -29,6 +30,9 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 |   |-- matcher.py
 |   `-- reports.py
 |-- references/
+|   |-- common_analysis_rules.md
+|   |-- client_side_analyzer.md
+|   |-- server_side_analyzer.md
 |   |-- normalized_timeline_schema.md
 |   |-- package_matching_rules.md
 |   |-- report_schema.md
@@ -36,26 +40,51 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 |   `-- example_findings.md
 `-- tests/
     |-- test_deprecation_analyzer.py
+    |-- test_skill_contract.py
     `-- fixtures/
 ```
 
-## Prerequisites
+## Analyzer Routes
 
-- Python 3.10 or newer.
-- Network access for the default live timeline refresh.
-- Optional: `openpyxl` for richer Excel output. If it is not installed, the script writes a minimal `.xlsx` using the Python standard library.
-- Optional: authenticated UiPath/Orchestrator tooling if you need to download `.nupkg` packages before scanning.
+Use `SKILL.md` as the entrypoint:
 
-## Supported Inputs
+- Client route: RPA source projects, GitHub checkouts, XAML workflows, `project.json`, `.nupkg`, package dependencies, package replacements, and Windows-Legacy/.NET Framework package compatibility.
+- Server route: Orchestrator tenant/folder resources, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, Task Mining, High Availability Add-On, APIs, service versions, and platform/infrastructure configuration.
+- Mixed route: source projects plus tenant exports, package evidence plus platform API/configuration evidence, or folders where both client and server artifacts are credible.
 
-Use `--input` to point to any of these:
+Every route must apply `references/common_analysis_rules.md` before producing final findings.
 
-- a local UiPath RPA project folder,
-- a GitHub repository checkout containing one or more UiPath projects,
-- a folder of Orchestrator-downloaded `.nupkg` packages,
-- a mixed folder containing source projects and package artifacts.
+## Output Contract
 
-## Quick Start
+Final agent-facing and user-facing reports must include an executive summary plus a machine-readable finding list. Every final finding uses the common fields from `references/common_analysis_rules.md`:
+
+```text
+id, severity, status, domain, product, feature_or_package, environment,
+evidence, impact, deadline, recommended_action, mitigation_route,
+recommended_skill, time_savings_kpi, owner_hint, confidence, source_url
+```
+
+Client-only optional fields include `project_name`, `package_name`, `current_version`, `replacement_package`, `compatibility_scope`, and `project_compatibility`.
+
+Server-only optional fields include `delivery_model`, `tenant_or_service`, `endpoint`, `api_field`, `service_version`, and `configuration_object`.
+
+Coverage gaps are reported separately from findings.
+
+## Existing Client Scripts
+
+The scripts under `scripts/` are intentionally retained as raw client analyzer tooling. They scan package/XAML evidence and generate Markdown, JSON, CSV, and Excel reports with legacy raw client fields such as `classification`, `risk_level`, and `recommendation`.
+
+Agents must normalize those raw fields before final presentation:
+
+- `classification` -> `status`
+- `risk_level` -> `severity`
+- `recommendation` -> `recommended_action`
+- `removal_date` -> `deadline`
+- `package_name` -> `feature_or_package` and optional `package_name`
+
+No server-side analyzer script is included yet; server-side analysis is instruction-driven through `references/server_side_analyzer.md`.
+
+## Client Script Quick Start
 
 From this repository root:
 
@@ -75,64 +104,16 @@ Run against a folder of `.nupkg` files:
 python scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg
 ```
 
-## CLI Options
-
-```text
---input PATH              Project, repository, mixed folder, or .nupkg folder to scan.
---output PATH             Directory where reports are written.
---refresh-timeline        Fetch the latest UiPath deprecation timeline. Live refresh is the default.
---use-cache-only          Use the normalized timeline cache without fetching the live UiPath timeline.
---timeline-cache PATH     Read/write normalized timeline cache JSON.
---format LIST             Comma-separated formats: markdown,json,csv,xlsx,all.
---include-xaml            Include XAML namespace/activity package evidence.
---include-nupkg           Include .nupkg package inspection.
---strict                  Skip Windows-Legacy-only entries for non-legacy or unknown projects.
---analysis-date DATE      Use YYYY-MM-DD for repeatable classification.
-```
-
-## Generated Reports
-
-The analyzer writes reports under `--output`:
-
-- `uipath_deprecation_report.md`: human-readable executive and technical report.
-- `uipath_deprecation_findings.json`: structured automation payload.
-- `uipath_deprecation_findings.csv`: portfolio tracking export.
-- `uipath_deprecation_report.xlsx`: workbook with summary, findings, package inventory, replacement mapping, Windows-Legacy impact, manual review, and roadmap sheets.
-
-## How Coding Agents Should Use It
-
-Agents such as Codex, Claude Code, Copilot, and Antigravity should load `SKILL.md` first. The skill file defines:
-
-- when to use the skill,
-- which timeline source to trust,
-- which non-package timeline entries to ignore,
-- which scripts to run,
-- which reference files to read for schemas, matching rules, and risk scoring.
-
-The main execution path is:
-
-1. Identify the input folder.
-2. Use the default live timeline refresh. Use `--use-cache-only` only for offline or repeatable audits.
-3. Run `scripts/uipath_deprecation_analyzer.py`.
-4. Review the Markdown report first.
-5. Use JSON/CSV/Excel outputs for automation, tracking, and stakeholder review.
-
 ## Validation
 
-Run the unit tests:
+Run the unit and contract tests:
 
 ```bash
 python -m unittest discover -s tests
 ```
 
-Validate the skill metadata if the Codex skill creator tools are available:
+Validate skill metadata:
 
 ```bash
 python C:\Users\jeet.doshi\.codex\skills\.system\skill-creator\scripts\quick_validate.py .
 ```
-
-## Notes
-
-- The analyzer treats NuGet/activity packages and package-like ML/OCR timeline entries as actionable findings.
-- It intentionally ignores non-package deprecations such as platform infrastructure, Docker/Kubernetes dependencies, AI Center model changes, Apps UI changes, and Orchestrator platform features without package impact.
-- If UiPath docs do not state a replacement package, the recommendation is: `No direct replacement stated - review manually.`

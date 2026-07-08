@@ -1,87 +1,47 @@
 ---
 name: uipath-deprecation-analyzer
-description: Analyze UiPath RPA source projects, GitHub checkouts, mixed folders, and Orchestrator-downloaded .nupkg packages for deprecated, removed, or soon-to-be-removed NuGet activity packages using the live UiPath deprecation timeline. Use when auditing UiPath package dependencies, Windows-Legacy/.NET Framework 4.6.1 compatibility impact, replacement package recommendations, remediation roadmaps, portfolio risk, or deprecation reports.
+description: Use when analyzing UiPath deprecation risk for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
 ---
 
 # UiPath Deprecation Analyzer
 
-Use this skill to audit UiPath automation projects and package artifacts for NuGet activity packages that are deprecated, removed, or scheduled for removal.
+Use this skill as the single entrypoint for UiPath deprecation analysis. Route the input to the client-side analyzer, the server-side analyzer, or both, then normalize all final findings with the shared schema.
 
-## Source of Truth
+## Required References
 
-Use the live UiPath deprecation timeline:
+Always read `references/common_analysis_rules.md` before producing findings or a report.
 
-`https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline`
+Then read only the analyzer reference needed for the request:
 
-Fetch the live timeline by default every time the skill is used. Cached normalized data is only a fallback when the live fetch fails, or an explicit offline/repeatable test aid when `--use-cache-only` is requested.
+- `references/client_side_analyzer.md`: RPA project folders, GitHub checkouts, XAML, `project.json`, `.nupkg`, Orchestrator package exports, Studio, Robot, activity packages, package dependencies, and Windows-Legacy/.NET Framework package compatibility.
+- `references/server_side_analyzer.md`: Orchestrator, Automation Cloud, Automation Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, Task Mining, High Availability Add-On, tenant exports, organization settings, platform APIs, and infrastructure configuration.
 
-## Scope Rules
+## Routing
 
-Analyze NuGet/activity package items and package-like ML/OCR entries that can map to project dependencies or package artifacts. Keep entries such as `UiPath.*.Activities`, canonicalized short package names, `UiPath.DocumentUnderstanding.ML`, and Document Understanding ML package identifiers when they appear in the timeline.
+Choose the analyzer by evidence type:
 
-## Workflow
+| Input or request mentions | Route |
+|---|---|
+| RPA source project, workflow, XAML, `project.json`, `.nupkg`, Studio, Robot, activity package, NuGet dependency, package replacement, Windows-Legacy package compatibility | Client-side analyzer |
+| Orchestrator tenant/folder resources, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding service configuration, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, tenant/platform administration, APIs, infrastructure, service versions | Server-side analyzer |
+| Repo plus tenant export, source code plus platform export, package dependencies plus Orchestrator/API/service configuration, unclear mixed folder | Both analyzers |
 
-1. Identify the input: source project folder, GitHub checkout, folder of `.nupkg` packages, Orchestrator package export, or mixed folder.
-2. If Orchestrator package download is needed, use the available UiPath/Orchestrator tooling in the environment. Do not ask for or store secrets; use existing authenticated CLI/session state.
-3. Run the analyzer:
+If the input is ambiguous, inspect filenames and visible content first. Prefer both analyzers when there is credible client and server evidence.
 
-   ```bash
-   python scripts/uipath_deprecation_analyzer.py --input ./repo --output ./reports --format markdown,json,csv,xlsx
-   ```
+## Mixed Analysis
 
-4. Review the Markdown report first for executive summary, highest-risk findings, replacement mapping, Windows-Legacy impact, manual review items, and remediation roadmap.
-5. Use the JSON report for automation, CSV for portfolio tracking, and Excel for stakeholder review.
-6. For each finding, confirm package evidence paths before recommending remediation.
-7. Only recommend replacement packages stated in the UiPath timeline. If none is stated, use: `No direct replacement stated - review manually.`
+For mixed inputs:
 
-## Scripts
+1. Apply `references/common_analysis_rules.md`.
+2. Run the client-side analyzer for RPA/package artifacts when present.
+3. Apply the server-side analyzer to platform, tenant, service, API, and infrastructure evidence.
+4. Merge results into one executive summary and one machine-readable finding list.
+5. Keep evidence, domain, owner hints, confidence, and recommended skill separate per finding. Do not collapse client package evidence and server configuration evidence into a single finding unless the same deprecated item is proven by both.
 
-- `scripts/uipath_deprecation_analyzer.py`: CLI entrypoint.
-- `scripts/project_inventory.py`: scans source projects and `.nupkg` packages using embedded UiPath project discovery and package inventory logic.
-- `scripts/timeline.py`: fetches, filters, normalizes, and caches package-like timeline entries.
-- `scripts/matcher.py`: matches project/package inventory to normalized timeline entries and classifies risk.
-- `scripts/reports.py`: generates Markdown, JSON, CSV, and Excel outputs.
+## Output Contract
 
-CLI flags:
+Every final report, regardless of route, must use the common finding fields from `references/common_analysis_rules.md`. Preserve analyzer-specific fields only as optional additions.
 
-```text
---input PATH
---output PATH
---refresh-timeline
---use-cache-only
---timeline-cache PATH
---format markdown,json,csv,xlsx
---include-xaml
---include-nupkg
---strict
---analysis-date YYYY-MM-DD
-```
+Report coverage gaps separately from findings. A missing export, missing XAML scan, or unavailable tenant API is not a deprecation finding.
 
-Live timeline refresh is the default. Use `--use-cache-only` with `--timeline-cache` for offline or repeatable audits. Use `--analysis-date` for repeatable classification and tests. Use `--strict` to skip Windows-Legacy-only timeline entries for non-legacy projects.
-
-## References
-
-Read only the reference needed for the task:
-
-- `references/normalized_timeline_schema.md`: normalized timeline fields.
-- `references/package_matching_rules.md`: matching, classification, and false-positive rules.
-- `references/report_schema.md`: report payload and output structure.
-- `references/risk_scoring_model.md`: risk, urgency, effort, and value model.
-- `references/example_findings.md`: examples of expected findings and recommendations.
-
-## Validation
-
-Before presenting results as final, run:
-
-```bash
-python -m unittest discover -s tests
-```
-
-For this repository, run from the skill package root.
-
-Confirm:
-
-- timeline parsing ignores non-NuGet entries,
-- project and `.nupkg` inventory includes evidence paths,
-- findings include package name, version, classification, recommendation, risk, urgency, confidence, and source URL,
-- Markdown, JSON, CSV, and Excel reports are generated when requested.
+The existing client scripts remain unchanged. When their raw output uses legacy client field names, normalize the final presentation to the common schema before responding.

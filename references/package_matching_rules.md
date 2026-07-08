@@ -23,9 +23,9 @@ Match in this order:
 
 Avoid fuzzy matching package names unless a human is reviewing the finding. False positives are worse than missed manual-review items.
 
-## Classification
+## Legacy Client Classification
 
-Relative to `--analysis-date`:
+The client scripts currently classify raw package findings relative to `--analysis-date`:
 
 - `Already Removed`: removal date is before the analysis date.
 - `Removal Imminent`: removal date is within 6 months.
@@ -34,8 +34,11 @@ Relative to `--analysis-date`:
 
 If a timeline entry lacks a removal date but maps to a package, classify conservatively as scheduled/manual review and lower confidence.
 
+Before presenting results to a user, map these raw values to the common `status` values in `references/common_analysis_rules.md`.
+
 ## Recommendations
 
 - If `replacement_package` exists, recommend replacing with that package.
 - If the issue is Windows-Legacy compatibility, recommend migration from Windows-Legacy or version pinning only when the docs explicitly support it.
 - If no replacement is stated, output exactly: `No direct replacement stated - review manually.`
+- Before final presentation, map `recommendation` to the common `recommended_action` field.
