@@ -17,9 +17,7 @@ Refresh the timeline when the user asks for the latest/current state, when no ca
 
 ## Scope Rules
 
-Analyze NuGet/activity package items only. Keep entries that map to installable package dependencies, especially `UiPath.*.Activities` packages found in `project.json`, `.nuspec`, `.nupkg`, or `.xaml` evidence.
-
-Ignore timeline entries that do not map to package dependencies, including Automation Suite infrastructure, backup tools, Docker/Kubernetes dependencies, AI Center model changes, Apps UI changes, and Orchestrator platform features without NuGet package impact.
+Analyze NuGet/activity package items. Keep entries that map to installable package dependencies, especially `UiPath.*.Activities` packages found in `project.json`, `.nuspec`, `.nupkg`, or `.xaml` evidence.
 
 ## Workflow
 
