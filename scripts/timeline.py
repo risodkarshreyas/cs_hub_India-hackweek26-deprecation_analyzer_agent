@@ -11,7 +11,22 @@ from urllib.request import Request, urlopen
 DEFAULT_TIMELINE_URL = (
     "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline"
 )
-PACKAGE_RE = re.compile(r"\bUiPath\.[A-Za-z0-9_.]+\.Activities\b", re.I)
+PACKAGE_RE = re.compile(r"\bUiPath\.[A-Za-z0-9_.]+(?:\.Activities|\.ML)\b", re.I)
+SHORT_PACKAGE_MAP = {
+    "IntelligentOCR.Activities": "UiPath.IntelligentOCR.Activities",
+    "PDF.Activities": "UiPath.PDF.Activities",
+    "DocumentUnderstanding.ML": "UiPath.DocumentUnderstanding.ML",
+    "OCR.Activities": "UiPath.OCR.Activities",
+    "CommunicationsMining.Activities": "UiPath.CommunicationsMining.Activities",
+    "OmniPage": "UiPath.OmniPage.Activities",
+}
+MODEL_PACKAGE_RE = re.compile(r"\bpython37duv[34]\b", re.I)
+PACKAGE_LIKE_RE = re.compile(
+    r"\bUiPath\.[A-Za-z0-9_.]+(?:\.Activities|\.ML)\b"
+    r"|\b(?:IntelligentOCR\.Activities|PDF\.Activities|DocumentUnderstanding\.ML|OCR\.Activities|CommunicationsMining\.Activities|OmniPage)\b"
+    r"|\bpython37duv[34]\b",
+    re.I,
+)
 NON_PACKAGE_TERMS = (
     "automation suite",
     "backup",
@@ -71,11 +86,14 @@ def fetch_timeline(
     source_url: str = DEFAULT_TIMELINE_URL,
     cache_path: Path | str | None = None,
     refresh: bool = False,
+    use_cache_only: bool = False,
 ) -> list[dict[str, Any]]:
     """Fetch and normalize the live UiPath timeline, with cache fallback."""
     cache = Path(cache_path) if cache_path else None
-    if cache and cache.exists() and not refresh:
+    if use_cache_only and cache and cache.exists():
         return json.loads(cache.read_text(encoding="utf-8"))["entries"]
+    if use_cache_only:
+        raise FileNotFoundError(f"Timeline cache does not exist: {cache}")
 
     request = Request(source_url, headers={"User-Agent": "uipath-deprecation-analyzer/1.0"})
     try:
@@ -88,11 +106,17 @@ def fetch_timeline(
 
     fetched_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     entries = normalize_timeline_from_html(content, source_url, fetched_at)
+    warnings = _normalization_warnings(entries)
     if cache:
         cache.parent.mkdir(parents=True, exist_ok=True)
         cache.write_text(
             json.dumps(
-                {"source_url": source_url, "fetched_at": fetched_at, "entries": entries},
+                {
+                    "source_url": source_url,
+                    "fetched_at": fetched_at,
+                    "normalization_warnings": warnings,
+                    "entries": entries,
+                },
                 indent=2,
             ),
             encoding="utf-8",
@@ -109,83 +133,128 @@ def normalize_timeline_from_html(
     parser = _TimelineTableParser()
     parser.feed(content)
     entries: list[dict[str, Any]] = []
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
 
     for row in parser.rows:
         cells = row["cells"]
         if _looks_like_header(cells):
             continue
         combined = _clean_text(" | ".join(cells))
-        packages = PACKAGE_RE.findall(combined)
-        if not packages or not _is_package_timeline_entry(combined):
+        candidate_text = cells[0] if cells else combined
+        candidates = _extract_package_candidates(candidate_text)
+        if not candidates or not _is_package_timeline_entry(combined):
             continue
-        package_name = _canonical_package(packages[0])
-        replacement = _extract_replacement_package(combined, package_name)
         deprecation_date, removal_date = _extract_dates(cells, combined)
-        affected_version = _extract_version_hint(combined)
         scope = _compatibility_scope(combined)
-        confidence = "high" if removal_date or deprecation_date else "medium"
-        key = (package_name.lower(), removal_date or "", deprecation_date or "")
-        if key in seen:
-            continue
-        seen.add(key)
-        entries.append(
-            {
-                "package_name": package_name,
-                "affected_version": affected_version,
-                "deprecation_date": deprecation_date,
-                "removal_date": removal_date,
-                "replacement_package": replacement,
-                "compatibility_scope": scope,
-                "project_compatibility_impact": _compatibility_impact(scope),
-                "source_url": source_url,
-                "source_section_title": row.get("section_title", ""),
-                "source_text": combined,
-                "confidence": confidence,
-                "fetched_at": fetched_at,
-            }
-        )
+        for candidate in candidates:
+            package_name = candidate["package_name"]
+            replacement = _extract_replacement_package(combined, package_name, len(candidates))
+            affected_version = _extract_version_hint_near_candidate(combined, candidate["span"])
+            confidence = _entry_confidence(candidate, removal_date, deprecation_date)
+            key = (
+                package_name.lower(),
+                removal_date or "",
+                deprecation_date or "",
+                affected_version or "",
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append(
+                {
+                    "package_name": package_name,
+                    "affected_version": affected_version,
+                    "deprecation_date": deprecation_date,
+                    "removal_date": removal_date,
+                    "replacement_package": replacement,
+                    "compatibility_scope": scope,
+                    "project_compatibility_impact": _compatibility_impact(scope),
+                    "source_url": source_url,
+                    "source_section_title": row.get("section_title", ""),
+                    "source_text": combined,
+                    "confidence": confidence,
+                    "fetched_at": fetched_at,
+                    "canonicalized_from": candidate["canonicalized_from"],
+                    "normalization_warnings": candidate["warnings"],
+                }
+            )
     return entries
 
 
 def _is_package_timeline_entry(text: str) -> bool:
     lower = text.lower()
-    if not PACKAGE_RE.search(text):
+    if not PACKAGE_LIKE_RE.search(text):
         return False
-    if any(term in lower for term in NON_PACKAGE_TERMS) and "activities" not in lower:
+    if any(term in lower for term in NON_PACKAGE_TERMS) and not any(
+        token in lower for token in ("activities", ".ml", "ml package", "python37duv")
+    ):
         return False
     return True
 
 
-def _extract_replacement_package(text: str, package_name: str) -> str:
-    for match in re.finditer(
-        r"(?:replace(?:d)? with|replacement(?: package)?|move to|use)\s+"
-        r"(?P<pkg>UiPath\.[A-Za-z0-9_.]+\.Activities)",
-        text,
-        re.I,
-    ):
-        candidate = _canonical_package(match.group("pkg"))
-        if candidate.lower() != package_name.lower():
-            return candidate
-    packages = [_canonical_package(pkg) for pkg in PACKAGE_RE.findall(text)]
-    for candidate in packages:
-        if candidate.lower() != package_name.lower():
-            return candidate
+def _extract_package_candidates(text: str) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    seen: set[tuple[str, int]] = set()
+    for match in PACKAGE_LIKE_RE.finditer(text):
+        raw = match.group(0).strip()
+        package_name = _canonical_package(raw)
+        key = (package_name.lower(), match.start())
+        if key in seen:
+            continue
+        seen.add(key)
+        canonicalized_from = "" if raw.lower() == package_name.lower() else raw
+        candidates.append(
+            {
+                "raw": raw,
+                "package_name": package_name,
+                "canonicalized_from": canonicalized_from,
+                "span": match.span(),
+                "warnings": [],
+            }
+        )
+    return candidates
+
+
+def _extract_replacement_package(text: str, package_name: str, package_count: int) -> str:
+    package_pattern = r"(?P<pkg>UiPath\.[A-Za-z0-9_.]+(?:\.Activities|\.ML))"
+    escaped_name = re.escape(package_name)
+    specific_patterns = [
+        rf"alternative\s+(?:to|for)\s+{escaped_name}\s+is(?:\s+to\s+replace\s+it\s+with)?\s+{package_pattern}",
+        rf"{escaped_name}.*?(?:replace(?:d)?\s+with|replacement(?: package)?|move to|use)\s+{package_pattern}",
+    ]
+    for pattern in specific_patterns:
+        match = re.search(pattern, text, re.I)
+        if match:
+            candidate = _canonical_package(match.group("pkg"))
+            if candidate.lower() != package_name.lower():
+                return candidate
+    if package_count == 1:
+        for match in re.finditer(
+            rf"(?:replace(?:d)?\s+with|replacement(?: package)?|move to|use)\s+{package_pattern}",
+            text,
+            re.I,
+        ):
+            candidate = _canonical_package(match.group("pkg"))
+            if candidate.lower() != package_name.lower():
+                return candidate
     return ""
 
 
 def _extract_dates(cells: list[str], text: str) -> tuple[str, str]:
     dates = [_normalize_date(match) for match in _date_candidates(text)]
-    dates = [date for date in dates if date]
+    dates = [item for item in dates if item]
     deprecation_date = ""
     removal_date = ""
-    for cell in cells:
+    data_cells = cells[1:] if len(cells) >= 3 else cells
+    for index, cell in enumerate(data_cells, 1):
         lower = cell.lower()
         cell_dates = [_normalize_date(match) for match in _date_candidates(cell)]
-        cell_dates = [date for date in cell_dates if date]
-        if "deprecat" in lower and cell_dates:
+        cell_dates = [item for item in cell_dates if item]
+        if not cell_dates:
+            continue
+        if "deprecat" in lower or index == 1:
             deprecation_date = cell_dates[0]
-        if any(word in lower for word in ("removal", "removed", "retire", "end of support")) and cell_dates:
+        if any(word in lower for word in ("removal", "removed", "retire", "end of support")) or index == 2:
             removal_date = cell_dates[-1]
     if not deprecation_date and dates:
         deprecation_date = dates[0]
@@ -201,6 +270,7 @@ def _date_candidates(text: str) -> list[str]:
         r"\b\d{4}-\d{2}-\d{2}\b",
         r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}\b",
         r"\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b",
+        r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4}\b",
     ]
     results: list[str] = []
     for pattern in patterns:
@@ -210,7 +280,17 @@ def _date_candidates(text: str) -> list[str]:
 
 def _normalize_date(value: str) -> str:
     raw = value.strip().replace(".", "")
-    formats = ("%Y-%m-%d", "%B %d, %Y", "%b %d, %Y", "%B %d %Y", "%b %d %Y", "%d %B %Y", "%d %b %Y")
+    formats = (
+        "%Y-%m-%d",
+        "%B %d, %Y",
+        "%b %d, %Y",
+        "%B %d %Y",
+        "%b %d %Y",
+        "%d %B %Y",
+        "%d %b %Y",
+        "%B %Y",
+        "%b %Y",
+    )
     for fmt in formats:
         try:
             return datetime.strptime(raw, fmt).date().isoformat()
@@ -219,11 +299,16 @@ def _normalize_date(value: str) -> str:
     return ""
 
 
-def _extract_version_hint(text: str) -> str:
+def _extract_version_hint_near_candidate(text: str, span: tuple[int, int]) -> str:
+    after = text[span[1] : span[1] + 24]
+    direct_match = re.match(r"\s+(?P<version>\d+(?:\.(?:\d+|x)){0,3})\b", after, re.I)
+    if direct_match:
+        return direct_match.group("version")
+    window = text[max(0, span[0] - 80) : span[1] + 80]
     match = re.search(
         r"(?:version|versions|before|through|up to|<=|<|>=|>)\s*"
         r"(?P<version>\d+(?:\.\d+){0,3}(?:\.x)?)",
-        text,
+        window,
         re.I,
     )
     return match.group("version") if match else ""
@@ -252,5 +337,25 @@ def _clean_text(value: str) -> str:
 
 
 def _canonical_package(value: str) -> str:
+    for short_name, package_name in SHORT_PACKAGE_MAP.items():
+        if value.lower() == short_name.lower():
+            return package_name
+    if MODEL_PACKAGE_RE.fullmatch(value):
+        return value.lower()
     parts = value.split(".")
     return ".".join(part[:1].upper() + part[1:] for part in parts)
+
+
+def _entry_confidence(candidate: dict[str, Any], removal_date: str, deprecation_date: str) -> str:
+    if candidate["warnings"]:
+        return "medium"
+    if removal_date or deprecation_date:
+        return "high"
+    return "medium"
+
+
+def _normalization_warnings(entries: list[dict[str, Any]]) -> list[str]:
+    warnings: list[str] = []
+    for entry in entries:
+        warnings.extend(entry.get("normalization_warnings", []))
+    return sorted(set(warnings))

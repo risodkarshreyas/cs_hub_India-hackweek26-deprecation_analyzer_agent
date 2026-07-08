@@ -4,6 +4,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ sys.path.insert(0, str(SCRIPTS))
 from matcher import match_deprecations
 from project_inventory import scan_inputs
 from reports import build_report_payload, render_markdown_report
-from timeline import normalize_timeline_from_html
+from timeline import fetch_timeline, normalize_timeline_from_html
 
 
 SAMPLE_TIMELINE_HTML = """
@@ -44,6 +45,76 @@ SAMPLE_TIMELINE_HTML = """
 </html>
 """
 
+GROUPED_TIMELINE_HTML = """
+<html>
+  <body>
+    <h3>Activities</h3>
+    <h4>Upcoming removals</h4>
+    <table>
+      <tr>
+        <th>Feature or capability</th>
+        <th>Removal announced on</th>
+        <th>Scheduled removal date</th>
+        <th>Notes</th>
+      </tr>
+      <tr>
+        <td>UiPath.Abbyy.Activities</td>
+        <td>October 3, 2024</td>
+        <td>August 2025</td>
+        <td>The alternative to UiPath.Abbyy.Activities is to replace it with UiPath.IntelligenctOCR.Activities.</td>
+      </tr>
+      <tr>
+        <td>UiPath.AbbyyEmbedded.Activities</td>
+        <td>October 3, 2024</td>
+        <td>August 2025</td>
+        <td>The alternative for UiPath.AbbyyEmbedded.Activities is UiPath.OCR.Activities.</td>
+      </tr>
+      <tr>
+        <td>
+          Support for .NET Framework 4.6.1 in the following activity packages, starting with the mentioned version:
+          UiPath.Credentials.Activities 3.x.x
+          UiPath.Cryptography.Activities 2.x.x
+          UiPath.System.Activities 25.x
+        </td>
+        <td>January 2025</td>
+        <td>December 2025</td>
+        <td>Windows - Legacy projects should stay on supported package versions.</td>
+      </tr>
+      <tr>
+        <td>
+          Support for .NET Framework 4.6.1 in the following activity packages, starting with the mentioned version:
+          IntelligentOCR.Activities 7.x
+          PDF.Activities 4.x
+          DocumentUnderstanding.ML 2.x
+          OCR.Activities 4.x
+          CommunicationsMining.Activities 2.x
+          OmniPage 2.x
+        </td>
+        <td>August 2025</td>
+        <td>January 2026</td>
+        <td>Windows - Legacy projects should stay on supported package versions.</td>
+      </tr>
+    </table>
+    <h3>Document Understanding</h3>
+    <h4>Deprecated features or capabilities</h4>
+    <table>
+      <tr>
+        <th>Feature or capability</th>
+        <th>Deprecation announced in</th>
+        <th>Deprecated in</th>
+        <th>Notes</th>
+      </tr>
+      <tr>
+        <td>Security updates for Document Understanding 2022.4 ML packages: python37duv3 and python37duv4 in Automation Suite 2022.10.13 onwards</td>
+        <td>August 2024</td>
+        <td>August 2024</td>
+        <td>We recommend updating to a newer model.</td>
+      </tr>
+    </table>
+  </body>
+</html>
+"""
+
 
 class DeprecationAnalyzerTests(unittest.TestCase):
     def test_timeline_normalization_keeps_only_package_entries(self):
@@ -57,6 +128,109 @@ class DeprecationAnalyzerTests(unittest.TestCase):
         self.assertEqual("UiPath.Legacy.Activities", entries[0]["package_name"])
         self.assertEqual("UiPath.Modern.Activities", entries[0]["replacement_package"])
         self.assertEqual("windows_legacy_only", entries[0]["compatibility_scope"])
+
+    def test_timeline_normalization_expands_grouped_packages_and_short_names(self):
+        entries = normalize_timeline_from_html(
+            GROUPED_TIMELINE_HTML,
+            source_url="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+            fetched_at="2026-07-07T00:00:00Z",
+        )
+
+        by_name = {entry["package_name"]: entry for entry in entries}
+
+        expected_names = {
+            "UiPath.Abbyy.Activities",
+            "UiPath.AbbyyEmbedded.Activities",
+            "UiPath.Credentials.Activities",
+            "UiPath.Cryptography.Activities",
+            "UiPath.System.Activities",
+            "UiPath.IntelligentOCR.Activities",
+            "UiPath.PDF.Activities",
+            "UiPath.DocumentUnderstanding.ML",
+            "UiPath.OCR.Activities",
+            "UiPath.CommunicationsMining.Activities",
+            "UiPath.OmniPage.Activities",
+            "python37duv3",
+            "python37duv4",
+        }
+        self.assertTrue(expected_names.issubset(by_name.keys()))
+        self.assertEqual("2025-08-01", by_name["UiPath.Abbyy.Activities"]["removal_date"])
+        self.assertEqual(
+            "UiPath.IntelligenctOCR.Activities",
+            by_name["UiPath.Abbyy.Activities"]["replacement_package"],
+        )
+        self.assertEqual(
+            "UiPath.OCR.Activities",
+            by_name["UiPath.AbbyyEmbedded.Activities"]["replacement_package"],
+        )
+        self.assertEqual("", by_name["UiPath.Credentials.Activities"]["replacement_package"])
+        self.assertEqual("3.x.x", by_name["UiPath.Credentials.Activities"]["affected_version"])
+        self.assertEqual("25.x", by_name["UiPath.System.Activities"]["affected_version"])
+        self.assertEqual("4.x", by_name["UiPath.PDF.Activities"]["affected_version"])
+        self.assertEqual("2026-01-01", by_name["UiPath.PDF.Activities"]["removal_date"])
+        self.assertEqual(
+            "windows_legacy_only",
+            by_name["UiPath.DocumentUnderstanding.ML"]["compatibility_scope"],
+        )
+        self.assertTrue(by_name["UiPath.PDF.Activities"]["canonicalized_from"])
+        self.assertEqual([], by_name["UiPath.PDF.Activities"]["normalization_warnings"])
+
+    def test_fetch_timeline_refreshes_by_default_and_cache_only_is_explicit(self):
+        live_html = SAMPLE_TIMELINE_HTML.encode("utf-8")
+
+        class _Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return live_html
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = Path(tmp) / "timeline.json"
+            cache.write_text(
+                json.dumps(
+                    {
+                        "source_url": "cache",
+                        "fetched_at": "2026-01-01T00:00:00Z",
+                        "entries": [{"package_name": "UiPath.Cached.Activities"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch("timeline.urlopen", return_value=_Response()) as urlopen_mock:
+                entries = fetch_timeline(cache_path=cache)
+
+            self.assertEqual("UiPath.Legacy.Activities", entries[0]["package_name"])
+            self.assertEqual(1, urlopen_mock.call_count)
+
+            with patch("timeline.urlopen") as urlopen_mock:
+                cached_entries = fetch_timeline(cache_path=cache, use_cache_only=True)
+
+            self.assertEqual("UiPath.Legacy.Activities", cached_entries[0]["package_name"])
+            self.assertEqual(0, urlopen_mock.call_count)
+
+    def test_fetch_timeline_falls_back_to_cache_when_live_fetch_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = Path(tmp) / "timeline.json"
+            cache.write_text(
+                json.dumps(
+                    {
+                        "source_url": "cache",
+                        "fetched_at": "2026-01-01T00:00:00Z",
+                        "entries": [{"package_name": "UiPath.Cached.Activities"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with patch("timeline.urlopen", side_effect=OSError("network down")):
+                entries = fetch_timeline(cache_path=cache)
+
+        self.assertEqual("UiPath.Cached.Activities", entries[0]["package_name"])
 
     def test_source_project_inventory_extracts_dependency_and_xaml_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

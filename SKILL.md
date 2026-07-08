@@ -13,11 +13,11 @@ Use the live UiPath deprecation timeline:
 
 `https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline`
 
-Refresh the timeline when the user asks for the latest/current state, when no cache exists, or when the cache source/date is not trustworthy. Cached normalized data is only a fallback or test aid.
+Fetch the live timeline by default every time the skill is used. Cached normalized data is only a fallback when the live fetch fails, or an explicit offline/repeatable test aid when `--use-cache-only` is requested.
 
 ## Scope Rules
 
-Analyze NuGet/activity package items. Keep entries that map to installable package dependencies, especially `UiPath.*.Activities` packages found in `project.json`, `.nuspec`, `.nupkg`, or `.xaml` evidence.
+Analyze NuGet/activity package items and package-like ML/OCR entries that can map to project dependencies or package artifacts. Keep entries such as `UiPath.*.Activities`, canonicalized short package names, `UiPath.DocumentUnderstanding.ML`, and Document Understanding ML package identifiers when they appear in the timeline.
 
 ## Workflow
 
@@ -26,7 +26,7 @@ Analyze NuGet/activity package items. Keep entries that map to installable packa
 3. Run the analyzer:
 
    ```bash
-   python scripts/uipath_deprecation_analyzer.py --input ./repo --output ./reports --refresh-timeline --format markdown,json,csv,xlsx
+   python scripts/uipath_deprecation_analyzer.py --input ./repo --output ./reports --format markdown,json,csv,xlsx
    ```
 
 4. Review the Markdown report first for executive summary, highest-risk findings, replacement mapping, Windows-Legacy impact, manual review items, and remediation roadmap.
@@ -38,7 +38,7 @@ Analyze NuGet/activity package items. Keep entries that map to installable packa
 
 - `scripts/uipath_deprecation_analyzer.py`: CLI entrypoint.
 - `scripts/project_inventory.py`: scans source projects and `.nupkg` packages using embedded UiPath project discovery and package inventory logic.
-- `scripts/timeline.py`: fetches, filters, normalizes, and caches package-only timeline entries.
+- `scripts/timeline.py`: fetches, filters, normalizes, and caches package-like timeline entries.
 - `scripts/matcher.py`: matches project/package inventory to normalized timeline entries and classifies risk.
 - `scripts/reports.py`: generates Markdown, JSON, CSV, and Excel outputs.
 
@@ -48,6 +48,7 @@ CLI flags:
 --input PATH
 --output PATH
 --refresh-timeline
+--use-cache-only
 --timeline-cache PATH
 --format markdown,json,csv,xlsx
 --include-xaml
@@ -56,7 +57,7 @@ CLI flags:
 --analysis-date YYYY-MM-DD
 ```
 
-Use `--analysis-date` for repeatable audits and tests. Use `--strict` to skip Windows-Legacy-only timeline entries for non-legacy projects.
+Live timeline refresh is the default. Use `--use-cache-only` with `--timeline-cache` for offline or repeatable audits. Use `--analysis-date` for repeatable classification and tests. Use `--strict` to skip Windows-Legacy-only timeline entries for non-legacy projects.
 
 ## References
 

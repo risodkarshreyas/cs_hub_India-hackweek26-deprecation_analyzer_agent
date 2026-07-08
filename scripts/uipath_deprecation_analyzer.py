@@ -15,7 +15,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--input", required=True, help="Project, repository, or nupkg folder to scan.")
     parser.add_argument("--output", required=True, help="Directory for generated reports.")
-    parser.add_argument("--refresh-timeline", action="store_true", help="Fetch the live UiPath timeline.")
+    parser.add_argument(
+        "--refresh-timeline",
+        action="store_true",
+        help="Fetch the live UiPath timeline. Live refresh is the default; this flag is kept for compatibility.",
+    )
+    parser.add_argument(
+        "--use-cache-only",
+        action="store_true",
+        help="Use the normalized timeline cache without fetching the live UiPath timeline.",
+    )
     parser.add_argument("--timeline-cache", default="", help="Path to normalized timeline cache JSON.")
     parser.add_argument(
         "--format",
@@ -49,6 +58,7 @@ def main() -> int:
         source_url=args.timeline_url,
         cache_path=timeline_cache,
         refresh=args.refresh_timeline,
+        use_cache_only=args.use_cache_only,
     )
     findings = match_deprecations(
         inventory,

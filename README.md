@@ -12,7 +12,7 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 
 - Scans UiPath source projects, GitHub checkouts, mixed folders, and `.nupkg` package folders.
 - Extracts package evidence from `project.json`, `.xaml`, `.nuspec`, and `.nupkg` contents.
-- Fetches and normalizes package-only entries from the UiPath deprecation timeline.
+- Fetches and normalizes package-like entries from the UiPath deprecation timeline.
 - Matches project package usage against deprecated, removed, and scheduled-removal package entries.
 - Flags Windows-Legacy / `.NET Framework 4.6.1` compatibility impact.
 - Generates Markdown, JSON, CSV, and Excel reports with recommendations and impact analysis.
@@ -42,7 +42,7 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 ## Prerequisites
 
 - Python 3.10 or newer.
-- Network access when using `--refresh-timeline`.
+- Network access for the default live timeline refresh.
 - Optional: `openpyxl` for richer Excel output. If it is not installed, the script writes a minimal `.xlsx` using the Python standard library.
 - Optional: authenticated UiPath/Orchestrator tooling if you need to download `.nupkg` packages before scanning.
 
@@ -60,19 +60,19 @@ Use `--input` to point to any of these:
 From this repository root:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --refresh-timeline --format markdown,json,csv,xlsx
+python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --format markdown,json,csv,xlsx
 ```
 
 Offline or repeatable run using a cached timeline file:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --format markdown,json,csv,xlsx --analysis-date 2026-07-07
+python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --use-cache-only --format markdown,json,csv,xlsx --analysis-date 2026-07-07
 ```
 
 Run against a folder of `.nupkg` files:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg --refresh-timeline
+python scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg
 ```
 
 ## CLI Options
@@ -80,7 +80,8 @@ python scripts/uipath_deprecation_analyzer.py --input ./packages --output ./repo
 ```text
 --input PATH              Project, repository, mixed folder, or .nupkg folder to scan.
 --output PATH             Directory where reports are written.
---refresh-timeline        Fetch the latest UiPath deprecation timeline.
+--refresh-timeline        Fetch the latest UiPath deprecation timeline. Live refresh is the default.
+--use-cache-only          Use the normalized timeline cache without fetching the live UiPath timeline.
 --timeline-cache PATH     Read/write normalized timeline cache JSON.
 --format LIST             Comma-separated formats: markdown,json,csv,xlsx,all.
 --include-xaml            Include XAML namespace/activity package evidence.
@@ -111,7 +112,7 @@ Agents such as Codex, Claude Code, Copilot, and Antigravity should load `SKILL.m
 The main execution path is:
 
 1. Identify the input folder.
-2. Decide whether to refresh the live timeline or use an existing cache.
+2. Use the default live timeline refresh. Use `--use-cache-only` only for offline or repeatable audits.
 3. Run `scripts/uipath_deprecation_analyzer.py`.
 4. Review the Markdown report first.
 5. Use JSON/CSV/Excel outputs for automation, tracking, and stakeholder review.
@@ -132,6 +133,6 @@ python C:\Users\jeet.doshi\.codex\skills\.system\skill-creator\scripts\quick_val
 
 ## Notes
 
-- The analyzer only treats NuGet/activity package timeline entries as actionable findings.
+- The analyzer treats NuGet/activity packages and package-like ML/OCR timeline entries as actionable findings.
 - It intentionally ignores non-package deprecations such as platform infrastructure, Docker/Kubernetes dependencies, AI Center model changes, Apps UI changes, and Orchestrator platform features without package impact.
 - If UiPath docs do not state a replacement package, the recommendation is: `No direct replacement stated - review manually.`

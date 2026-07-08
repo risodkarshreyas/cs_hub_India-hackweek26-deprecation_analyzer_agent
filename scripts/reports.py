@@ -15,6 +15,13 @@ def build_report_payload(
 ) -> dict[str, Any]:
     class_counts = Counter(finding["classification"] for finding in findings)
     risk_counts = Counter(finding["risk_level"] for finding in findings)
+    timeline_warnings = sorted(
+        {
+            warning
+            for entry in timeline_entries
+            for warning in entry.get("normalization_warnings", [])
+        }
+    )
     return {
         "analysis_date": analysis_date,
         "summary": {
@@ -27,7 +34,9 @@ def build_report_payload(
             "manual_review_count": sum(
                 1 for finding in findings if not finding.get("replacement_package")
             ),
+            "timeline_warning_count": len(timeline_warnings),
         },
+        "timeline_warnings": timeline_warnings,
         "projects": inventory.get("projects", []),
         "package_inventory": inventory.get("package_inventory", []),
         "timeline_entries": timeline_entries,
