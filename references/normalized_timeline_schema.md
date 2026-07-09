@@ -1,6 +1,6 @@
-# Normalized Timeline Schema
+# Client Package Timeline Schema
 
-Normalized timeline entries are stored as JSON objects. The live UiPath deprecation timeline remains authoritative; cached entries are fallback or explicit offline data.
+Normalized client/package timeline entries are stored as JSON objects. The live UiPath deprecation timeline remains authoritative; cached entries are fallback or explicit offline data. Server-side rules use `references/server_rule_schema.md`.
 
 Required fields:
 

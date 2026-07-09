@@ -1,0 +1,9 @@
+{
+  "delivery_model": "Automation Suite",
+  "automation_suite_version": "2022.10.5",
+  "backup": {
+    "type": "NFS backup",
+    "external_objectstore": true
+  },
+  "sql_password": "super-secret"
+}

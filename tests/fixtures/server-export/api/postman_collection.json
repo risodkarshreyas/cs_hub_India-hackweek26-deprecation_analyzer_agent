@@ -1,0 +1,22 @@
+{
+  "info": {
+    "name": "Legacy auth calls"
+  },
+  "item": [
+    {
+      "name": "Authenticate",
+      "request": {
+        "url": {
+          "raw": "https://cloud.uipath.com/api/Account/Authenticate",
+          "path": ["api", "Account", "Authenticate"]
+        },
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer abc123"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -45,3 +45,14 @@ Every final report, regardless of route, must use the common finding fields from
 Report coverage gaps separately from findings. A missing export, missing XAML scan, or unavailable tenant API is not a deprecation finding.
 
 The existing client scripts remain unchanged. When their raw output uses legacy client field names, normalize the final presentation to the common schema before responding.
+
+## Script Support
+
+Use `scripts/uipath_deprecation_analyzer.py` for deterministic analysis when local artifacts are available:
+
+- `--mode client`: scan RPA source, XAML, `.nupkg`, and package dependencies.
+- `--mode server`: scan tenant/platform/API/service/infrastructure artifacts and match server-side deprecation rules.
+- `--mode mixed`: run both routes and merge normalized findings.
+- `--mode auto`: choose client, server, or mixed based on detected artifacts.
+
+Server-side script details are documented in `references/server_rule_schema.md` and `references/server_inventory_schema.md`.

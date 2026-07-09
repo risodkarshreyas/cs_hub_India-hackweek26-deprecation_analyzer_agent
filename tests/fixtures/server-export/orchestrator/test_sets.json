@@ -1,0 +1,10 @@
+{
+  "tenant": "FinanceTenant",
+  "delivery_model": "Automation Cloud",
+  "value": [
+    {
+      "Name": "Regression Suite",
+      "Type": "Orchestrator test set"
+    }
+  ]
+}

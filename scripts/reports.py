@@ -48,7 +48,44 @@ def build_report_payload(
     }
 
 
+def build_common_report_payload(
+    findings: list[dict[str, Any]],
+    analysis_date: str,
+    coverage_gaps: list[dict[str, Any]] | None = None,
+    inventory: dict[str, Any] | None = None,
+    raw_client_payload: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    coverage_gaps = coverage_gaps or []
+    severity_counts = Counter(finding.get("severity", "") for finding in findings)
+    status_counts = Counter(finding.get("status", "") for finding in findings)
+    domain_counts = Counter(finding.get("domain", "") for finding in findings)
+    product_counts = Counter(finding.get("product", "") for finding in findings)
+    total_saved = sum(
+        float(finding.get("time_savings_kpi", {}).get("hours_saved", 0) or 0)
+        for finding in findings
+    )
+    return {
+        "analysis_date": analysis_date,
+        "summary": {
+            "total_findings": len(findings),
+            "severity_counts": dict(severity_counts),
+            "status_counts": dict(status_counts),
+            "domain_counts": dict(domain_counts),
+            "product_counts": dict(product_counts),
+            "coverage_gap_count": len(coverage_gaps),
+            "total_estimated_hours_saved": total_saved,
+        },
+        "findings": findings,
+        "coverage_gaps": coverage_gaps,
+        "inventory_summary": (inventory or {}).get("summary", {}),
+        "raw_client_summary": (raw_client_payload or {}).get("summary", {}),
+        "remediation_roadmap": _common_roadmap(findings),
+    }
+
+
 def render_markdown_report(payload: dict[str, Any]) -> str:
+    if _is_common_payload(payload):
+        return _render_common_markdown_report(payload)
     summary = payload["summary"]
     findings = payload.get("findings", [])
     lines = [
@@ -110,6 +147,48 @@ def render_markdown_report(payload: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _render_common_markdown_report(payload: dict[str, Any]) -> str:
+    summary = payload["summary"]
+    findings = payload.get("findings", [])
+    lines = [
+        "# UiPath Deprecation Analysis Report",
+        "",
+        "## Executive Summary",
+        "",
+        f"- Analysis date: {payload['analysis_date']}",
+        f"- Findings: {summary['total_findings']}",
+        f"- Severity counts: {json.dumps(summary.get('severity_counts', {}), sort_keys=True)}",
+        f"- Status counts: {json.dumps(summary.get('status_counts', {}), sort_keys=True)}",
+        f"- Domain counts: {json.dumps(summary.get('domain_counts', {}), sort_keys=True)}",
+        f"- Product counts: {json.dumps(summary.get('product_counts', {}), sort_keys=True)}",
+        f"- Estimated hours saved: {summary.get('total_estimated_hours_saved', 0)}",
+        "",
+        "## Highest-Risk Findings",
+        "",
+    ]
+    lines.extend(_common_finding_bullets([f for f in findings if f.get("severity") in {"critical", "high"}][:10]))
+    for title, domain in (
+        ("Client-Side Findings", "client"),
+        ("Server-Side Findings", "server"),
+        ("Mixed Findings", "mixed"),
+    ):
+        lines.extend(["", f"## {title}", ""])
+        lines.extend(_common_finding_bullets([f for f in findings if f.get("domain") == domain]))
+    lines.extend(["", "## Coverage Gaps", ""])
+    if payload.get("coverage_gaps"):
+        for gap in payload["coverage_gaps"]:
+            lines.append(f"- {gap.get('product', 'Unknown')}: {gap.get('message', gap.get('feature', 'Missing context'))}")
+    else:
+        lines.append("- None.")
+    lines.extend(["", "## Remediation Roadmap", ""])
+    for item in payload.get("remediation_roadmap", []):
+        lines.append(f"- {item['timeframe']}: {item['action']} ({item['count']} findings)")
+    lines.extend(["", "## Time Savings KPI", ""])
+    lines.append(f"- Estimated total hours saved: {summary.get('total_estimated_hours_saved', 0)}")
+    lines.append("- KPI estimates are conservative and based on inventory review, source matching, and remediation planning effort.")
+    return "\n".join(lines) + "\n"
+
+
 def write_reports(
     payload: dict[str, Any],
     output_dir: Path | str,
@@ -138,6 +217,56 @@ def write_reports(
         _write_excel(payload, path)
         paths["xlsx"] = str(path)
     return paths
+
+
+def _is_common_payload(payload: dict[str, Any]) -> bool:
+    return "domain_counts" in payload.get("summary", {})
+
+
+def _common_finding_bullets(findings: list[dict[str, Any]]) -> list[str]:
+    if not findings:
+        return ["- None."]
+    lines: list[str] = []
+    for finding in findings:
+        evidence = finding.get("evidence", [])
+        if isinstance(evidence, list) and evidence and isinstance(evidence[0], dict):
+            evidence_text = ", ".join(
+                item.get("path", "") or item.get("matched_value", "")
+                for item in evidence
+            )
+        elif isinstance(evidence, list):
+            evidence_text = ", ".join(str(item) for item in evidence)
+        else:
+            evidence_text = str(evidence)
+        lines.append(
+            f"- {finding.get('id')}: {finding.get('product')} / {finding.get('feature_or_package')} "
+            f"({finding.get('severity')}, {finding.get('status')}). "
+            f"{finding.get('recommended_action')} Evidence: {evidence_text or 'No evidence path captured'}"
+        )
+    return lines
+
+
+def _common_roadmap(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for finding in findings:
+        if finding.get("status") == "removed" or finding.get("severity") == "critical":
+            buckets["Immediate"].append(finding)
+        elif finding.get("severity") == "high":
+            buckets["0-6 months"].append(finding)
+        elif finding.get("severity") == "medium":
+            buckets["6-18 months"].append(finding)
+        else:
+            buckets["Monitor"].append(finding)
+    actions = {
+        "Immediate": "Remediate removed or breaking deprecations first",
+        "0-6 months": "Schedule near-term migration",
+        "6-18 months": "Track planned remediation backlog",
+        "Monitor": "Monitor low-confidence or informational items",
+    }
+    return [
+        {"timeframe": timeframe, "action": actions[timeframe], "count": len(items)}
+        for timeframe, items in buckets.items()
+    ]
 
 
 def _finding_bullets(findings: list[dict[str, Any]]) -> list[str]:

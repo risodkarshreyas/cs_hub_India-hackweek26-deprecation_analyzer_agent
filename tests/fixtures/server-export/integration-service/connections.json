@@ -1,0 +1,8 @@
+{
+  "connections": [
+    {
+      "name": "SharePoint",
+      "management": "Integration Service"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Expense App",
+  "runtime": "legacyRuntime",
+  "expressionLanguage": "legacy"
+}

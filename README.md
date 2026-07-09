@@ -33,6 +33,8 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 |   |-- common_analysis_rules.md
 |   |-- client_side_analyzer.md
 |   |-- server_side_analyzer.md
+|   |-- server_rule_schema.md
+|   |-- server_inventory_schema.md
 |   |-- normalized_timeline_schema.md
 |   |-- package_matching_rules.md
 |   |-- report_schema.md
@@ -70,11 +72,11 @@ Server-only optional fields include `delivery_model`, `tenant_or_service`, `endp
 
 Coverage gaps are reported separately from findings.
 
-## Existing Client Scripts
+## Analyzer Scripts
 
-The scripts under `scripts/` are intentionally retained as raw client analyzer tooling. They scan package/XAML evidence and generate Markdown, JSON, CSV, and Excel reports with legacy raw client fields such as `classification`, `risk_level`, and `recommendation`.
+The scripts under `scripts/` support client-side, server-side, and mixed deprecation analysis. Client scanning still produces raw package findings internally, then normalizes them to the shared output contract. Server scanning extracts platform evidence, matches it to server-side deprecation rules, and reports coverage gaps separately from findings.
 
-Agents must normalize those raw fields before final presentation:
+Client raw fields are normalized before final presentation:
 
 - `classification` -> `status`
 - `risk_level` -> `severity`
@@ -82,7 +84,7 @@ Agents must normalize those raw fields before final presentation:
 - `removal_date` -> `deadline`
 - `package_name` -> `feature_or_package` and optional `package_name`
 
-No server-side analyzer script is included yet; server-side analysis is instruction-driven through `references/server_side_analyzer.md`.
+Server-side rules and evidence records are documented in `references/server_rule_schema.md` and `references/server_inventory_schema.md`.
 
 ## Client Script Quick Start
 
@@ -90,6 +92,18 @@ From this repository root:
 
 ```bash
 python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --format markdown,json,csv,xlsx
+```
+
+Server-side tenant/platform export:
+
+```bash
+python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json
+```
+
+Mixed repo plus platform export:
+
+```bash
+python scripts/uipath_deprecation_analyzer.py --input ./mixed-folder --output ./reports --mode mixed --format markdown,json
 ```
 
 Offline or repeatable run using a cached timeline file:
