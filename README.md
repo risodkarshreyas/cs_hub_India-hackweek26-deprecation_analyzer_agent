@@ -20,6 +20,7 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 
 - A coding-agent environment that can load local skill or instruction folders, such as Codex, Claude Code, Copilot, Antigravity, or a similar agent.
 - Python 3 installed and available as `python`.
+- Node.js 20 or later if you want to use the bundled skill installer CLI.
 - Internet access for the default live refresh from the UiPath deprecation timeline.
 - Optional: `openpyxl` for richer XLSX output. If it is not installed, the analyzer writes XLSX files with a built-in standard-library fallback.
 - For offline or repeatable runs, cached client timeline and/or server rule JSON files.
@@ -47,16 +48,65 @@ The skill inspects the available evidence and routes the request to the client-s
 ## Setup
 
 1. Download or clone this repository.
-2. Register or place this folder where your target coding agent can discover local skills or instruction folders.
+2. Install the skill with the bundled installer, or manually place this folder where your target coding agent can discover local skills or instruction folders.
 3. Open a terminal at this repository root.
 4. Optionally create and activate a virtual environment.
-5. Run the unit and contract tests:
+5. Run the Node installer tests and Python unit/contract tests:
 
    ```bash
+   npm test
    python -m unittest discover -s tests
    ```
 
 6. Run the analyzer CLI directly, or ask your coding agent to use `SKILL.md`.
+
+## Skill Installation
+
+The recommended install path is the bundled Node CLI. From the repository root, first preview what would be written:
+
+```bash
+npx . install --agent codex --dry-run
+```
+
+Then install for one agent:
+
+```bash
+npx . install --agent codex
+```
+
+Install for every supported target:
+
+```bash
+npx . install --agent all
+```
+
+Replace an existing installed copy:
+
+```bash
+npx . install --agent codex --force
+```
+
+Run installer health checks:
+
+```bash
+npx . doctor
+```
+
+Installer options:
+
+- `--agent <codex|claude|copilot|all>`: target agent. Repeat it or pass `all`. If omitted, the installer detects supported agents.
+- `--dry-run`: show planned writes without creating or replacing files.
+- `--force`: replace an existing installed skill target.
+- `--strict`: fail when no install targets are detected.
+- `--source <path>`: install from a specific skill folder. Defaults to this package root.
+
+Installer targets:
+
+- Codex native skill: `$CODEX_HOME/skills/uipath-deprecation-analyzer` when `CODEX_HOME` is set, otherwise `~/.codex/skills/uipath-deprecation-analyzer`.
+- Claude native skill: `~/.claude/skills/uipath-deprecation-analyzer`.
+- Copilot compatibility adapter: `~/.config/uipath-deprecation-skill/copilot/uipath-deprecation-analyzer.md`.
+
+Manual installation is still supported: copy `SKILL.md`, `agents/`, `references/`, and `scripts/` into the skill location expected by your coding agent.
 
 ## Input Examples
 
