@@ -63,3 +63,38 @@ Excel worksheets:
 - Windows-Legacy Impact
 - Manual Review
 - Remediation Roadmap
+
+## Dashboard-Ready Payload
+
+The static HTML dashboard is generated from the normalized common payload, not from the legacy raw client payload or Excel formatting.
+
+Top-level dashboard payload fields:
+
+| Field | Meaning |
+|---|---|
+| `analysis_date` | Date used for classification and deadline buckets. |
+| `summary` | Aggregate counts and KPI totals. |
+| `findings` | Normalized common finding objects. |
+| `coverage_gaps` | Missing or incomplete evidence that should not be reported as confirmed findings. |
+| `inventory_summary` | Optional route and inventory counts. |
+| `raw_client_summary` | Optional legacy client summary for traceability. |
+| `remediation_roadmap` | Grouped remediation actions. |
+
+Dashboard summary metrics should include or derive:
+
+- `total_findings`
+- `severity_counts`
+- `status_counts`
+- `domain_counts`
+- `product_counts`
+- `coverage_gap_count`
+- `total_estimated_hours_saved`
+- next deadline
+- products impacted
+- deadline bucket counts
+- manual baseline hours total
+- AI-assisted hours total
+- hours saved total
+- percent saved
+
+The HTML dashboard must use `feature_or_package` and nested `time_savings_kpi` values from normalized findings. Do not introduce dashboard-only replacements such as `feature`, `manual_baseline_hours`, or `hours_saved` at the finding root.

@@ -43,7 +43,7 @@ The client scripts normalize package-like timeline entries. Keep entries such as
    ```
 
 4. Review the Markdown report first for executive summary, highest-risk findings, replacement mapping, Windows-Legacy impact, manual review items, and remediation roadmap.
-5. Use the JSON report for normalization, CSV for portfolio tracking, and Excel for stakeholder review.
+5. Use the JSON report for normalization, CSV for portfolio tracking, and Excel for stakeholder review. Add `html` to `--format` when the user requests a dashboard or static executive report.
 6. Confirm package evidence paths before recommending remediation.
 7. Recommend only replacement packages stated in the UiPath timeline. If none is stated, use: `No direct replacement stated - review manually.`
 8. Normalize the final response to the common finding schema.
@@ -56,7 +56,7 @@ Keep these scripts unchanged unless the user explicitly requests implementation 
 - `scripts/project_inventory.py`: scans source projects and `.nupkg` packages using embedded UiPath project discovery and package inventory logic.
 - `scripts/timeline.py`: fetches, filters, normalizes, and caches package-like timeline entries.
 - `scripts/matcher.py`: matches project/package inventory to normalized timeline entries and classifies risk.
-- `scripts/reports.py`: generates Markdown, JSON, CSV, and Excel outputs.
+- `scripts/reports.py`: generates Markdown, JSON, CSV, Excel, and optional HTML dashboard outputs.
 
 CLI flags:
 
@@ -66,7 +66,7 @@ CLI flags:
 --refresh-timeline
 --use-cache-only
 --timeline-cache PATH
---format markdown,json,csv,xlsx
+--format markdown,json,csv,xlsx[,html]
 --include-xaml
 --include-nupkg
 --strict
@@ -125,4 +125,4 @@ Confirm:
 - timeline parsing ignores non-NuGet entries,
 - project and `.nupkg` inventory includes evidence paths,
 - findings include evidence, classification/status, recommendation/action, severity/risk, confidence, and source URL,
-- Markdown, JSON, CSV, and Excel reports are generated when requested.
+- Markdown, JSON, CSV, Excel, and optional HTML reports are generated when requested.

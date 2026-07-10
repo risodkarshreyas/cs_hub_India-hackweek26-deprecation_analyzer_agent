@@ -1,6 +1,6 @@
 ---
 name: uipath-deprecation-analyzer
-description: Use when analyzing UiPath deprecation risk for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
+description: Use when analyzing UiPath deprecation risk or generating deprecation reports/dashboards for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
 ---
 
 # UiPath Deprecation Analyzer
@@ -14,8 +14,9 @@ Use this skill as the agent-facing entrypoint for UiPath deprecation analysis in
 3. Select `client`, `server`, or `mixed` using the routing table below.
 4. Read only the route-specific analyzer reference needed for the request.
 5. Prefer `scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful.
-6. Review generated JSON and Markdown reports before responding.
-7. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
+6. Read `references/reporting-dashboard-ideas.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
+7. Review generated JSON, Markdown, and HTML reports before responding when those outputs are requested or required.
+8. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
 
 ## Required References
 
@@ -35,6 +36,7 @@ Then read only the analyzer reference needed for the request:
 - `references/example_findings.md`: examples of normalized client, server, and mixed findings.
 - `references/package_matching_rules.md` and `references/risk_scoring_model.md`: client matching, false-positive, and legacy risk details.
 - `references/server_rule_schema.md` and `references/server_inventory_schema.md`: server rule catalog and evidence record details.
+- `references/reporting-dashboard-ideas.md`: static HTML dashboard contract, dashboard-ready data shape, and required dashboard sections. Read when the user requests dashboard/reporting UI output or server-side report output.
 
 ## Routing
 
@@ -82,10 +84,10 @@ Server-side script details are documented in `references/server_rule_schema.md` 
 Recommended default:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input <path> --output <reports> --mode auto --format markdown,json
+python scripts/uipath_deprecation_analyzer.py --input <path> --output <reports> --mode auto --format markdown,json,html
 ```
 
-Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.
+Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server-side report output should include HTML. Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.
 
 ## Runtime Notes
 

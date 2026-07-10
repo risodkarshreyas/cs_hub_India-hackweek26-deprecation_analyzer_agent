@@ -11,7 +11,7 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from normalizer import normalize_client_finding, normalize_server_finding
-from reports import build_common_report_payload, render_markdown_report
+from reports import build_common_report_payload, render_html_dashboard_report, render_markdown_report
 from server_inventory import scan_server_inputs
 from server_matcher import match_server_deprecations
 from server_rules import normalize_server_rules_from_html
@@ -253,6 +253,49 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("Coverage Gaps", markdown)
         self.assertIn("Time Savings KPI", markdown)
 
+    def test_html_dashboard_contains_required_sections_and_redacted_evidence(self):
+        finding = normalize_server_finding(
+            {
+                "product": "Orchestrator",
+                "feature": "Legacy Orchestrator API endpoint api/Account/Authenticate",
+                "status": "removed",
+                "severity": "critical",
+                "deadline": "2026-06-30",
+                "recommended_action": "Move to OAuth-based authentication.",
+                "evidence": [
+                    {
+                        "path": "api/postman_collection.json",
+                        "endpoint": "api/Account/Authenticate",
+                        "matched_value": "[REDACTED]",
+                    }
+                ],
+                "confidence": "high",
+                "source_url": "",
+            },
+            1,
+            "2026-07-10",
+        )
+        payload = build_common_report_payload(
+            findings=[finding],
+            analysis_date="2026-07-10",
+            coverage_gaps=[{"type": "missing_context", "product": "Apps", "message": "No Apps export found."}],
+        )
+
+        html = render_html_dashboard_report(payload)
+
+        for section in (
+            "KPI Row",
+            "Risk by Product",
+            "Deadline Timeline",
+            "Top Findings",
+            "Coverage Gaps",
+            "AI Savings",
+        ):
+            self.assertIn(section, html)
+        self.assertIn("[REDACTED]", html)
+        self.assertIn("missing", html)
+        self.assertNotIn("Bearer abc123", html)
+
     def test_cli_routes_server_and_mixed_modes_with_cache_only(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -280,7 +323,7 @@ class ServerSideAnalyzerTests(unittest.TestCase):
                     str(cache),
                     "--offline",
                     "--format",
-                    "json",
+                    "html,json",
                     "--analysis-date",
                     "2026-07-09",
                 ],
@@ -291,10 +334,17 @@ class ServerSideAnalyzerTests(unittest.TestCase):
 
             cli_payload = json.loads(result.stdout)
             report_path = Path(cli_payload["reports"]["json"])
+            html_path = Path(cli_payload["reports"]["html"])
             report = json.loads(report_path.read_text(encoding="utf-8"))
+            html = html_path.read_text(encoding="utf-8")
 
         self.assertGreaterEqual(report["summary"]["total_findings"], 1)
         self.assertIn("server", report["summary"]["domain_counts"])
+        self.assertIn("Risk by Product", html)
+        self.assertIn("Deadline Timeline", html)
+        self.assertIn("Top Findings", html)
+        self.assertIn("Coverage Gaps", html)
+        self.assertIn("AI Savings", html)
 
 
 def _write_server_fixture(root: Path) -> Path:

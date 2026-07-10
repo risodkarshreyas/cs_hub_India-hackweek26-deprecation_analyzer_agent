@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Optional
 
 
 CLIENT_STATUS_MAP = {
@@ -177,7 +177,7 @@ def _time_savings_kpi(domain: str, evidence: Any, analysis_date: str) -> dict[st
     }
 
 
-def _parse_date(value: str | None) -> date | None:
+def _parse_date(value: Optional[str]) -> Optional[date]:
     if not value:
         return None
     try:

@@ -2,7 +2,7 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 from xml.etree import ElementTree as ET
 
 
@@ -11,7 +11,7 @@ ENDPOINT_RE = re.compile(r"\b(?:/odata|/api|api/Account|odata/|https?://[^\s\"']
 SERVER_EXTENSIONS = {".json", ".csv", ".yaml", ".yml", ".xml", ".txt", ".log"}
 
 
-def scan_server_inputs(input_path: Path | str) -> dict[str, Any]:
+def scan_server_inputs(input_path: Union[Path, str]) -> dict[str, Any]:
     """Scan server/platform exports and inventories for matchable evidence."""
     root = Path(input_path).resolve()
     if not root.exists():
@@ -38,7 +38,7 @@ def scan_server_inputs(input_path: Path | str) -> dict[str, Any]:
     return inventory
 
 
-def looks_like_server_input(input_path: Path | str) -> bool:
+def looks_like_server_input(input_path: Union[Path, str]) -> bool:
     root = Path(input_path)
     files = [root] if root.is_file() else list(root.rglob("*")) if root.exists() else []
     markers = (

@@ -81,6 +81,7 @@ The skill inspects the available evidence and routes the request to the client-s
 |   |-- common_analysis_rules.md
 |   |-- client_side_analyzer.md
 |   |-- server_side_analyzer.md
+|   |-- reporting-dashboard-ideas.md
 |   |-- server_rule_schema.md
 |   |-- server_inventory_schema.md
 |   |-- normalized_timeline_schema.md
@@ -128,8 +129,11 @@ Depending on `--format`, the CLI writes these files under the output directory:
 - `uipath_deprecation_findings.json`
 - `uipath_deprecation_findings.csv`
 - `uipath_deprecation_report.xlsx`
+- `uipath_deprecation_dashboard.html`
 
 Coverage gaps, such as missing exports or unavailable context, are reported separately from deprecation findings.
+
+The HTML dashboard is generated from the same normalized findings payload as the JSON, Markdown, CSV, and XLSX reports. It is an additive static dashboard output and does not replace JSON or Excel artifacts.
 
 ## Analyzer Scripts
 
@@ -150,31 +154,31 @@ Server-side rules and evidence records are documented in `references/server_rule
 From this repository root, use `--mode auto` as the default first run. It detects client, server, or mixed evidence based on the input folder:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/evidence --output ./reports --mode auto --format markdown,json
+python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/evidence --output ./reports --mode auto --format markdown,json,xlsx,html
 ```
 
 Client-side RPA source project or package folder:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --mode client --format markdown,json,csv,xlsx
+python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --mode client --format markdown,json,csv,xlsx,html
 ```
 
 Server-side tenant/platform export:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json
+python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json,xlsx,html
 ```
 
 Mixed repo plus platform export:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./mixed-folder --output ./reports --mode mixed --format markdown,json
+python scripts/uipath_deprecation_analyzer.py --input ./mixed-folder --output ./reports --mode mixed --format markdown,json,xlsx,html
 ```
 
 Offline or repeatable client run using a cached timeline file:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --use-cache-only --format markdown,json,csv,xlsx --analysis-date 2026-07-07
+python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --use-cache-only --format markdown,json,csv,xlsx,html --analysis-date 2026-07-07
 ```
 
 Run against a folder of `.nupkg` files:

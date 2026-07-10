@@ -140,6 +140,8 @@ Executive summary:
 - Total estimated AI time savings and assumptions.
 - Coverage gaps and unknowns that require owner confirmation or more exports.
 
+When HTML/dashboard output is requested, render it from the same normalized report payload. Do not introduce dashboard-only field names that conflict with the common finding schema. Server-side report output should include the static HTML dashboard described in `references/reporting-dashboard-ideas.md`.
+
 Every final finding must include these fields:
 
 - `id`

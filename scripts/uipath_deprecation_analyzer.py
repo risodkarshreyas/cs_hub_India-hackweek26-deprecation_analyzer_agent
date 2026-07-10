@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--format",
         default="markdown,json,csv,xlsx",
-        help="Comma-separated output formats: markdown,json,csv,xlsx,all.",
+        help="Comma-separated output formats: markdown,json,csv,xlsx,html,all.",
     )
     parser.add_argument("--include-xaml", action="store_true", default=True)
     parser.add_argument("--include-nupkg", action="store_true", default=True)

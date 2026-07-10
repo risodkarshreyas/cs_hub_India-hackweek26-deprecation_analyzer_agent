@@ -83,6 +83,25 @@ If the user has no export, ask for the minimum inventory needed for the requeste
    - Preserve server-specific optional fields such as `delivery_model`, `tenant_or_service`, `endpoint`, `api_field`, `service_version`, and `configuration_object`.
    - Keep RPA workflow findings separate from server-side findings so remediation owners remain clear.
 
+6. Generate server-side report outputs:
+   - Server-side report output must include the static HTML dashboard by default.
+   - Read `references/reporting-dashboard-ideas.md` before generating the dashboard.
+   - Keep JSON and XLSX outputs alongside HTML so downstream tools can consume normalized findings.
+
+## CLI Usage
+
+Server-side CLI examples must include `html` as a mandatory format:
+
+```bash
+python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json,xlsx,html
+```
+
+Offline or repeatable server-side runs must also include `html`:
+
+```bash
+python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --server-rule-cache ./rules.json --offline --format markdown,json,xlsx,html --analysis-date 2026-07-10
+```
+
 ## Server Evidence Extraction
 
 Extract these evidence types when available:

@@ -3,7 +3,7 @@ import re
 import zipfile
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 from xml.etree import ElementTree as ET
 
 
@@ -24,7 +24,7 @@ UIPATH_PACKAGE_RE = re.compile(r"\bUiPath\.[A-Za-z0-9_.]+\.Activities\b", re.I)
 
 
 def scan_inputs(
-    input_path: Path | str,
+    input_path: Union[Path, str],
     include_xaml: bool = True,
     include_nupkg: bool = True,
 ) -> dict[str, Any]:
@@ -98,7 +98,7 @@ def scan_inputs(
     return inventory
 
 
-def discover_projects(root_path: Path | str) -> list[Path]:
+def discover_projects(root_path: Union[Path, str]) -> list[Path]:
     """Find UiPath source project roots while avoiding container folders that only hold nested projects."""
     root = Path(root_path).resolve()
     candidates = sorted({path.parent.resolve() for path in root.rglob("project.json")})
@@ -128,7 +128,7 @@ def discover_projects(root_path: Path | str) -> list[Path]:
     return sorted(filtered) if filtered else candidates
 
 
-def discover_nupkgs(root_path: Path | str) -> list[Path]:
+def discover_nupkgs(root_path: Union[Path, str]) -> list[Path]:
     return sorted(Path(root_path).resolve().rglob("*.nupkg"))
 
 
@@ -302,7 +302,7 @@ def _scan_nupkg(nupkg_path: Path, root: Path, include_xaml: bool) -> dict[str, A
     }
 
 
-def _nupkg_lib_prefix(names: list[str]) -> str | None:
+def _nupkg_lib_prefix(names: list[str]) -> Optional[str]:
     for target in NUPKG_LIB_TARGETS:
         prefix = f"lib/{target}/"
         if any(name.startswith(prefix) and name.endswith("project.json") for name in names):

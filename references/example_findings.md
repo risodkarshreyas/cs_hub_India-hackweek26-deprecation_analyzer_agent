@@ -209,3 +209,68 @@
   ]
 }
 ```
+
+## Dashboard-Ready Report Payload
+
+```json
+{
+  "analysis_date": "2026-07-10",
+  "summary": {
+    "total_findings": 1,
+    "severity_counts": {
+      "critical": 1
+    },
+    "status_counts": {
+      "removed": 1
+    },
+    "domain_counts": {
+      "server": 1
+    },
+    "product_counts": {
+      "Orchestrator": 1
+    },
+    "coverage_gap_count": 1,
+    "total_estimated_hours_saved": 7.0
+  },
+  "findings": [
+    {
+      "id": "F-301",
+      "severity": "critical",
+      "status": "removed",
+      "domain": "server",
+      "product": "Orchestrator",
+      "feature_or_package": "Testing Module in Orchestrator",
+      "environment": "FinanceTenant",
+      "evidence": [
+        {
+          "path": "tenant-export/orchestrator/test_sets.json",
+          "matched_value": "Regression Suite"
+        }
+      ],
+      "impact": "The tenant still contains Orchestrator testing artifacts for a removed capability.",
+      "deadline": "2026-06-30",
+      "recommended_action": "Migrate test artifacts and execution ownership to Test Manager.",
+      "mitigation_route": "ai_assisted_change",
+      "recommended_skill": "uipath-test",
+      "time_savings_kpi": {
+        "manual_baseline_hours": 10.0,
+        "ai_assisted_hours": 3.0,
+        "hours_saved": 7.0,
+        "percent_saved": 70,
+        "basis": "AI mapped tenant export evidence to deprecation rules and drafted the remediation route.",
+        "confidence": "medium"
+      },
+      "owner_hint": "QA/Test Manager owner",
+      "confidence": "high",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline"
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "type": "missing_context",
+      "product": "Apps",
+      "message": "No Apps export found."
+    }
+  ]
+}
+```

@@ -1,9 +1,11 @@
 import csv
+import html
 import json
 import zipfile
 from collections import Counter, defaultdict
+from datetime import date, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 from xml.sax.saxutils import escape
 
 
@@ -51,9 +53,9 @@ def build_report_payload(
 def build_common_report_payload(
     findings: list[dict[str, Any]],
     analysis_date: str,
-    coverage_gaps: list[dict[str, Any]] | None = None,
-    inventory: dict[str, Any] | None = None,
-    raw_client_payload: dict[str, Any] | None = None,
+    coverage_gaps: Optional[list[dict[str, Any]]] = None,
+    inventory: Optional[dict[str, Any]] = None,
+    raw_client_payload: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     coverage_gaps = coverage_gaps or []
     severity_counts = Counter(finding.get("severity", "") for finding in findings)
@@ -191,14 +193,14 @@ def _render_common_markdown_report(payload: dict[str, Any]) -> str:
 
 def write_reports(
     payload: dict[str, Any],
-    output_dir: Path | str,
+    output_dir: Union[Path, str],
     formats: list[str],
 ) -> dict[str, str]:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     normalized = {fmt.lower() for fmt in formats}
     if "all" in normalized:
-        normalized = {"markdown", "json", "csv", "xlsx"}
+        normalized = {"markdown", "json", "csv", "xlsx", "html"}
     paths: dict[str, str] = {}
     if "markdown" in normalized or "md" in normalized:
         path = out / "uipath_deprecation_report.md"
@@ -216,11 +218,401 @@ def write_reports(
         path = out / "uipath_deprecation_report.xlsx"
         _write_excel(payload, path)
         paths["xlsx"] = str(path)
+    if "html" in normalized or "dashboard" in normalized:
+        path = out / "uipath_deprecation_dashboard.html"
+        path.write_text(render_html_dashboard_report(payload), encoding="utf-8")
+        paths["html"] = str(path)
     return paths
 
 
 def _is_common_payload(payload: dict[str, Any]) -> bool:
     return "domain_counts" in payload.get("summary", {})
+
+
+def render_html_dashboard_report(payload: dict[str, Any]) -> str:
+    findings = payload.get("findings", [])
+    coverage_gaps = payload.get("coverage_gaps", [])
+    summary = _dashboard_summary(payload)
+    top_findings = _sort_findings_for_dashboard(findings)[:10]
+    actions = _sort_findings_for_dashboard(findings)
+    analysis_date = payload.get("analysis_date", "")
+    product_rows = _product_risk_rows(findings)
+    deadline_rows = _deadline_rows(findings, analysis_date)
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UiPath Deprecation Dashboard</title>
+  <style>
+    :root {{
+      --critical: #b42318;
+      --high: #c2410c;
+      --medium: #b7791f;
+      --low: #3b556e;
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --line: #d9dee7;
+      --panel: #f7f8fb;
+      --bg: #ffffff;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }}
+    header, main {{ max-width: 1180px; margin: 0 auto; padding: 24px; }}
+    header {{ border-bottom: 1px solid var(--line); }}
+    h1 {{ margin: 0 0 8px; font-size: 28px; }}
+    h2 {{ margin: 28px 0 12px; font-size: 20px; }}
+    h3 {{ margin: 0 0 8px; font-size: 15px; }}
+    .meta {{ color: var(--muted); font-size: 14px; }}
+    .kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 18px; }}
+    .kpi {{ border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--panel); }}
+    .kpi .value {{ font-size: 24px; font-weight: 700; }}
+    .kpi .label {{ color: var(--muted); font-size: 13px; }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 8px; table-layout: fixed; }}
+    th, td {{ border: 1px solid var(--line); padding: 8px; vertical-align: top; text-align: left; word-break: break-word; }}
+    th {{ background: var(--panel); font-size: 13px; }}
+    td {{ font-size: 13px; }}
+    .severity {{ display: inline-block; border-radius: 999px; color: white; padding: 2px 8px; font-weight: 700; font-size: 12px; }}
+    .severity-critical {{ background: var(--critical); }}
+    .severity-high {{ background: var(--high); }}
+    .severity-medium {{ background: var(--medium); color: #111827; }}
+    .severity-low {{ background: var(--low); }}
+    .bar-track {{ height: 10px; background: #e9edf3; border-radius: 999px; overflow: hidden; }}
+    .bar {{ height: 10px; background: #2f6f9f; }}
+    .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }}
+    .panel {{ border: 1px solid var(--line); border-radius: 8px; padding: 14px; }}
+    .muted {{ color: var(--muted); }}
+    a {{ color: #1d4ed8; }}
+    code {{ white-space: pre-wrap; font-family: Menlo, Consolas, monospace; font-size: 12px; }}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UiPath Deprecation Dashboard</h1>
+    <div class="meta">
+      Analysis date: {_h(analysis_date or "unknown")} |
+      Total findings: {_h(summary["total_findings"])} |
+      Next deadline: {_h(summary["next_deadline"])}
+    </div>
+    <section aria-label="KPI Row" class="kpis">
+      {_kpi("Critical", summary["critical_count"])}
+      {_kpi("High", summary["high_count"])}
+      {_kpi("Products Impacted", summary["products_impacted"])}
+      {_kpi("Next Deadline", summary["next_deadline"])}
+      {_kpi("AI Hours Saved", summary["total_hours_saved"])}
+    </section>
+  </header>
+  <main>
+    <section>
+      <h2>Risk by Product</h2>
+      {_product_risk_table(product_rows)}
+    </section>
+
+    <section>
+      <h2>Deadline Timeline</h2>
+      {_deadline_table(deadline_rows)}
+    </section>
+
+    <section>
+      <h2>Top Findings</h2>
+      {_findings_table(top_findings)}
+    </section>
+
+    <section>
+      <h2>Recommended Actions</h2>
+      {_actions_table(actions)}
+    </section>
+
+    <section>
+      <h2>AI Savings</h2>
+      <div class="grid">
+        <div class="panel"><h3>Manual Baseline Hours</h3><div class="kpi"><div class="value">{_h(summary["manual_baseline_hours"])}</div></div></div>
+        <div class="panel"><h3>AI-Assisted Hours</h3><div class="kpi"><div class="value">{_h(summary["ai_assisted_hours"])}</div></div></div>
+        <div class="panel"><h3>Hours Saved</h3><div class="kpi"><div class="value">{_h(summary["total_hours_saved"])}</div></div></div>
+        <div class="panel"><h3>Percent Saved</h3><div class="kpi"><div class="value">{_h(summary["percent_saved"])}%</div></div></div>
+      </div>
+      <p class="muted">Savings are aggregated from each finding's <code>time_savings_kpi</code>.</p>
+    </section>
+
+    <section>
+      <h2>Coverage Gaps</h2>
+      {_coverage_gap_table(coverage_gaps)}
+    </section>
+
+    <section>
+      <h2>Appendix</h2>
+      {_appendix_table(findings)}
+    </section>
+  </main>
+</body>
+</html>
+"""
+
+
+def _dashboard_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    findings = payload.get("findings", [])
+    summary = payload.get("summary", {})
+    severity_counts = summary.get("severity_counts") or Counter(
+        str(finding.get("severity", "")).lower() for finding in findings
+    )
+    product_counts = summary.get("product_counts") or Counter(
+        finding.get("product", "Unknown") or "Unknown" for finding in findings
+    )
+    manual = 0.0
+    assisted = 0.0
+    saved = 0.0
+    for finding in findings:
+        kpi = finding.get("time_savings_kpi", {})
+        if isinstance(kpi, dict):
+            manual += float(kpi.get("manual_baseline_hours", 0) or 0)
+            assisted += float(kpi.get("ai_assisted_hours", 0) or 0)
+            saved += float(kpi.get("hours_saved", 0) or 0)
+    if not saved:
+        saved = float(summary.get("total_estimated_hours_saved", 0) or 0)
+    percent = round(saved / manual * 100) if manual else 0
+    deadlines = [
+        parsed
+        for parsed in (_parse_dashboard_date(finding.get("deadline")) for finding in findings)
+        if parsed
+    ]
+    next_deadline = min(deadlines).isoformat() if deadlines else "None"
+    return {
+        "total_findings": summary.get("total_findings", len(findings)),
+        "critical_count": severity_counts.get("critical", 0),
+        "high_count": severity_counts.get("high", 0),
+        "products_impacted": len([key for key, value in dict(product_counts).items() if key and value]),
+        "next_deadline": next_deadline,
+        "manual_baseline_hours": round(manual, 2),
+        "ai_assisted_hours": round(assisted, 2),
+        "total_hours_saved": round(saved, 2),
+        "percent_saved": percent,
+    }
+
+
+def _product_risk_rows(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: dict[str, Counter] = defaultdict(Counter)
+    for finding in findings:
+        product = finding.get("product") or "Unknown"
+        rows[product][str(finding.get("severity", "low")).lower()] += 1
+    return [
+        {
+            "product": product,
+            "critical": counts.get("critical", 0),
+            "high": counts.get("high", 0),
+            "medium": counts.get("medium", 0),
+            "low": counts.get("low", 0),
+            "total": sum(counts.values()),
+        }
+        for product, counts in sorted(rows.items(), key=lambda item: (-sum(item[1].values()), item[0]))
+    ]
+
+
+def _deadline_rows(findings: list[dict[str, Any]], analysis_date: str) -> list[dict[str, Any]]:
+    baseline = _parse_dashboard_date(analysis_date) or date.today()
+    buckets = {
+        "Overdue": 0,
+        "0-30 days": 0,
+        "31-90 days": 0,
+        "91-180 days": 0,
+        "180+ days": 0,
+        "No date": 0,
+    }
+    for finding in findings:
+        parsed = _parse_dashboard_date(finding.get("deadline"))
+        if not parsed:
+            buckets["No date"] += 1
+            continue
+        days = (parsed - baseline).days
+        if days < 0:
+            buckets["Overdue"] += 1
+        elif days <= 30:
+            buckets["0-30 days"] += 1
+        elif days <= 90:
+            buckets["31-90 days"] += 1
+        elif days <= 180:
+            buckets["91-180 days"] += 1
+        else:
+            buckets["180+ days"] += 1
+    return [{"bucket": bucket, "count": count} for bucket, count in buckets.items()]
+
+
+def _sort_findings_for_dashboard(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    return sorted(
+        findings,
+        key=lambda finding: (
+            severity_rank.get(str(finding.get("severity", "low")).lower(), 4),
+            _parse_dashboard_date(finding.get("deadline")) or date.max,
+            finding.get("product", ""),
+            finding.get("feature_or_package", ""),
+        ),
+    )
+
+
+def _kpi(label: str, value: Any) -> str:
+    return f'<div class="kpi"><div class="value">{_h(value)}</div><div class="label">{_h(label)}</div></div>'
+
+
+def _product_risk_table(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return "<p class=\"muted\">No product risk found.</p>"
+    max_total = max(row["total"] for row in rows) or 1
+    body = "\n".join(
+        "<tr>"
+        f"<td>{_h(row['product'])}</td>"
+        f"<td>{_h(row['critical'])}</td>"
+        f"<td>{_h(row['high'])}</td>"
+        f"<td>{_h(row['medium'])}</td>"
+        f"<td>{_h(row['low'])}</td>"
+        f"<td><div class=\"bar-track\"><div class=\"bar\" style=\"width: {round(row['total'] / max_total * 100)}%\"></div></div></td>"
+        "</tr>"
+        for row in rows
+    )
+    return f"<table><thead><tr><th>Product</th><th>Critical</th><th>High</th><th>Medium</th><th>Low</th><th>Total</th></tr></thead><tbody>{body}</tbody></table>"
+
+
+def _deadline_table(rows: list[dict[str, Any]]) -> str:
+    body = "\n".join(
+        f"<tr><td>{_h(row['bucket'])}</td><td>{_h(row['count'])}</td></tr>"
+        for row in rows
+    )
+    return f"<table><thead><tr><th>Deadline Bucket</th><th>Findings</th></tr></thead><tbody>{body}</tbody></table>"
+
+
+def _findings_table(findings: list[dict[str, Any]]) -> str:
+    if not findings:
+        return "<p class=\"muted\">No findings.</p>"
+    body = "\n".join(
+        "<tr>"
+        f"<td>{_severity_badge(finding.get('severity'))}</td>"
+        f"<td>{_h(finding.get('product', ''))}</td>"
+        f"<td>{_h(finding.get('feature_or_package', ''))}</td>"
+        f"<td>{_h(_evidence_text(finding.get('evidence', [])))}</td>"
+        f"<td>{_h(finding.get('deadline') or 'No date')}</td>"
+        f"<td>{_h(finding.get('mitigation_route', ''))}</td>"
+        f"<td>{_h(finding.get('recommended_skill', ''))}</td>"
+        f"<td>{_h(_kpi_value(finding, 'hours_saved'))}</td>"
+        "</tr>"
+        for finding in findings
+    )
+    return (
+        "<table><thead><tr><th>Severity</th><th>Product</th><th>Feature or Package</th>"
+        "<th>Evidence</th><th>Deadline</th><th>Mitigation Route</th><th>Recommended Skill</th><th>AI Hours Saved</th>"
+        f"</tr></thead><tbody>{body}</tbody></table>"
+    )
+
+
+def _actions_table(findings: list[dict[str, Any]]) -> str:
+    if not findings:
+        return "<p class=\"muted\">No recommended actions.</p>"
+    body = "\n".join(
+        "<tr>"
+        f"<td>{_severity_badge(finding.get('severity'))}</td>"
+        f"<td>{_h(finding.get('deadline') or 'No date')}</td>"
+        f"<td>{_h(finding.get('product', ''))}</td>"
+        f"<td>{_h(finding.get('recommended_action', ''))}</td>"
+        f"<td>{_h(finding.get('owner_hint', ''))}</td>"
+        "</tr>"
+        for finding in findings
+    )
+    return "<table><thead><tr><th>Severity</th><th>Deadline</th><th>Product</th><th>Action</th><th>Owner</th></tr></thead><tbody>" + body + "</tbody></table>"
+
+
+def _coverage_gap_table(gaps: list[dict[str, Any]]) -> str:
+    if not gaps:
+        return "<p class=\"muted\">None.</p>"
+    body = "\n".join(
+        "<tr>"
+        f"<td>{_h(gap.get('product', 'Unknown'))}</td>"
+        f"<td>{_h(gap.get('type', 'coverage_gap'))}</td>"
+        f"<td>{_h(gap.get('message', gap.get('feature', 'Missing context')))}</td>"
+        "</tr>"
+        for gap in gaps
+    )
+    return f"<table><thead><tr><th>Product</th><th>Type</th><th>Message</th></tr></thead><tbody>{body}</tbody></table>"
+
+
+def _appendix_table(findings: list[dict[str, Any]]) -> str:
+    if not findings:
+        return "<p class=\"muted\">No appendix entries.</p>"
+    body = "\n".join(
+        "<tr>"
+        f"<td>{_h(finding.get('id', ''))}</td>"
+        f"<td><code>{_h(_evidence_text(finding.get('evidence', [])))}</code></td>"
+        f"<td>{_source_html(finding.get('source_url'))}</td>"
+        f"<td>{_h(finding.get('confidence', ''))}</td>"
+        "</tr>"
+        for finding in findings
+    )
+    return f"<table><thead><tr><th>ID</th><th>Raw Evidence</th><th>Source URL</th><th>Confidence</th></tr></thead><tbody>{body}</tbody></table>"
+
+
+def _severity_badge(value: Any) -> str:
+    severity = str(value or "low").lower()
+    css = severity if severity in {"critical", "high", "medium", "low"} else "low"
+    return f'<span class="severity severity-{css}">{_h(severity)}</span>'
+
+
+def _source_html(value: Any) -> str:
+    source = str(value or "").strip()
+    if not source:
+        return "missing"
+    escaped = _h(source)
+    if source.startswith(("http://", "https://")):
+        return f'<a href="{escaped}">{escaped}</a>'
+    return escaped
+
+
+def _kpi_value(finding: dict[str, Any], key: str) -> Any:
+    kpi = finding.get("time_savings_kpi", {})
+    return kpi.get(key, 0) if isinstance(kpi, dict) else 0
+
+
+def _evidence_text(evidence: Any) -> str:
+    if isinstance(evidence, list):
+        parts = []
+        for item in evidence:
+            if isinstance(item, dict):
+                details = [
+                    f"{key}={value}"
+                    for key, value in item.items()
+                    if value not in ("", None, [], {})
+                ]
+                parts.append(", ".join(details))
+            else:
+                parts.append(str(item))
+        return "; ".join(part for part in parts if part) or "missing"
+    if evidence:
+        return str(evidence)
+    return "missing"
+
+
+def _parse_dashboard_date(value: Any) -> Optional[date]:
+    if not value:
+        return None
+    raw = str(value).strip()
+    for fmt in ("%Y-%m-%d", "%Y-%m", "%Y"):
+        try:
+            parsed = datetime.strptime(raw, fmt).date()
+            if fmt == "%Y-%m":
+                return parsed.replace(day=1)
+            if fmt == "%Y":
+                return parsed.replace(month=1, day=1)
+            return parsed
+        except ValueError:
+            continue
+    return None
+
+
+def _h(value: Any) -> str:
+    return html.escape(str(value), quote=True)
 
 
 def _common_finding_bullets(findings: list[dict[str, Any]]) -> list[str]:

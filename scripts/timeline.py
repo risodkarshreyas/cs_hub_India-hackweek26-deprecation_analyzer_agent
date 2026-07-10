@@ -4,7 +4,7 @@ import re
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 from urllib.request import Request, urlopen
 
 
@@ -51,7 +51,7 @@ class _TimelineTableParser(HTMLParser):
         self._current_row: list[str] = []
         self.rows: list[dict[str, Any]] = []
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]) -> None:
         if tag in {"h1", "h2", "h3", "h4"}:
             self._heading_tag = tag
             self._current_cell = []
@@ -84,7 +84,7 @@ class _TimelineTableParser(HTMLParser):
 
 def fetch_timeline(
     source_url: str = DEFAULT_TIMELINE_URL,
-    cache_path: Path | str | None = None,
+    cache_path: Optional[Union[Path, str]] = None,
     refresh: bool = False,
     use_cache_only: bool = False,
 ) -> list[dict[str, Any]]:

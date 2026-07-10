@@ -1,6 +1,6 @@
 import re
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Optional
 
 
 WINDOWS_LEGACY_CLASSIFICATION = ".NET Framework 4.6.1 / Windows-Legacy Compatibility Impact"
@@ -9,7 +9,7 @@ WINDOWS_LEGACY_CLASSIFICATION = ".NET Framework 4.6.1 / Windows-Legacy Compatibi
 def match_deprecations(
     inventory: dict[str, Any],
     timeline_entries: list[dict[str, Any]],
-    analysis_date: str | None = None,
+    analysis_date: Optional[str] = None,
     strict: bool = False,
 ) -> list[dict[str, Any]]:
     """Match scanned package inventory against normalized UiPath timeline entries.
@@ -233,7 +233,7 @@ def _combined_confidence(entry: dict[str, Any], package: dict[str, Any]) -> str:
     return "low"
 
 
-def _parse_date(value: str | None) -> date | None:
+def _parse_date(value: Optional[str]) -> Optional[date]:
     """Parse normalized YYYY-MM-DD dates; invalid or absent dates are unknown."""
     if not value:
         return None

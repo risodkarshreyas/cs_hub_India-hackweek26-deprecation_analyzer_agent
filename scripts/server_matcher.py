@@ -1,11 +1,11 @@
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Optional
 
 
 def match_server_deprecations(
     inventory: dict[str, Any],
     server_rules: list[dict[str, Any]],
-    analysis_date: str | None = None,
+    analysis_date: Optional[str] = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Match server inventory evidence against server deprecation rules."""
     as_of = _parse_date(analysis_date) or date.today()
@@ -143,7 +143,7 @@ def _confidence(rule: dict[str, Any], evidence: dict[str, Any]) -> str:
     return "low"
 
 
-def _parse_date(value: str | None) -> date | None:
+def _parse_date(value: Optional[str]) -> Optional[date]:
     if not value:
         return None
     try:

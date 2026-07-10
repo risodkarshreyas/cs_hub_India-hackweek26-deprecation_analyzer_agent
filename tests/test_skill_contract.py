@@ -15,6 +15,7 @@ class SkillContractTests(unittest.TestCase):
         skill = read_text("SKILL.md")
 
         self.assertIn("references/common_analysis_rules.md", skill)
+        self.assertIn("references/reporting-dashboard-ideas.md", skill)
         self.assertIn("Client-side analyzer", skill)
         self.assertIn("Server-side analyzer", skill)
         self.assertIn("Both analyzers", skill)
@@ -130,6 +131,13 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("classification", raw_client_fixture)
         self.assertIn("risk_level", raw_client_fixture)
         self.assertFalse((ROOT / "tests/fixtures/expected-finding.json").exists())
+
+    def test_server_reference_requires_html_dashboard_output(self):
+        server = read_text("references/server_side_analyzer.md")
+
+        self.assertIn("must include the static HTML dashboard", server)
+        self.assertIn("--format markdown,json,xlsx,html", server)
+        self.assertIn("references/reporting-dashboard-ideas.md", server)
 
 
 if __name__ == "__main__":

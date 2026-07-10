@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 from urllib.request import Request, urlopen
 
 from timeline import DEFAULT_TIMELINE_URL, _TimelineTableParser, _clean_text, _date_candidates, _normalize_date
@@ -30,7 +30,7 @@ SERVER_PRODUCTS = {
 
 def fetch_server_rules(
     source_url: str = DEFAULT_TIMELINE_URL,
-    cache_path: Path | str | None = None,
+    cache_path: Optional[Union[Path, str]] = None,
     refresh: bool = False,
     use_cache_only: bool = False,
 ) -> list[dict[str, Any]]:
