@@ -44,3 +44,4 @@ appsettings.Staging.json
 *.p12
 credentials.json
 connection_strings.json
+.DS_Store
