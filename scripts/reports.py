@@ -237,119 +237,504 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     actions = _sort_findings_for_dashboard(findings)
     analysis_date = payload.get("analysis_date", "")
     product_rows = _product_risk_rows(findings)
-    deadline_rows = _deadline_rows(findings, analysis_date)
+    timeline_items = _timeline_items(findings, analysis_date)
+    product_options = _filter_options(row["product"] for row in product_rows)
+    route_options = _filter_options(finding.get("recommended_skill") or finding.get("mitigation_route") for finding in findings)
 
     return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UiPath Deprecation Dashboard</title>
+  <title>UiPath Deprecation Risk Command Center</title>
   <style>
     :root {{
-      --critical: #b42318;
-      --high: #c2410c;
-      --medium: #b7791f;
-      --low: #3b556e;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
       --ink: #172033;
-      --muted: #5f6b7a;
-      --line: #d9dee7;
-      --panel: #f7f8fb;
-      --bg: #ffffff;
+      --muted: #667085;
+      --line: #d9e1ec;
+      --critical: #c7352b;
+      --high: #e26c2d;
+      --medium: #d7a514;
+      --low: #3d79c7;
+      --ok: #178064;
+      --slate: #41516a;
+      --soft-red: #fff0ee;
+      --soft-orange: #fff4e8;
+      --soft-yellow: #fff8db;
+      --soft-blue: #edf5ff;
+      --soft-green: #eaf8f2;
+      --shadow: 0 14px 34px rgba(31, 45, 61, 0.10);
     }}
-    * {{ box-sizing: border-box; }}
+    * {{
+      box-sizing: border-box;
+    }}
     body {{
       margin: 0;
-      color: var(--ink);
       background: var(--bg);
-      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
       line-height: 1.45;
     }}
-    header, main {{ max-width: 1180px; margin: 0 auto; padding: 24px; }}
-    header {{ border-bottom: 1px solid var(--line); }}
-    h1 {{ margin: 0 0 8px; font-size: 28px; }}
-    h2 {{ margin: 28px 0 12px; font-size: 20px; }}
-    h3 {{ margin: 0 0 8px; font-size: 15px; }}
-    .meta {{ color: var(--muted); font-size: 14px; }}
-    .kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 18px; }}
-    .kpi {{ border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--panel); }}
-    .kpi .value {{ font-size: 24px; font-weight: 700; }}
-    .kpi .label {{ color: var(--muted); font-size: 13px; }}
-    table {{ width: 100%; border-collapse: collapse; margin-top: 8px; table-layout: fixed; }}
-    th, td {{ border: 1px solid var(--line); padding: 8px; vertical-align: top; text-align: left; word-break: break-word; }}
-    th {{ background: var(--panel); font-size: 13px; }}
-    td {{ font-size: 13px; }}
-    .severity {{ display: inline-block; border-radius: 999px; color: white; padding: 2px 8px; font-weight: 700; font-size: 12px; }}
-    .severity-critical {{ background: var(--critical); }}
-    .severity-high {{ background: var(--high); }}
-    .severity-medium {{ background: var(--medium); color: #111827; }}
-    .severity-low {{ background: var(--low); }}
-    .bar-track {{ height: 10px; background: #e9edf3; border-radius: 999px; overflow: hidden; }}
-    .bar {{ height: 10px; background: #2f6f9f; }}
-    .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }}
-    .panel {{ border: 1px solid var(--line); border-radius: 8px; padding: 14px; }}
-    .muted {{ color: var(--muted); }}
-    a {{ color: #1d4ed8; }}
-    code {{ white-space: pre-wrap; font-family: Menlo, Consolas, monospace; font-size: 12px; }}
+    header {{
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }}
+    .shell {{
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }}
+    .topbar {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 22px 0;
+    }}
+    h1 {{
+      margin: 0 0 4px;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }}
+    .subtitle {{
+      margin: 0;
+      color: var(--muted);
+      max-width: 780px;
+    }}
+    .scan-meta {{
+      min-width: 236px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      color: var(--slate);
+      font-size: 13px;
+    }}
+    main {{
+      padding: 24px 0 34px;
+    }}
+    .kpis {{
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }}
+    .kpi {{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      min-height: 108px;
+    }}
+    .kpi .label {{
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 700;
+    }}
+    .kpi .value {{
+      display: block;
+      margin-top: 10px;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }}
+    .kpi .note {{
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }}
+    .critical {{ color: var(--critical); }}
+    .high {{ color: var(--high); }}
+    .medium {{ color: var(--medium); }}
+    .ok {{ color: var(--ok); }}
+    .tabs {{
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 18px;
+      flex-wrap: wrap;
+    }}
+    .tab {{
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      color: var(--slate);
+      padding: 9px 12px;
+      font-weight: 700;
+    }}
+    .tab.active {{
+      border-color: #26384f;
+      background: #26384f;
+      color: #ffffff;
+    }}
+    .grid {{
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }}
+    .panel {{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }}
+    .panel h2 {{
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }}
+    .bar-row {{
+      display: grid;
+      grid-template-columns: 150px 1fr 42px;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+    }}
+    .bar-label {{
+      font-weight: 700;
+      color: var(--slate);
+      overflow-wrap: anywhere;
+    }}
+    .bar-track {{
+      height: 14px;
+      background: #edf1f6;
+      border-radius: 999px;
+      overflow: hidden;
+    }}
+    .bar-fill {{
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--critical), var(--high));
+    }}
+    .deadline {{
+      font-weight: 800;
+      color: var(--ink);
+    }}
+    .pill {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }}
+    .pill.critical {{ background: var(--soft-red); color: var(--critical); }}
+    .pill.high {{ background: var(--soft-orange); color: var(--high); }}
+    .pill.medium {{ background: var(--soft-yellow); color: #8a6500; }}
+    .pill.low {{ background: var(--soft-blue); color: var(--low); }}
+    .pill.ok {{ background: var(--soft-green); color: var(--ok); }}
+    .pill.gray {{ background: #eef1f5; color: var(--slate); }}
+    .timeline {{
+      display: grid;
+      gap: 12px;
+    }}
+    .timeline-item {{
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+    }}
+    .toolbar {{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }}
+    .filter {{
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 9px 10px;
+      color: var(--slate);
+      min-width: 156px;
+      font: inherit;
+    }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }}
+    th {{
+      text-align: left;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+    }}
+    td {{
+      border-bottom: 1px solid #edf1f6;
+      padding: 12px 8px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }}
+    tbody tr:hover {{
+      background: #fafcff;
+    }}
+    .feature {{
+      font-weight: 800;
+      margin-bottom: 4px;
+    }}
+    .muted {{
+      color: var(--muted);
+      font-size: 12px;
+    }}
+    .action-card {{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      margin-bottom: 10px;
+    }}
+    .rank {{
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #26384f;
+      color: #ffffff;
+      font-weight: 800;
+    }}
+    .savings-grid {{
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 16px;
+    }}
+    .donut-wrap {{
+      display: grid;
+      place-items: center;
+      padding: 12px 0;
+    }}
+    .donut {{
+      width: 210px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+        conic-gradient(var(--ok) 0 var(--saved-percent), #e7ecf3 var(--saved-percent) 100%);
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+    }}
+    .donut strong {{
+      font-size: 38px;
+      line-height: 1;
+    }}
+    .donut span {{
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      text-align: center;
+    }}
+    .stacked {{
+      height: 18px;
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf1f6;
+      margin: 8px 0 16px;
+    }}
+    .seg-docs {{ width: 28%; background: #64748b; }}
+    .seg-inventory {{ width: 26%; background: var(--low); }}
+    .seg-match {{ width: 22%; background: var(--high); }}
+    .seg-plan {{ width: 16%; background: var(--medium); }}
+    .seg-validate {{ width: 8%; background: var(--ok); }}
+    .legend {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--slate);
+      font-size: 13px;
+    }}
+    .legend span::before {{
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 7px;
+      border-radius: 2px;
+      vertical-align: middle;
+      background: var(--swatch);
+    }}
+    footer {{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 18px 0 0;
+    }}
+    @media (max-width: 900px) {{
+      .topbar,
+      .grid,
+      .savings-grid {{
+        grid-template-columns: 1fr;
+        display: grid;
+      }}
+      .kpis {{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }}
+      .scan-meta {{
+        min-width: 0;
+      }}
+      table {{
+        min-width: 850px;
+      }}
+      .table-wrap {{
+        overflow-x: auto;
+      }}
+    }}
+    @media (max-width: 560px) {{
+      .shell {{
+        width: min(100% - 20px, 1180px);
+      }}
+      .kpis {{
+        grid-template-columns: 1fr;
+      }}
+      .timeline-item,
+      .action-card {{
+        grid-template-columns: 1fr;
+      }}
+      .bar-row {{
+        grid-template-columns: 1fr;
+      }}
+    }}
   </style>
 </head>
 <body>
   <header>
-    <h1>UiPath Deprecation Dashboard</h1>
-    <div class="meta">
-      Analysis date: {_h(analysis_date or "unknown")} |
-      Total findings: {_h(summary["total_findings"])} |
-      Next deadline: {_h(summary["next_deadline"])}
-    </div>
-    <section aria-label="KPI Row" class="kpis">
-      {_kpi("Critical", summary["critical_count"])}
-      {_kpi("High", summary["high_count"])}
-      {_kpi("Products Impacted", summary["products_impacted"])}
-      {_kpi("Next Deadline", summary["next_deadline"])}
-      {_kpi("AI Hours Saved", summary["total_hours_saved"])}
-    </section>
-  </header>
-  <main>
-    <section>
-      <h2>Risk by Product</h2>
-      {_product_risk_table(product_rows)}
-    </section>
-
-    <section>
-      <h2>Deadline Timeline</h2>
-      {_deadline_table(deadline_rows)}
-    </section>
-
-    <section>
-      <h2>Top Findings</h2>
-      {_findings_table(top_findings)}
-    </section>
-
-    <section>
-      <h2>Recommended Actions</h2>
-      {_actions_table(actions)}
-    </section>
-
-    <section>
-      <h2>AI Savings</h2>
-      <div class="grid">
-        <div class="panel"><h3>Manual Baseline Hours</h3><div class="kpi"><div class="value">{_h(summary["manual_baseline_hours"])}</div></div></div>
-        <div class="panel"><h3>AI-Assisted Hours</h3><div class="kpi"><div class="value">{_h(summary["ai_assisted_hours"])}</div></div></div>
-        <div class="panel"><h3>Hours Saved</h3><div class="kpi"><div class="value">{_h(summary["total_hours_saved"])}</div></div></div>
-        <div class="panel"><h3>Percent Saved</h3><div class="kpi"><div class="value">{_h(summary["percent_saved"])}%</div></div></div>
+    <div class="shell topbar">
+      <div>
+        <h1>UiPath Deprecation Risk Command Center</h1>
+        <p class="subtitle">Static executive report generated from analyzer findings, evidence, remediation routing, and AI time-savings estimates.</p>
       </div>
-      <p class="muted">Savings are aggregated from each finding's <code>time_savings_kpi</code>.</p>
+      <div class="scan-meta">
+        <strong>Analyzer scan</strong><br>
+        Environment: {_h(summary["environment_label"])}<br>
+        Source refreshed: {_h(_format_report_date(analysis_date))}<br>
+        Findings: {_h(summary["total_findings"])}
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="kpis" aria-label="Key metrics">
+      {_command_center_kpi("Critical", summary["critical_count"], "Already removed or blocking upgrade", "critical")}
+      {_command_center_kpi("High", summary["high_count"], "Due within 180 days", "high")}
+      {_command_center_kpi("Products", summary["products_impacted"], "Products impacted", "")}
+      {_command_center_kpi("Next Deadline", summary["next_deadline_label"], summary["next_deadline_note"], "medium")}
+      {_command_center_kpi("AI Time Saved", f'{summary["percent_saved"]}%', f'{summary["total_hours_saved"]} hours estimated saved', "ok")}
     </section>
 
-    <section>
-      <h2>Coverage Gaps</h2>
-      {_coverage_gap_table(coverage_gaps)}
+    <nav class="tabs" aria-label="Report sections">
+      <button class="tab active" type="button">Overview</button>
+      <button class="tab" type="button">Findings</button>
+      <button class="tab" type="button">Timeline</button>
+      <button class="tab" type="button">AI Savings</button>
+    </nav>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Risk By Product</h2>
+        {_product_risk_bars(product_rows)}
+      </article>
+
+      <article class="panel">
+        <h2>Upcoming Deadlines</h2>
+        <div class="timeline">
+          {_timeline_item_cards(timeline_items)}
+        </div>
+      </article>
     </section>
 
-    <section>
-      <h2>Appendix</h2>
-      {_appendix_table(findings)}
+    <section class="panel">
+      <h2>Top Findings</h2>
+      <div class="toolbar">
+        <select class="filter" aria-label="Severity filter">
+          <option>All severities</option>
+          <option>Critical</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+        <select class="filter" aria-label="Product filter">
+          <option>All products</option>
+          {product_options}
+        </select>
+        <select class="filter" aria-label="Route filter">
+          <option>All mitigation routes</option>
+          {route_options}
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        {_findings_command_table(top_findings)}
+      </div>
     </section>
+
+    <section class="grid" style="margin-top: 16px;">
+      <article class="panel">
+        <h2>Recommended Actions</h2>
+        {_action_cards(actions[:5])}
+      </article>
+
+      <article class="panel">
+        <h2>AI Savings</h2>
+        <div class="savings-grid">
+          <div class="donut-wrap">
+            <div class="donut" style="--saved-percent: {_h(summary["percent_saved"])}%;">
+              <div>
+                <strong>{_h(summary["percent_saved"])}%</strong>
+                <span>effort reduction</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p><strong>Manual baseline:</strong> {_h(summary["manual_baseline_hours"])} hours</p>
+            <p><strong>AI-assisted effort:</strong> {_h(summary["ai_assisted_hours"])} hours</p>
+            <p><strong>Estimated saved:</strong> {_h(summary["total_hours_saved"])} hours</p>
+            <div class="stacked" aria-label="Savings breakdown">
+              <div class="seg-docs"></div>
+              <div class="seg-inventory"></div>
+              <div class="seg-match"></div>
+              <div class="seg-plan"></div>
+              <div class="seg-validate"></div>
+            </div>
+            <div class="legend">
+              <span style="--swatch:#64748b;">Docs review</span>
+              <span style="--swatch:#3d79c7;">Inventory review</span>
+              <span style="--swatch:#e26c2d;">Evidence matching</span>
+              <span style="--swatch:#d7a514;">Planning</span>
+              <span style="--swatch:#178064;">Validation</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Generated analyzer report. Coverage gaps: {_h(len(coverage_gaps))}. Empty source URLs are shown as missing in the findings table. Source links should point to UiPath documentation and local evidence in production reports.
+    </footer>
   </main>
 </body>
 </html>
@@ -382,17 +767,30 @@ def _dashboard_summary(payload: dict[str, Any]) -> dict[str, Any]:
         for parsed in (_parse_dashboard_date(finding.get("deadline")) for finding in findings)
         if parsed
     ]
-    next_deadline = min(deadlines).isoformat() if deadlines else "None"
+    next_deadline_date = min(deadlines) if deadlines else None
+    analysis_day = _parse_dashboard_date(payload.get("analysis_date")) or date.today()
+    next_deadline = next_deadline_date.isoformat() if next_deadline_date else "None"
+    next_finding = next(
+        (
+            finding
+            for finding in _sort_findings_for_dashboard(findings)
+            if _parse_dashboard_date(finding.get("deadline")) == next_deadline_date
+        ),
+        {},
+    )
     return {
         "total_findings": summary.get("total_findings", len(findings)),
         "critical_count": severity_counts.get("critical", 0),
         "high_count": severity_counts.get("high", 0),
         "products_impacted": len([key for key, value in dict(product_counts).items() if key and value]),
         "next_deadline": next_deadline,
+        "next_deadline_label": _deadline_kpi_label(next_deadline_date, analysis_day),
+        "next_deadline_note": next_finding.get("feature_or_package") or "No dated findings",
         "manual_baseline_hours": round(manual, 2),
         "ai_assisted_hours": round(assisted, 2),
         "total_hours_saved": round(saved, 2),
         "percent_saved": percent,
+        "environment_label": _environment_label(findings),
     }
 
 
@@ -443,6 +841,26 @@ def _deadline_rows(findings: list[dict[str, Any]], analysis_date: str) -> list[d
     return [{"bucket": bucket, "count": count} for bucket, count in buckets.items()]
 
 
+def _timeline_items(findings: list[dict[str, Any]], analysis_date: str) -> list[dict[str, Any]]:
+    baseline = _parse_dashboard_date(analysis_date) or date.today()
+    items: list[dict[str, Any]] = []
+    for finding in _sort_findings_for_dashboard(findings):
+        parsed = _parse_dashboard_date(finding.get("deadline"))
+        if not parsed:
+            continue
+        days = (parsed - baseline).days
+        items.append(
+            {
+                "date": parsed,
+                "days": days,
+                "severity": str(finding.get("severity", "low")).lower(),
+                "title": finding.get("feature_or_package") or finding.get("product") or "Finding",
+                "detail": _timeline_detail(finding),
+            }
+        )
+    return items[:4]
+
+
 def _sort_findings_for_dashboard(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
     severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     return sorted(
@@ -456,8 +874,181 @@ def _sort_findings_for_dashboard(findings: list[dict[str, Any]]) -> list[dict[st
     )
 
 
-def _kpi(label: str, value: Any) -> str:
-    return f'<div class="kpi"><div class="value">{_h(value)}</div><div class="label">{_h(label)}</div></div>'
+def _command_center_kpi(label: str, value: Any, note: Any, value_class: str) -> str:
+    css = f" {value_class}" if value_class else ""
+    return (
+        '<div class="kpi">'
+        f'<span class="label">{_h(label)}</span>'
+        f'<span class="value{css}">{_h(value)}</span>'
+        f'<span class="note">{_h(note)}</span>'
+        "</div>"
+    )
+
+
+def _filter_options(values: Any) -> str:
+    unique = sorted({str(value) for value in values if value})
+    return "\n".join(f"<option>{_h(value)}</option>" for value in unique)
+
+
+def _product_risk_bars(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return '<p class="muted">No product risk found.</p>'
+    max_total = max(row["total"] for row in rows) or 1
+    return "\n".join(
+        '<div class="bar-row">'
+        f'<div class="bar-label">{_h(row["product"])}</div>'
+        f'<div class="bar-track"><div class="bar-fill" style="width: {max(round(row["total"] / max_total * 100), 8)}%;"></div></div>'
+        f'<strong>{_h(row["total"])}</strong>'
+        "</div>"
+        for row in rows[:6]
+    )
+
+
+def _timeline_item_cards(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return '<p class="muted">No dated findings.</p>'
+    return "\n".join(
+        '<div class="timeline-item">'
+        f'<div class="deadline">{_h(_short_deadline(item["date"]))}</div>'
+        "<div>"
+        f'<strong>{_h(item["title"])}</strong>'
+        f'<div class="muted">{_h(item["detail"])}</div>'
+        "</div>"
+        f'<span class="pill {_pill_class(item["severity"])}">{_h(_days_label(item["days"]))}</span>'
+        "</div>"
+        for item in items
+    )
+
+
+def _findings_command_table(findings: list[dict[str, Any]]) -> str:
+    if not findings:
+        return '<p class="muted">No findings.</p>'
+    body = "\n".join(
+        "<tr>"
+        f'<td><span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span></td>'
+        f"<td>{_h(finding.get('product', ''))}</td>"
+        "<td>"
+        f'<div class="feature">{_h(finding.get("feature_or_package", ""))}</div>'
+        f'<div class="muted">Evidence: {_h(_evidence_text(finding.get("evidence", [])))}</div>'
+        f'<div class="muted">Source: {_source_html(finding.get("source_url"))}</div>'
+        "</td>"
+        f"<td>{_h(_display_deadline(finding.get('deadline')))}</td>"
+        f'<td><span class="pill {_route_pill_class(finding)}">{_h(finding.get("recommended_skill") or finding.get("mitigation_route", ""))}</span></td>'
+        f"<td>{_h(_kpi_value(finding, 'hours_saved'))}h / {_h(_kpi_value(finding, 'percent_saved'))}%</td>"
+        "</tr>"
+        for finding in findings
+    )
+    return (
+        "<table>"
+        "<thead><tr>"
+        '<th style="width: 110px;">Severity</th>'
+        '<th style="width: 160px;">Product</th>'
+        "<th>Finding</th>"
+        '<th style="width: 130px;">Deadline</th>'
+        '<th style="width: 170px;">Route</th>'
+        '<th style="width: 150px;">AI Saved</th>'
+        f"</tr></thead><tbody>{body}</tbody></table>"
+    )
+
+
+def _action_cards(findings: list[dict[str, Any]]) -> str:
+    if not findings:
+        return '<p class="muted">No recommended actions.</p>'
+    return "\n".join(
+        '<div class="action-card">'
+        f'<div class="rank">{index}</div>'
+        "<div>"
+        f'<strong>{_h(_action_title(finding))}</strong>'
+        f'<div class="muted">{_h(finding.get("recommended_action", "Review UiPath migration guidance."))}</div>'
+        "</div>"
+        f'<span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span>'
+        "</div>"
+        for index, finding in enumerate(findings, 1)
+    )
+
+
+def _timeline_detail(finding: dict[str, Any]) -> str:
+    evidence = _evidence_text(finding.get("evidence", []))
+    if evidence and evidence != "missing":
+        return f"Evidence: {evidence}"
+    return finding.get("impact") or finding.get("recommended_action") or "Review finding evidence and remediation guidance."
+
+
+def _pill_class(value: Any) -> str:
+    severity = str(value or "low").lower()
+    if severity in {"critical", "high", "medium", "low"}:
+        return severity
+    if severity in {"removed", "overdue"}:
+        return "critical"
+    return "gray"
+
+
+def _route_pill_class(finding: dict[str, Any]) -> str:
+    skill = str(finding.get("recommended_skill", "")).lower()
+    route = str(finding.get("mitigation_route", "")).lower()
+    if "test" in skill:
+        return "low"
+    if "platform" in skill or route == "ai_assisted_change":
+        return "high"
+    if route == "owner_review":
+        return "gray"
+    return "low"
+
+
+def _short_deadline(value: date) -> str:
+    return value.strftime("%d %b")
+
+
+def _days_label(days: int) -> str:
+    if days < 0:
+        return "Overdue"
+    if days == 0:
+        return "Today"
+    return f"{days} days"
+
+
+def _display_deadline(value: Any) -> str:
+    parsed = _parse_dashboard_date(value)
+    if not parsed:
+        return "No date"
+    return parsed.strftime("%d %b %Y")
+
+
+def _format_report_date(value: Any) -> str:
+    parsed = _parse_dashboard_date(value)
+    if not parsed:
+        return "Unknown"
+    return parsed.strftime("%d %b %Y")
+
+
+def _deadline_kpi_label(deadline: Optional[date], analysis_day: date) -> str:
+    if not deadline:
+        return "None"
+    days = (deadline - analysis_day).days
+    if days < 0:
+        return "Overdue"
+    if days == 0:
+        return "Today"
+    return f"{days}d"
+
+
+def _environment_label(findings: list[dict[str, Any]]) -> str:
+    domains = sorted({finding.get("domain", "") for finding in findings if finding.get("domain")})
+    if not domains:
+        return "Unknown"
+    if domains == ["client"]:
+        return "Client automation project"
+    if domains == ["server"]:
+        return "Server/platform export"
+    return "Mixed client/server evidence"
+
+
+def _action_title(finding: dict[str, Any]) -> str:
+    feature = finding.get("feature_or_package") or finding.get("product") or "Deprecation finding"
+    severity = str(finding.get("severity", "")).lower()
+    if severity == "critical":
+        return f"Remediate {feature}"
+    return f"Plan remediation for {feature}"
 
 
 def _product_risk_table(rows: list[dict[str, Any]]) -> str:

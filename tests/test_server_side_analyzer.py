@@ -284,11 +284,18 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         html = render_html_dashboard_report(payload)
 
         for section in (
-            "KPI Row",
-            "Risk by Product",
-            "Deadline Timeline",
+            "UiPath Deprecation Risk Command Center",
+            "shell topbar",
+            "class=\"kpis\"",
+            "class=\"tabs\"",
+            "class=\"panel\"",
+            "timeline-item",
+            "action-card",
+            "class=\"donut\"",
+            "Risk By Product",
+            "Upcoming Deadlines",
             "Top Findings",
-            "Coverage Gaps",
+            "Recommended Actions",
             "AI Savings",
         ):
             self.assertIn(section, html)
@@ -340,10 +347,11 @@ class ServerSideAnalyzerTests(unittest.TestCase):
 
         self.assertGreaterEqual(report["summary"]["total_findings"], 1)
         self.assertIn("server", report["summary"]["domain_counts"])
-        self.assertIn("Risk by Product", html)
-        self.assertIn("Deadline Timeline", html)
+        self.assertIn("UiPath Deprecation Risk Command Center", html)
+        self.assertIn("Risk By Product", html)
+        self.assertIn("Upcoming Deadlines", html)
         self.assertIn("Top Findings", html)
-        self.assertIn("Coverage Gaps", html)
+        self.assertIn("Recommended Actions", html)
         self.assertIn("AI Savings", html)
 
 
