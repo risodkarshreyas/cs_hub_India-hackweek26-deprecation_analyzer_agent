@@ -270,6 +270,9 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     * {{
       box-sizing: border-box;
     }}
+    html {{
+      scroll-behavior: smooth;
+    }}
     body {{
       margin: 0;
       background: var(--bg);
@@ -367,11 +370,30 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       color: var(--slate);
       padding: 9px 12px;
       font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
     }}
     .tab.active {{
       border-color: #26384f;
       background: #26384f;
       color: #ffffff;
+    }}
+    .tab:hover {{
+      border-color: #26384f;
+      color: #26384f;
+    }}
+    .tab.active:hover {{
+      color: #ffffff;
+    }}
+    .tab:focus-visible {{
+      outline: 3px solid rgba(61, 121, 199, 0.35);
+      outline-offset: 2px;
+    }}
+    #overview,
+    #findings,
+    #timeline,
+    #ai-savings {{
+      scroll-margin-top: 18px;
     }}
     .grid {{
       display: grid;
@@ -442,13 +464,24 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     }}
     .timeline-item {{
       display: grid;
-      grid-template-columns: 92px 1fr auto;
+      grid-template-columns: minmax(56px, 72px) minmax(0, 1fr) auto;
       gap: 12px;
       align-items: start;
+      max-width: 100%;
+      min-width: 0;
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fbfcff;
+    }}
+    .timeline-content {{
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }}
+    .timeline-detail {{
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }}
     .toolbar {{
       display: flex;
@@ -638,7 +671,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
   </header>
 
   <main class="shell">
-    <section class="kpis" aria-label="Key metrics">
+    <section id="overview" class="kpis" aria-label="Key metrics">
       {_command_center_kpi("Critical", summary["critical_count"], "Already removed or blocking upgrade", "critical")}
       {_command_center_kpi("High", summary["high_count"], "Due within 180 days", "high")}
       {_command_center_kpi("Products", summary["products_impacted"], "Products impacted", "")}
@@ -647,10 +680,10 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     </section>
 
     <nav class="tabs" aria-label="Report sections">
-      <button class="tab active" type="button">Overview</button>
-      <button class="tab" type="button">Findings</button>
-      <button class="tab" type="button">Timeline</button>
-      <button class="tab" type="button">AI Savings</button>
+      <a class="tab active" href="#overview">Overview</a>
+      <a class="tab" href="#findings">Findings</a>
+      <a class="tab" href="#timeline">Timeline</a>
+      <a class="tab" href="#ai-savings">AI Savings</a>
     </nav>
 
     <section class="grid">
@@ -659,7 +692,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
         {_product_risk_bars(product_rows)}
       </article>
 
-      <article class="panel">
+      <article id="timeline" class="panel">
         <h2>Upcoming Deadlines</h2>
         <div class="timeline">
           {_timeline_item_cards(timeline_items)}
@@ -667,7 +700,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       </article>
     </section>
 
-    <section class="panel">
+    <section id="findings" class="panel">
       <h2>Top Findings</h2>
       <div class="toolbar">
         <select class="filter" aria-label="Severity filter">
@@ -698,7 +731,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
         {_action_cards(actions[:5])}
       </article>
 
-      <article class="panel">
+      <article id="ai-savings" class="panel">
         <h2>AI Savings</h2>
         <div class="savings-grid">
           <div class="donut-wrap">
@@ -910,9 +943,9 @@ def _timeline_item_cards(items: list[dict[str, Any]]) -> str:
     return "\n".join(
         '<div class="timeline-item">'
         f'<div class="deadline">{_h(_short_deadline(item["date"]))}</div>'
-        "<div>"
+        '<div class="timeline-content">'
         f'<strong>{_h(item["title"])}</strong>'
-        f'<div class="muted">{_h(item["detail"])}</div>'
+        f'<div class="muted timeline-detail">{_h(item["detail"])}</div>'
         "</div>"
         f'<span class="pill {_pill_class(item["severity"])}">{_h(_days_label(item["days"]))}</span>'
         "</div>"

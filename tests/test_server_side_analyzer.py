@@ -264,7 +264,7 @@ class ServerSideAnalyzerTests(unittest.TestCase):
                 "recommended_action": "Move to OAuth-based authentication.",
                 "evidence": [
                     {
-                        "path": "api/postman_collection.json",
+                        "path": "api/postman_collection_with_a_very_long_nested_folder_name/collections/orchestrator/legacy/authentication/postman_collection.json",
                         "endpoint": "api/Account/Authenticate",
                         "matched_value": "[REDACTED]",
                     }
@@ -290,6 +290,7 @@ class ServerSideAnalyzerTests(unittest.TestCase):
             "class=\"tabs\"",
             "class=\"panel\"",
             "timeline-item",
+            "timeline-detail",
             "action-card",
             "class=\"donut\"",
             "Risk By Product",
@@ -297,9 +298,19 @@ class ServerSideAnalyzerTests(unittest.TestCase):
             "Top Findings",
             "Recommended Actions",
             "AI Savings",
+            "href=\"#overview\"",
+            "href=\"#findings\"",
+            "href=\"#timeline\"",
+            "href=\"#ai-savings\"",
+            "id=\"overview\"",
+            "id=\"findings\"",
+            "id=\"timeline\"",
+            "id=\"ai-savings\"",
+            "overflow-wrap: anywhere",
         ):
             self.assertIn(section, html)
         self.assertIn("[REDACTED]", html)
+        self.assertIn("postman_collection_with_a_very_long_nested_folder_name", html)
         self.assertIn("missing", html)
         self.assertNotIn("Bearer abc123", html)
 
