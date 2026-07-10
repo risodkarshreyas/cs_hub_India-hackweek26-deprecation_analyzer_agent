@@ -1,0 +1,29 @@
+{
+  "name": "uipath-deprecation-analyzer-skill",
+  "version": "0.1.0",
+  "description": "GitHub-installable CLI for installing the UiPath Deprecation Analyzer skill into local coding agents.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UiPath-Coders/hub_India-hackweek-deprecation_analyzer_agent.git"
+  },
+  "bin": {
+    "uipath-deprecation-skill": "bin/uipath-deprecation-skill.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "SKILL.md",
+    "agents/",
+    "references/",
+    "scripts/*.py",
+    "bin/",
+    "installer/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

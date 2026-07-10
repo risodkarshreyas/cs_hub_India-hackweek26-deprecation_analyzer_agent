@@ -30,6 +30,10 @@ venv/
 bin/
 obj/
 
+# npm CLI entrypoint
+!bin/
+!bin/uipath-deprecation-skill.js
+
 # Sensitive / credential files
 .env
 .env.*
