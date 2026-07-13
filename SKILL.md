@@ -1,6 +1,7 @@
 ---
 name: uipath-deprecation-analyzer
 description: Use when analyzing UiPath deprecation risk or generating deprecation reports/dashboards for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
+allowed-tools: Read, Bash(python3 *), Bash(python *)
 ---
 
 # UiPath Deprecation Analyzer
@@ -13,7 +14,7 @@ Use this skill as the agent-facing entrypoint for UiPath deprecation analysis in
 2. Read `references/common_analysis_rules.md`.
 3. Select `client`, `server`, or `mixed` using the routing table below.
 4. Read only the route-specific analyzer reference needed for the request.
-5. Prefer `scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful.
+5. Prefer `<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful. Resolve `<SKILL_DIR>` as described under CLI Usage; do not assume the session is running from the skill folder.
 6. Read `references/reporting-dashboard-ideas.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
 7. Review generated JSON, Markdown, and HTML reports before responding when those outputs are requested or required.
 8. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
@@ -81,17 +82,25 @@ Server-side script details are documented in `references/server_rule_schema.md` 
 
 ### CLI Usage
 
-Recommended default:
+`<SKILL_DIR>` means the folder containing this `SKILL.md`. It is a documentation placeholder, not a literal environment variable. Substitute the skill directory exposed or discovered by the current agent.
+
+| Agent | Skill directory | Invocation |
+|---|---|---|
+| Claude Code | `${CLAUDE_SKILL_DIR}` | `python3 "${CLAUDE_SKILL_DIR}/scripts/uipath_deprecation_analyzer.py" ...` |
+| Codex | `$CODEX_HOME/skills/uipath-deprecation-analyzer`, `~/.codex/skills/uipath-deprecation-analyzer`, or repo `.agents/skills/uipath-deprecation-analyzer` | `python3 "<skill-dir>/scripts/uipath_deprecation_analyzer.py" ...` |
+| Copilot CLI | `$COPILOT_HOME/skills/uipath-deprecation-analyzer` or `~/.copilot/skills/uipath-deprecation-analyzer` | `python3 "<skill-dir>/scripts/uipath_deprecation_analyzer.py" ...` |
+
+Recommended default after resolving the placeholder:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input <path> --output <reports> --mode auto --format markdown,json,html
+python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --output <reports> --mode auto --format markdown,json,html
 ```
 
 Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server-side report output should include HTML. Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.
 
 ## Runtime Notes
 
-- Python 3 is required to run the scripts.
+- Python 3.10 or later is required to run the scripts. Prefer `python3`; the installer doctor also checks `python` as a fallback.
 - Live UiPath deprecation timeline refresh is the default.
 - Offline mode requires suitable cache files.
 - `openpyxl` is optional for richer XLSX generation; `scripts/reports.py` has a standard-library fallback.
@@ -101,13 +110,7 @@ Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server
 For documentation or script changes, run:
 
 ```bash
-python -m unittest discover -s tests
-```
-
-For skill metadata changes, run:
-
-```bash
-python C:\Users\jeet.doshi\.codex\skills\.system\skill-creator\scripts\quick_validate.py .
+python3 -m unittest discover -s tests
 ```
 
 These validation steps are for skill development and maintenance, not mandatory for every end-user analysis.

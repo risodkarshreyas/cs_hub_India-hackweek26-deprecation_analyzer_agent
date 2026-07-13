@@ -38,6 +38,9 @@ function detectAgents({ env = process.env, homeDir = os.homedir() } = {}) {
   if (fs.existsSync(path.join(homeDir, ".claude"))) {
     detected.push("claude");
   }
+  if (env.COPILOT_HOME || fs.existsSync(path.join(homeDir, ".copilot"))) {
+    detected.push("copilot");
+  }
   return detected;
 }
 
@@ -63,10 +66,11 @@ function resolveTargets({ agents = [], env = process.env, homeDir = os.homedir()
       };
     }
 
+    const copilotRoot = env.COPILOT_HOME || path.join(homeDir, ".copilot");
     return {
       agent,
-      mode: "compatibility adapter",
-      targetPath: path.join(homeDir, ".config", "uipath-deprecation-skill", "copilot", `${skillName}.md`),
+      mode: "native skill",
+      targetPath: path.join(copilotRoot, "skills", skillName),
     };
   });
 }

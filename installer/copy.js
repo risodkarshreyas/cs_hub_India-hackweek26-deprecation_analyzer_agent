@@ -57,11 +57,13 @@ function copyRuntimeAssets({ sourceDir, targetPath, skillName, dryRun = false, f
   const plannedFiles = listRuntimeFiles(sourceDir).map((relativePath) => path.join(targetPath, relativePath));
 
   if (fs.existsSync(targetPath)) {
-    if (!force) {
+    if (!force && !dryRun) {
       throw new Error(`Install target already exists: ${targetPath}. Use --force to replace it.`);
     }
-    assertSafeTarget(targetPath, skillName);
-    if (!dryRun) {
+    if (force) {
+      assertSafeTarget(targetPath, skillName);
+    }
+    if (force && !dryRun) {
       fs.rmSync(targetPath, { recursive: true, force: true });
     }
   }

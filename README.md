@@ -19,7 +19,7 @@ https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline
 ## Prerequisites
 
 - A coding-agent environment that can load local skill or instruction folders, such as Codex, Claude Code, Copilot, Antigravity, or a similar agent.
-- Python 3 installed and available as `python`.
+- Python 3.10 or later, preferably available as `python3` (`doctor` falls back to `python`).
 - Node.js 20 or later if you want to use the bundled skill installer CLI.
 - Internet access for the default live refresh from the UiPath deprecation timeline.
 - Optional: `openpyxl` for richer XLSX output. If it is not installed, the analyzer writes XLSX files with a built-in standard-library fallback.
@@ -55,7 +55,7 @@ The skill inspects the available evidence and routes the request to the client-s
 
    ```bash
    npm test
-   python -m unittest discover -s tests
+   python3 -m unittest discover -s tests
    ```
 
 6. Run the analyzer CLI directly, or ask your coding agent to use `SKILL.md`.
@@ -104,9 +104,27 @@ Installer targets:
 
 - Codex native skill: `$CODEX_HOME/skills/uipath-deprecation-analyzer` when `CODEX_HOME` is set, otherwise `~/.codex/skills/uipath-deprecation-analyzer`.
 - Claude native skill: `~/.claude/skills/uipath-deprecation-analyzer`.
-- Copilot compatibility adapter: `~/.config/uipath-deprecation-skill/copilot/uipath-deprecation-analyzer.md`.
+- Copilot native skill: `$COPILOT_HOME/skills/uipath-deprecation-analyzer` when `COPILOT_HOME` is set, otherwise `~/.copilot/skills/uipath-deprecation-analyzer`.
 
 Manual installation is still supported: copy `SKILL.md`, `agents/`, `references/`, and `scripts/` into the skill location expected by your coding agent.
+
+### Running an Installed Skill
+
+Agent sessions normally run from the user's project, not from the installed skill directory. In commands below, `<SKILL_DIR>` means the folder containing the installed `SKILL.md`; replace it with the path appropriate for the current agent.
+
+| Agent | Skill directory | Invocation |
+|---|---|---|
+| Claude Code | `${CLAUDE_SKILL_DIR}` | `python3 "${CLAUDE_SKILL_DIR}/scripts/uipath_deprecation_analyzer.py" ...` |
+| Codex | `$CODEX_HOME/skills/uipath-deprecation-analyzer`, `~/.codex/skills/uipath-deprecation-analyzer`, or repo `.agents/skills/uipath-deprecation-analyzer` | `python3 "<skill-dir>/scripts/uipath_deprecation_analyzer.py" ...` |
+| Copilot CLI | `$COPILOT_HOME/skills/uipath-deprecation-analyzer` or `~/.copilot/skills/uipath-deprecation-analyzer` | `python3 "<skill-dir>/scripts/uipath_deprecation_analyzer.py" ...` |
+
+For example, after resolving `<SKILL_DIR>`:
+
+```bash
+python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --output <reports> --mode auto --format markdown,json,html
+```
+
+`agents/openai.yaml` is Codex-specific metadata. It is harmless when copied into Claude or Copilot skill directories; those agents use `SKILL.md`, `references/`, and `scripts/`.
 
 ## Input Examples
 
@@ -204,37 +222,37 @@ Server-side rules and evidence records are documented in `references/server_rule
 From this repository root, use `--mode auto` as the default first run. It detects client, server, or mixed evidence based on the input folder:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/evidence --output ./reports --mode auto --format markdown,json,xlsx,html
+python3 scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/evidence --output ./reports --mode auto --format markdown,json,xlsx,html
 ```
 
 Client-side RPA source project or package folder:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --mode client --format markdown,json,csv,xlsx,html
+python3 scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --mode client --format markdown,json,csv,xlsx,html
 ```
 
 Server-side tenant/platform export:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json,xlsx,html
+python3 scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json,xlsx,html
 ```
 
 Mixed repo plus platform export:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./mixed-folder --output ./reports --mode mixed --format markdown,json,xlsx,html
+python3 scripts/uipath_deprecation_analyzer.py --input ./mixed-folder --output ./reports --mode mixed --format markdown,json,xlsx,html
 ```
 
 Offline or repeatable client run using a cached timeline file:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --use-cache-only --format markdown,json,csv,xlsx,html --analysis-date 2026-07-07
+python3 scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --timeline-cache ./tests/fixtures/timeline-cache.json --use-cache-only --format markdown,json,csv,xlsx,html --analysis-date 2026-07-07
 ```
 
 Run against a folder of `.nupkg` files:
 
 ```bash
-python scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg
+python3 scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg
 ```
 
 Cache options:
@@ -249,11 +267,5 @@ Cache options:
 Run the unit and contract tests:
 
 ```bash
-python -m unittest discover -s tests
-```
-
-Validate skill metadata:
-
-```bash
-python C:\Users\jeet.doshi\.codex\skills\.system\skill-creator\scripts\quick_validate.py .
+python3 -m unittest discover -s tests
 ```

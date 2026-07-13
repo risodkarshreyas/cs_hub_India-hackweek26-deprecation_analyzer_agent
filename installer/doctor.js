@@ -11,7 +11,29 @@ function commandExists(command, args) {
   };
 }
 
-function runDoctor({ sourceDir = path.join(__dirname, "..") } = {}) {
+function parsePythonVersion(output) {
+  const match = String(output).match(/Python\s+(\d+)\.(\d+)(?:\.(\d+))?/i);
+  if (!match) {
+    return null;
+  }
+  return {
+    major: Number.parseInt(match[1], 10),
+    minor: Number.parseInt(match[2], 10),
+    patch: Number.parseInt(match[3] || "0", 10),
+  };
+}
+
+function resolvePython(commandChecker = commandExists) {
+  for (const command of ["python3", "python"]) {
+    const result = commandChecker(command, ["--version"]);
+    if (result.ok) {
+      return { command, ...result, version: parsePythonVersion(result.output) };
+    }
+  }
+  return null;
+}
+
+function runDoctor({ sourceDir = path.join(__dirname, ".."), commandChecker = commandExists } = {}) {
   const checks = [];
 
   const nodeMajor = Number.parseInt(process.versions.node.split(".")[0], 10);
@@ -36,11 +58,16 @@ function runDoctor({ sourceDir = path.join(__dirname, "..") } = {}) {
     });
   }
 
-  const python = commandExists("python", ["--version"]);
+  const python = resolvePython(commandChecker);
+  const pythonVersionOk =
+    python?.version &&
+    (python.version.major > 3 || (python.version.major === 3 && python.version.minor >= 10));
   checks.push({
     name: "python",
-    ok: python.ok,
-    message: python.output || "python --version failed",
+    ok: Boolean(pythonVersionOk),
+    message: python
+      ? `${python.command}: ${python.output || "unrecognized version"} (requires Python >= 3.10)`
+      : "python3 and python were not found (requires Python >= 3.10)",
   });
 
   checks.push({
@@ -56,5 +83,7 @@ function runDoctor({ sourceDir = path.join(__dirname, "..") } = {}) {
 }
 
 module.exports = {
+  parsePythonVersion,
+  resolvePython,
   runDoctor,
 };
