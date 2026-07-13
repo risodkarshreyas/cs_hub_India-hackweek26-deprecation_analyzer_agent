@@ -1,4 +1,6 @@
-To test Client (eg RPA workflows only) and server side (eg Cloud + Orchestrator also ) you can test with below prompt by changing your environment and input/Output path details
+########## EXAMPLE 1 ##################################################################
+## To test Both Sets of deprecations Client (eg RPA workflows only) and server side (eg Cloud + Orchestrator also ), you can test with below prompt by changing your environment and input/Output path details
+
 
 [$uipath-deprecation-analyzer](/Users/shreyas.risodkar/.codex/skills/uipath-deprecation-analyzer/SKILL.md)
 
@@ -89,3 +91,107 @@ The HTML dashboard must be visually suitable for a hackathon presentation and mu
 Conclude with a concise "What should we fix first?" recommendation covering immediate, near-term, and monitoring actions.
 
 Review the generated HTML and JSON before completing the analysis. Do not modify either the source project or the UiPath tenant.
+
+
+
+
+
+
+########## EXAMPLE 2 ######################################################
+## To Test Client (eg RPA Workflows),you can test with below prompt by changing your environment and input/Output path details
+
+[$uipath-deprecation-analyzer](/Users/shreyas.risodkar/.codex/skills/uipath-deprecation-analyzer/SKILL.md)
+
+Run a comprehensive client-side UiPath deprecation analysis for this automation project:
+
+/Users/shreyas.risodkar/Downloads/DeprecatedTesting/Deprecated_Process-002.1.0.1
+
+This is a read-only assessment. Do not modify, upgrade, restore, execute, publish, repackage, or delete anything in the source project.
+
+ANALYSIS SCOPE
+
+Inspect all available client-side artifacts, including:
+
+- project.json and project settings
+- XAML workflows
+- Package dependencies and exact installed versions
+- Studio and Robot compatibility
+- Target framework and Windows-Legacy usage
+- Deprecated activities and activity properties
+- Removed or deprecated UiPath packages
+- Deprecated namespaces, APIs, selectors, and workflow patterns
+- Available replacement packages, activities, or migration paths
+- NuGet package metadata or .nupkg contents when available
+
+Use the latest official UiPath deprecation documentation as the authoritative source.
+
+Do not classify a package as deprecated merely because it is old. A finding must be supported by official documentation, package metadata, or direct workflow evidence.
+
+FINDING REQUIREMENTS
+
+For every confirmed finding, include:
+
+- Project and workflow name
+- Package, activity, API, or framework involved
+- Current version
+- Severity and lifecycle status
+- Deprecation and removal dates
+- Exact evidence path and XAML activity location
+- Upgrade or execution impact
+- Recommended replacement
+- Required migration action
+- Recommended UiPath skill
+- Confidence level
+- Official source URL
+
+Group repeated uses of the same deprecated activity where appropriate, but preserve affected workflow names and occurrence counts.
+
+Keep missing files, unavailable metadata, and unscanned dependencies separate as coverage gaps. Do not report them as deprecation findings.
+
+PRIORITIZATION
+
+Classify recommendations into:
+
+- Immediate: already removed or likely to prevent execution or upgrade
+- Near term: removal approaching or migration requires significant effort
+- Planned: deprecated but currently supported
+- Monitor: low-confidence or informational risks
+
+Clearly answer:
+
+1. What can break today?
+2. What must be migrated next?
+3. Which workflows and packages are affected?
+4. What is the safest modernization sequence?
+
+REPORTING
+
+Generate reports in:
+
+/Users/shreyas.risodkar/Downloads/DeprecatedTesting/ClientOutput
+
+Required formats:
+
+- Markdown
+- JSON
+- CSV
+- XLSX
+- Self-contained HTML dashboard
+
+The HTML dashboard must be visually suitable for a hackathon demonstration and must not display raw JSON. Include:
+
+- Executive risk summary
+- Critical and high-risk KPIs
+- Risk by package and workflow
+- Removal deadline timeline
+- Deprecated package findings
+- Deprecated activity findings
+- Windows-Legacy compatibility risks
+- Readable evidence summaries
+- Recommended migration roadmap
+- Coverage gaps
+- Estimated AI-assisted analysis time savings
+
+Review the generated HTML and JSON reports before completing the analysis.
+
+Conclude with a concise “What should we fix first?” recommendation. Confirm that the source project was not modified.
