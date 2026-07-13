@@ -1,0 +1,91 @@
+To test Client (eg RPA workflows only) and server side (eg Cloud + Orchestrator also ) you can test with below prompt by changing your environment and input/Output path details
+
+[$uipath-deprecation-analyzer](/Users/shreyas.risodkar/.codex/skills/uipath-deprecation-analyzer/SKILL.md)
+
+Run a unified client-side and server-side UiPath deprecation analysis and produce one executive risk dashboard.
+
+CLIENT-SIDE SCOPE
+
+Analyze this UiPath automation project:
+
+/Users/shreyas.risodkar/Downloads/DeprecatedTesting/Deprecated_Process-002.1.0.1
+
+Inspect project.json, XAML workflows, target framework, activity packages, package versions, deprecated activities, Windows-Legacy compatibility, and available replacements.
+
+Do not modify, upgrade, restore, publish, or execute anything in the project.
+
+SERVER-SIDE SCOPE
+
+Analyze this UiPath Automation Cloud environment:
+
+Organization: uipathtamindia
+Tenant: UiPath default
+Folder: Nilekha&Demo
+Orchestrator Testing URL:
+https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791
+
+Use read-only authenticated inspection to check for deprecated Orchestrator capabilities, especially the Testing Module that has moved to Test Manager.
+
+Inspect these testing artifacts when available:
+
+- Test Sets
+- Test Case Definitions
+- Test Case Executions
+- Test Set Executions
+- Test Set Schedules
+
+Do not create, edit, execute, publish, migrate, delete, or alter tenant resources. Do not store credentials, cookies, tokens, owner identifiers, machine names, or job keys.
+
+ANALYSIS REQUIREMENTS
+
+Use the latest official UiPath deprecation documentation as the authoritative source.
+
+Run this as a mixed client/server analysis and normalize all findings into one common schema.
+
+Keep client and server evidence distinguishable, but correlate them in the executive summary where they contribute to the same business or migration risk.
+
+For each confirmed finding, include:
+
+- Client or server domain
+- Product and deprecated feature/package
+- Severity and lifecycle status
+- Removal deadline
+- Exact project, workflow, package, tenant, or folder evidence
+- Business and operational impact
+- Recommended replacement or migration action
+- Recommended UiPath skill or product
+- Confidence level and official source URL
+
+Do not turn missing access or missing inventory into deprecation findings. Report these separately as coverage gaps.
+
+REPORTING
+
+Generate all reports in:
+
+/Users/shreyas.risodkar/Downloads/DeprecatedTesting/MixedOutput
+
+Required formats:
+
+- Markdown
+- JSON
+- CSV
+- XLSX
+- Self-contained HTML dashboard
+
+The HTML dashboard must be visually suitable for a hackathon presentation and must not display raw JSON. Include:
+
+- Executive risk summary
+- Client versus server risk comparison
+- Critical and high-risk KPIs
+- Risk by UiPath product
+- Deadline timeline
+- Client-side package and workflow findings
+- Server-side Orchestrator findings
+- Readable evidence summaries and artifact counts
+- Recommended migration roadmap
+- Coverage gaps
+- Estimated AI-assisted analysis time savings
+
+Conclude with a concise "What should we fix first?" recommendation covering immediate, near-term, and monitoring actions.
+
+Review the generated HTML and JSON before completing the analysis. Do not modify either the source project or the UiPath tenant.

@@ -425,13 +425,16 @@ class ServerSideAnalyzerTests(unittest.TestCase):
             "Top Findings",
             "Recommended Actions",
             "AI Savings",
+            "Coverage Gaps",
             "href=\"#overview\"",
             "href=\"#findings\"",
             "href=\"#timeline\"",
+            "href=\"#coverage\"",
             "href=\"#ai-savings\"",
             "id=\"overview\"",
             "id=\"findings\"",
             "id=\"timeline\"",
+            "id=\"coverage\"",
             "id=\"ai-savings\"",
             "overflow-wrap: anywhere",
         ):
@@ -441,6 +444,31 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("missing", html)
         self.assertNotIn("artifact_counts={", html)
         self.assertNotIn("Bearer abc123", html)
+
+    def test_html_dashboard_labels_client_scope_as_project(self):
+        finding = normalize_client_finding(
+            {
+                "project_name": "LegacyProcess",
+                "package_name": "UiPath.Legacy.Activities",
+                "current_version": "1.2.3",
+                "classification": "Already Removed",
+                "risk_level": "Critical",
+                "recommendation": "Replace the package.",
+                "removal_date": "2026-01-01",
+                "evidence": ["LegacyProcess/project.json"],
+                "confidence": "high",
+                "source_url": "source",
+            },
+            1,
+            "2026-07-13",
+        )
+        payload = build_common_report_payload([finding], "2026-07-13")
+
+        html = render_html_dashboard_report(payload)
+
+        self.assertIn("<strong>Project:</strong>", html)
+        self.assertIn("Project: LegacyProcess", html)
+        self.assertNotIn('<span class="evidence-label">Folder</span>', html)
 
     def test_cli_routes_server_and_mixed_modes_with_cache_only(self):
         with tempfile.TemporaryDirectory() as tmp:

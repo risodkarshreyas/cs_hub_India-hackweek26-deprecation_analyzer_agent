@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UiPath Deprecation Risk Command Center</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e1ec;
+      --critical: #c7352b;
+      --high: #e26c2d;
+      --medium: #d7a514;
+      --low: #3d79c7;
+      --ok: #178064;
+      --slate: #41516a;
+      --soft-red: #fff0ee;
+      --soft-orange: #fff4e8;
+      --soft-yellow: #fff8db;
+      --soft-blue: #edf5ff;
+      --soft-green: #eaf8f2;
+      --shadow: 0 14px 34px rgba(31, 45, 61, 0.10);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 22px 0;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 780px;
+    }
+    .scan-meta {
+      min-width: 236px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    main {
+      padding: 24px 0 34px;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      min-height: 108px;
+    }
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+    .kpi .value {
+      display: block;
+      margin-top: 10px;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .kpi .note {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .critical { color: var(--critical); }
+    .high { color: var(--high); }
+    .medium { color: var(--medium); }
+    .ok { color: var(--ok); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 18px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      color: var(--slate);
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .tab.active {
+      border-color: #26384f;
+      background: #26384f;
+      color: #ffffff;
+    }
+    .tab:hover {
+      border-color: #26384f;
+      color: #26384f;
+    }
+    .tab.active:hover {
+      color: #ffffff;
+    }
+    .tab:focus-visible {
+      outline: 3px solid rgba(61, 121, 199, 0.35);
+      outline-offset: 2px;
+    }
+    #overview,
+    #findings,
+    #timeline,
+    #coverage,
+    #ai-savings {
+      scroll-margin-top: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 42px;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+    }
+    .bar-label {
+      font-weight: 700;
+      color: var(--slate);
+      overflow-wrap: anywhere;
+    }
+    .bar-track {
+      height: 14px;
+      background: #edf1f6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--critical), var(--high));
+    }
+    .deadline {
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .pill.critical { background: var(--soft-red); color: var(--critical); }
+    .pill.high { background: var(--soft-orange); color: var(--high); }
+    .pill.medium { background: var(--soft-yellow); color: #8a6500; }
+    .pill.low { background: var(--soft-blue); color: var(--low); }
+    .pill.ok { background: var(--soft-green); color: var(--ok); }
+    .pill.gray { background: #eef1f5; color: var(--slate); }
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: minmax(56px, 72px) minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      max-width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+    .timeline-content {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .timeline-detail {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 9px 10px;
+      color: var(--slate);
+      min-width: 156px;
+      font: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+    }
+    td {
+      border-bottom: 1px solid #edf1f6;
+      padding: 12px 8px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    tbody tr:hover {
+      background: #fafcff;
+    }
+    .feature {
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .finding-title {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .finding-context {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+    .context-tag {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fafc;
+      color: var(--slate);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+    .evidence-summary {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #e3e9f1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .evidence-heading {
+      margin-bottom: 8px;
+      color: var(--slate);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .evidence-item {
+      min-width: 0;
+      padding: 8px;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .evidence-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .evidence-value {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .artifact-counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .count-chip {
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #eaf1fb;
+      color: #264c7c;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .evidence-details {
+      margin-top: 9px;
+      border-top: 1px solid #e3e9f1;
+      padding-top: 8px;
+    }
+    .evidence-details summary {
+      cursor: pointer;
+      color: #315f96;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .evidence-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .evidence-detail-grid h4 {
+      margin: 0 0 5px;
+      color: var(--slate);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .evidence-detail-grid ul {
+      margin: 0;
+      padding-left: 17px;
+      color: var(--slate);
+      font-size: 12px;
+    }
+    .evidence-detail-grid li {
+      margin: 3px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .source-line {
+      margin-top: 8px;
+    }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 22px;
+    }
+    .decision-item {
+      min-width: 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--low);
+    }
+    .decision-item.urgent {
+      border-left-color: var(--critical);
+    }
+    .decision-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .decision-item p {
+      margin: 0;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .action-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      margin-bottom: 10px;
+    }
+    .rank {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #26384f;
+      color: #ffffff;
+      font-weight: 800;
+    }
+    .savings-grid {
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 16px;
+    }
+    .donut-wrap {
+      display: grid;
+      place-items: center;
+      padding: 12px 0;
+    }
+    .donut {
+      width: 210px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+        conic-gradient(var(--ok) 0 var(--saved-percent), #e7ecf3 var(--saved-percent) 100%);
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+    }
+    .donut strong {
+      font-size: 38px;
+      line-height: 1;
+    }
+    .donut span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      text-align: center;
+    }
+    .stacked {
+      height: 18px;
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf1f6;
+      margin: 8px 0 16px;
+    }
+    .seg-docs { width: 28%; background: #64748b; }
+    .seg-inventory { width: 26%; background: var(--low); }
+    .seg-match { width: 22%; background: var(--high); }
+    .seg-plan { width: 16%; background: var(--medium); }
+    .seg-validate { width: 8%; background: var(--ok); }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 7px;
+      border-radius: 2px;
+      vertical-align: middle;
+      background: var(--swatch);
+    }
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 18px 0 0;
+    }
+    @media (max-width: 900px) {
+      .topbar,
+      .grid,
+      .savings-grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .scan-meta {
+        min-width: 0;
+      }
+      table {
+        min-width: 850px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+    }
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 20px, 1180px);
+      }
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+      .timeline-item,
+      .action-card {
+        grid-template-columns: 1fr;
+      }
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+      .evidence-grid,
+      .evidence-detail-grid,
+      .decision-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell topbar">
+      <div>
+        <h1>UiPath Deprecation Risk Command Center</h1>
+        <p class="subtitle">Static executive report generated from analyzer findings, evidence, remediation routing, and AI time-savings estimates.</p>
+      </div>
+      <div class="scan-meta">
+        <strong>Analyzer scan</strong><br>
+        Environment: Client automation project<br>
+        Source refreshed: 13 Jul 2026<br>
+        Findings: 2
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="overview" class="kpis" aria-label="Key metrics">
+      <div class="kpi"><span class="label">Critical</span><span class="value critical">1</span><span class="note">Already removed or blocking upgrade</span></div>
+      <div class="kpi"><span class="label">High</span><span class="value high">0</span><span class="note">Due within 180 days</span></div>
+      <div class="kpi"><span class="label">Products</span><span class="value">1</span><span class="note">Products impacted</span></div>
+      <div class="kpi"><span class="label">Next Deadline</span><span class="value medium">Overdue</span><span class="note">UiPath.Abbyy.Activities</span></div>
+      <div class="kpi"><span class="label">AI Time Saved</span><span class="value ok">75%</span><span class="note">9.0 hours estimated saved</span></div>
+    </section>
+
+    <nav class="tabs" aria-label="Report sections">
+      <a class="tab active" href="#overview">Overview</a>
+      <a class="tab" href="#findings">Findings</a>
+      <a class="tab" href="#timeline">Timeline</a>
+      <a class="tab" href="#coverage">Coverage</a>
+      <a class="tab" href="#ai-savings">AI Savings</a>
+    </nav>
+
+    <section class="panel" style="margin-bottom: 16px;"><h2>What Should We Fix First?</h2><div class="decision-grid"><div class="decision-item urgent"><strong>What can break today?</strong><p>Five ABBYY activities can no longer execute on UiPath Robots because UiPath.Abbyy.Activities was removed after August 2025.</p></div><div class="decision-item "><strong>What must migrate next?</strong><p>Replace ABBYY OCR and FlexiCapture behavior, then remove the ABBYY package. Separately, plan the Windows-Legacy migration before adopting IntelligentOCR 7.x.</p></div><div class="decision-item "><strong>Which workflows and packages are affected?</strong><p>UiPath.Abbyy.Activities 1.2.0 affects Deprecated_Activities.xaml and sample_deprecated_packages_inventory.xaml, with five confirmed activities.</p></div><div class="decision-item "><strong>What is the safest sequence?</strong><p>Capture current OCR outputs, replace and validate activities one workflow at a time, remove the ABBYY dependency, regression-test the process, then address the broader Windows-Legacy conversion.</p></div></div></section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Risk By Product</h2>
+        <div class="bar-row"><div class="bar-label">Studio/Robot activity packages</div><div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div><strong>2</strong></div>
+      </article>
+
+      <article id="timeline" class="panel">
+        <h2>Upcoming Deadlines</h2>
+        <div class="timeline">
+          <div class="timeline-item"><div class="deadline">01 Aug</div><div class="timeline-content"><strong>UiPath.Abbyy.Activities</strong><div class="timeline-detail"><div class="evidence-summary"><div class="evidence-heading">Evidence summary</div><span class="evidence-value">Affected Workflows: 2; Deprecated Activities: 5; Package Dependencies: 1 | Project: Deprecated_Process-002 | Source: project_and_xaml</span><div class="source-line muted">Reference: <a href="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline</a></div></div></div></div><span class="pill critical">Overdue</span></div>
+<div class="timeline-item"><div class="deadline">01 Jan</div><div class="timeline-content"><strong>Windows-Legacy / IntelligentOCR upgrade constraint</strong><div class="timeline-detail"><div class="evidence-summary"><div class="evidence-heading">Evidence summary</div><span class="evidence-value">Affected Projects: 1 | Project: Deprecated_Process-002 | Source: project_metadata</span><div class="source-line muted">Reference: <a href="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline</a></div></div></div></div><span class="pill low">Past milestone</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="findings" class="panel">
+      <h2>Top Findings</h2>
+      <div class="toolbar">
+        <select class="filter" aria-label="Severity filter">
+          <option>All severities</option>
+          <option>Critical</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+        <select class="filter" aria-label="Product filter">
+          <option>All products</option>
+          <option>Studio/Robot activity packages</option>
+        </select>
+        <select class="filter" aria-label="Route filter">
+          <option>All mitigation routes</option>
+          <option>uipath-rpa</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table><thead><tr><th style="width: 110px;">Severity</th><th style="width: 160px;">Product</th><th>Finding</th><th style="width: 130px;">Deadline</th><th style="width: 170px;">Route</th><th style="width: 150px;">AI Saved</th></tr></thead><tbody><tr><td><span class="pill critical">Critical</span></td><td>Studio/Robot activity packages</td><td><div class="finding-title">UiPath.Abbyy.Activities</div><div class="finding-context"><span class="context-tag"><strong>Status:</strong>&nbsp;Removed</span><span class="context-tag"><strong>Environment:</strong>&nbsp;Deprecated_Process-002 (Windows-Legacy, Studio 22.4.10)</span><span class="context-tag"><strong>Project:</strong>&nbsp;Deprecated_Process-002</span><span class="context-tag"><strong>Confidence:</strong>&nbsp;high</span></div><div class="evidence-summary"><div class="evidence-heading">Evidence summary</div><div class="evidence-grid"><div class="evidence-item"><span class="evidence-label">Project</span><span class="evidence-value">Deprecated_Process-002</span></div><div class="evidence-item"><span class="evidence-label">Evidence source</span><span class="evidence-value">project_and_xaml</span></div><div class="evidence-item"><span class="evidence-label">Reference</span><span class="evidence-value"><a href="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline</a></span></div></div><div class="artifact-counts"><span class="count-chip">Affected Workflows: 2</span><span class="count-chip">Deprecated Activities: 5</span><span class="count-chip">Package Dependencies: 1</span></div><details class="evidence-details"><summary>View evidence details</summary><div class="evidence-detail-grid"><div><h4>Evidence files</h4><ul><li>lib/net45/project.json</li><li>Deprecated_Process-002.nuspec</li><li>lib/net45/Deprecated_Activities.xaml</li><li>lib/net45/sample_deprecated_packages_inventory.xaml</li></ul></div><div><h4>Representative objects</h4><ul><li>lib/net45/Deprecated_Activities.xaml</li><li>lib/net45/sample_deprecated_packages_inventory.xaml</li><li>Abbyy OCR</li><li>Abbyy Cloud OCR</li><li>ABBYY OCR - deprecated sample</li><li>ABBYY Cloud OCR - deprecated sample</li><li>ABBYY FlexiCapture Process Document - deprecated sample</li><li>Package dependency</li></ul></div><div><h4>Matched signals</h4><ul><li>UiPath.Abbyy.Activities [1.2.0]</li><li>AbbyyOCR</li><li>AbbyyCloudOCR</li><li>ProcessDocument</li></ul></div></div></details></div></td><td>01 Aug 2025</td><td><span class="pill high">uipath-rpa</span></td><td>6.0h / 75%</td></tr>
+<tr><td><span class="pill low">Low</span></td><td>Studio/Robot activity packages</td><td><div class="finding-title">Windows-Legacy / IntelligentOCR upgrade constraint</div><div class="finding-context"><span class="context-tag"><strong>Status:</strong>&nbsp;Informational</span><span class="context-tag"><strong>Environment:</strong>&nbsp;Deprecated_Process-002 (Windows-Legacy, Studio 22.4.10)</span><span class="context-tag"><strong>Project:</strong>&nbsp;Deprecated_Process-002</span><span class="context-tag"><strong>Confidence:</strong>&nbsp;high</span></div><div class="evidence-summary"><div class="evidence-heading">Evidence summary</div><div class="evidence-grid"><div class="evidence-item"><span class="evidence-label">Project</span><span class="evidence-value">Deprecated_Process-002</span></div><div class="evidence-item"><span class="evidence-label">Evidence source</span><span class="evidence-value">project_metadata</span></div><div class="evidence-item"><span class="evidence-label">Reference</span><span class="evidence-value"><a href="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline</a></span></div></div><div class="artifact-counts"><span class="count-chip">Affected Projects: 1</span></div><details class="evidence-details"><summary>View evidence details</summary><div class="evidence-detail-grid"><div><h4>Evidence files</h4><ul><li>lib/net45/project.json</li><li>Deprecated_Process-002.nuspec</li></ul></div><div><h4>Representative objects</h4><ul><li>targetFramework: Legacy</li><li>UiPath.IntelligentOCR.Activities: 6.14.3</li><li>Project compatibility</li><li>Package target framework</li></ul></div><div><h4>Matched signals</h4><ul><li>UiPath.IntelligentOCR.Activities [6.14.3]</li><li>targetFramework: Legacy</li><li>.NETFramework4.6.1</li></ul></div></div></details></div></td><td>01 Jan 2026</td><td><span class="pill low">uipath-rpa</span></td><td>3.0h / 75%</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section id="coverage" class="panel" style="margin-top: 16px;">
+      <h2>Coverage Gaps</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Product</th><th>Type</th><th>Message</th></tr></thead><tbody><tr><td>UiPath.OCR.Activities</td><td>missing_context</td><td>Six workflows reference UiPath.OCR.Activities.Design, but the package is absent from project.json and the nuspec. Its exact version and dependency provenance cannot be established from the supplied package. The current timeline constraint applies to OCR.Activities 4.x, so no deprecation finding was raised without version evidence.</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top: 16px;">
+      <article class="panel">
+        <h2>Recommended Actions</h2>
+        <div class="action-card"><div class="rank">1</div><div><strong>Remediate UiPath.Abbyy.Activities</strong><div class="muted">Remove the ABBYY activities, migrate their OCR and FlexiCapture behavior to UiPath Intelligent OCR functionality, validate equivalent outputs, and then remove UiPath.Abbyy.Activities from project.json and the package manifest.</div></div><span class="pill critical">Critical</span></div>
+<div class="action-card"><div class="rank">2</div><div><strong>Plan remediation for Windows-Legacy / IntelligentOCR upgrade constraint</strong><div class="muted">Keep a supported IntelligentOCR 6.x version while the project remains Windows-Legacy, and plan a controlled migration to Windows before adopting IntelligentOCR 7.x or later.</div></div><span class="pill low">Low</span></div>
+      </article>
+
+      <article id="ai-savings" class="panel">
+        <h2>AI Savings</h2>
+        <div class="savings-grid">
+          <div class="donut-wrap">
+            <div class="donut" style="--saved-percent: 75%;">
+              <div>
+                <strong>75%</strong>
+                <span>effort reduction</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p><strong>Manual baseline:</strong> 12.0 hours</p>
+            <p><strong>AI-assisted effort:</strong> 3.0 hours</p>
+            <p><strong>Estimated saved:</strong> 9.0 hours</p>
+            <div class="stacked" aria-label="Savings breakdown">
+              <div class="seg-docs"></div>
+              <div class="seg-inventory"></div>
+              <div class="seg-match"></div>
+              <div class="seg-plan"></div>
+              <div class="seg-validate"></div>
+            </div>
+            <div class="legend">
+              <span style="--swatch:#64748b;">Docs review</span>
+              <span style="--swatch:#3d79c7;">Inventory review</span>
+              <span style="--swatch:#e26c2d;">Evidence matching</span>
+              <span style="--swatch:#d7a514;">Planning</span>
+              <span style="--swatch:#178064;">Validation</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Generated analyzer report. Coverage gaps: 1. Empty source URLs are shown as missing in the findings table. Source links should point to UiPath documentation and local evidence in production reports.
+    </footer>
+  </main>
+</body>
+</html>

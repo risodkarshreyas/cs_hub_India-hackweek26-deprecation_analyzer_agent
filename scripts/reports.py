@@ -164,10 +164,21 @@ def _render_common_markdown_report(payload: dict[str, Any]) -> str:
         f"- Domain counts: {json.dumps(summary.get('domain_counts', {}), sort_keys=True)}",
         f"- Product counts: {json.dumps(summary.get('product_counts', {}), sort_keys=True)}",
         f"- Estimated hours saved: {summary.get('total_estimated_hours_saved', 0)}",
-        "",
-        "## Highest-Risk Findings",
-        "",
     ]
+    decision_summary = payload.get("decision_summary", {})
+    if decision_summary:
+        lines.extend(
+            [
+                "",
+                "## What Should We Fix First?",
+                "",
+                f"- What can break today: {decision_summary.get('what_can_break_today', 'Review critical findings.')}",
+                f"- What must migrate next: {decision_summary.get('what_must_migrate_next', 'Review scheduled findings.')}",
+                f"- Affected scope: {decision_summary.get('affected_scope', 'See finding evidence.')}",
+                f"- Safest modernization sequence: {decision_summary.get('safest_modernization_sequence', 'Prioritize by severity and deadline.')}",
+            ]
+        )
+    lines.extend(["", "## Highest-Risk Findings", ""])
     lines.extend(_common_finding_bullets([f for f in findings if f.get("severity") in {"critical", "high"}][:10]))
     for title, domain in (
         ("Client-Side Findings", "client"),
@@ -392,6 +403,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     #overview,
     #findings,
     #timeline,
+    #coverage,
     #ai-savings {{
       scroll-margin-top: 18px;
     }}
@@ -640,6 +652,28 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     .source-line {{
       margin-top: 8px;
     }}
+    .decision-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 22px;
+    }}
+    .decision-item {{
+      min-width: 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--low);
+    }}
+    .decision-item.urgent {{
+      border-left-color: var(--critical);
+    }}
+    .decision-item strong {{
+      display: block;
+      margin-bottom: 4px;
+    }}
+    .decision-item p {{
+      margin: 0;
+      color: var(--slate);
+      font-size: 13px;
+    }}
     .muted {{
       color: var(--muted);
       font-size: 12px;
@@ -767,7 +801,8 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
         grid-template-columns: 1fr;
       }}
       .evidence-grid,
-      .evidence-detail-grid {{
+      .evidence-detail-grid,
+      .decision-grid {{
         grid-template-columns: 1fr;
       }}
     }}
@@ -802,8 +837,11 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       <a class="tab active" href="#overview">Overview</a>
       <a class="tab" href="#findings">Findings</a>
       <a class="tab" href="#timeline">Timeline</a>
+      <a class="tab" href="#coverage">Coverage</a>
       <a class="tab" href="#ai-savings">AI Savings</a>
     </nav>
+
+    {_decision_summary_html(payload.get("decision_summary", {}))}
 
     <section class="grid">
       <article class="panel">
@@ -841,6 +879,13 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
 
       <div class="table-wrap">
         {_findings_command_table(top_findings)}
+      </div>
+    </section>
+
+    <section id="coverage" class="panel" style="margin-top: 16px;">
+      <h2>Coverage Gaps</h2>
+      <div class="table-wrap">
+        {_coverage_gap_table(coverage_gaps)}
       </div>
     </section>
 
@@ -1006,6 +1051,7 @@ def _timeline_items(findings: list[dict[str, Any]], analysis_date: str) -> list[
                 "date": parsed,
                 "days": days,
                 "severity": str(finding.get("severity", "low")).lower(),
+                "status": str(finding.get("status", "")).lower(),
                 "title": finding.get("feature_or_package") or finding.get("product") or "Finding",
                 "finding": finding,
             }
@@ -1034,6 +1080,28 @@ def _command_center_kpi(label: str, value: Any, note: Any, value_class: str) -> 
         f'<span class="value{css}">{_h(value)}</span>'
         f'<span class="note">{_h(note)}</span>'
         "</div>"
+    )
+
+
+def _decision_summary_html(summary: dict[str, Any]) -> str:
+    if not summary:
+        return ""
+    items = (
+        ("What can break today?", summary.get("what_can_break_today"), "urgent"),
+        ("What must migrate next?", summary.get("what_must_migrate_next"), ""),
+        ("Which workflows and packages are affected?", summary.get("affected_scope"), ""),
+        ("What is the safest sequence?", summary.get("safest_modernization_sequence"), ""),
+    )
+    body = "".join(
+        f'<div class="decision-item {css_class}"><strong>{_h(label)}</strong><p>{_h(value)}</p></div>'
+        for label, value, css_class in items
+        if value
+    )
+    return (
+        '<section class="panel" style="margin-bottom: 16px;">'
+        '<h2>What Should We Fix First?</h2>'
+        f'<div class="decision-grid">{body}</div>'
+        '</section>'
     )
 
 
@@ -1066,7 +1134,7 @@ def _timeline_item_cards(items: list[dict[str, Any]]) -> str:
         f'<strong>{_h(item["title"])}</strong>'
         f'<div class="timeline-detail">{_finding_evidence_html(item["finding"], compact=True)}</div>'
         "</div>"
-        f'<span class="pill {_pill_class(item["severity"])}">{_h(_days_label(item["days"]))}</span>'
+        f'<span class="pill {_pill_class(item["severity"])}">{_h(_days_label(item["days"], item["status"]))}</span>'
         "</div>"
         for item in items
     )
@@ -1128,10 +1196,16 @@ def _timeline_detail(finding: dict[str, Any]) -> str:
 
 def _finding_context_html(finding: dict[str, Any]) -> str:
     """Render scannable finding context instead of flattening it into one long line."""
+    scope_label = "Project" if finding.get("domain") == "client" else "Folder"
+    scope_value = (
+        finding.get("project_name") or finding.get("environment")
+        if finding.get("domain") == "client"
+        else finding.get("configuration_object")
+    )
     values = [
         ("Status", str(finding.get("status", "")).replace("_", " ").title()),
         ("Environment", finding.get("environment")),
-        ("Folder", finding.get("configuration_object")),
+        (scope_label, scope_value),
         ("Confidence", finding.get("confidence")),
     ]
     tags = "".join(
@@ -1163,7 +1237,9 @@ def _finding_evidence_html(finding: dict[str, Any], compact: bool = False) -> st
         summary_bits = []
         if counts:
             summary_bits.append("; ".join(f"{_human_label(key)}: {value}" for key, value in counts.items()))
-        if context.get("folder"):
+        if context.get("project"):
+            summary_bits.append(f"Project: {context['project']}")
+        elif context.get("folder"):
             summary_bits.append(f"Folder: {context['folder']}")
         if context.get("evidence_source"):
             summary_bits.append(f"Source: {context['evidence_source']}")
@@ -1178,6 +1254,7 @@ def _finding_evidence_html(finding: dict[str, Any], compact: bool = False) -> st
 
     context_cells = []
     for label, key in (
+        ("Project", "project"),
         ("Organization", "organization"),
         ("Tenant", "tenant"),
         ("Folder", "folder"),
@@ -1231,11 +1308,14 @@ def _finding_evidence_html(finding: dict[str, Any], compact: bool = False) -> st
 
 def _evidence_context(records: list[dict[str, Any]], finding: dict[str, Any]) -> dict[str, Any]:
     context: dict[str, Any] = {}
-    for key in ("organization", "tenant", "folder", "evidence_source", "source_url"):
+    for key in ("project", "organization", "tenant", "folder", "evidence_source", "source_url"):
         value = next((record.get(key) for record in records if record.get(key)), None)
         if value:
             context[key] = value
-    if finding.get("environment") and not context.get("folder"):
+    if finding.get("domain") == "client":
+        if not context.get("project"):
+            context["project"] = finding.get("project_name") or finding.get("environment")
+    elif finding.get("environment") and not context.get("folder"):
         context["folder"] = finding.get("configuration_object") or finding.get("environment")
     return context
 
@@ -1310,8 +1390,10 @@ def _short_deadline(value: date) -> str:
     return value.strftime("%d %b")
 
 
-def _days_label(days: int) -> str:
+def _days_label(days: int, status: str = "") -> str:
     if days < 0:
+        if status == "informational":
+            return "Past milestone"
         return "Overdue"
     if days == 0:
         return "Today"

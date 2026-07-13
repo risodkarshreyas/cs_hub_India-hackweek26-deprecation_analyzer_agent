@@ -1,0 +1,2047 @@
+{
+  "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+  "fetched_at": "2026-07-13T12:03:31+00:00",
+  "entries": [
+    {
+      "rule_id": "uipath-server-orchestrator-uipath-add-in-for-mulesoft",
+      "product": "Orchestrator",
+      "feature": "UiPath Add-in for Mulesoft",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2025-01-01",
+      "removal_date": "2025-07-01",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "UiPath Add-in for Mulesoft"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "UiPath Add-in for Mulesoft | January 2025 | July 2025 | We recommend using Connector Builder in Integration Service to integrate with Mulesoft services, or integrate directly with Orchestrator via API.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-processes-service-page",
+      "product": "Orchestrator",
+      "feature": "Processes service page",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-10-01",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Processes service page"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "Processes service page | Cloud: October 2025 and April 2026 Automation Suite: 2.2510.1 | Cloud: June 15, 2026 Automation Suite: October 2026 | Run Orchestrator processes using Assistant or Assistant Web , as an alternative.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-ai-center-bring-your-own-models-in-automation-cloud",
+      "product": "Automation Cloud",
+      "feature": "AI Center bring your own models in Automation Cloud\u2122",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2026-03-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "AI Center bring your own models in Automation Cloud\u2122"
+        ]
+      },
+      "recommended_alternative": "create new packages starting from August 2025 Support ends in March 2026 | Recommnended alternatives: UiPath Intelligent Document Processing products, such as Communication Mining and Document Understanding, are the best alternative in their respective area.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "AI Center bring your own models in Automation Cloud\u2122 | March 2025 | Cannot create new packages starting from August 2025 Support ends in March 2026 | Recommnended alternatives: UiPath Intelligent Document Processing products, such as Communication Mining and Document Understanding, are the best alternative in their respective area.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-ai-center-out-of-the-box-models-open-source-models-english-text-classification-language-detection-in-automation-cloud",
+      "product": "Automation Cloud",
+      "feature": "AI Center out of the box models - Open Source models (English Text Classification, Language Detection) in Automation Cloud\u2122",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "AI Center out of the box models - Open Source models (English Text Classification, Language Detection) in Automation Cloud\u2122"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "AI Center out of the box models - Open Source models (English Text Classification, Language Detection) in Automation Cloud\u2122 | December 2024 | Cannot create new packages starting from June 2025 | English Text Classification \u2192 UiPath Communications Mining or UiPath GenAI Activities ( Categorize ) Language Detection \u2192 UiPath Communications Mining or UiPath GenAI Activities ( Categorize )",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-ai-center-out-of-the-box-models-open-source-models-custom-named-entity-recognition-light-text-classification-multilingual-text-classification-in-automation-cloud",
+      "product": "Automation Cloud",
+      "feature": "AI Center out of the box models - Open Source models (Custom Named Entity Recognition, Light Text Classification, Multilingual Text Classification) in Automation Cloud\u2122",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2025-12-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "AI Center out of the box models - Open Source models (Custom Named Entity Recognition, Light Text Classification, Multilingual Text Classification) in Automation Cloud\u2122"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "AI Center out of the box models - Open Source models (Custom Named Entity Recognition, Light Text Classification, Multilingual Text Classification) in Automation Cloud\u2122 | December 2024 | Cannot create new packages starting from June 2025 Support ends in December 2025 | Custom Named Entity Recognition \u2192 UiPath Communications Mining Light Text Classification \u2192 UiPath Communications Mining Multilingual Text Classification \u2192 UiPath Communications Mining",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-ai-center-ai-center-out-of-the-box-models-part-of-open-source-models-and-preview-models",
+      "product": "AI Center",
+      "feature": "AI Center out of the box models - part of Open Source models and preview models",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2025-03-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "AI Center out of the box models - part of Open Source models and preview models"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "AI Center out of the box models - part of Open Source models and preview models | December 2024 | Cannot create new packages starting from March 2025 | Image Classification \u2192 UiPath GenAI Activities ( Image Classification and Object Detection ) Image Moderation \u2192 UiPath GenAI Activities ( Image Classification ) Japanese Text Classification \u2192 UiPath Communications Mining or UiPath GenAI Activities ( Categorize ) Multilabel Text Classification \u2192 UiPath Communications Mining Object Detection \u2192 UiPath GenAI Activities ( Detect Object ) Question Answering \u2192 Autopilot for Everyone for attended use cases, or UiPath GenAI Activities ( Content Generation ) Signature Comparison \u2192 UiPath GenAI Activities ( Signature Similarity ) Semantic Similarity \u2192 UiPath GenAI Activities ( Semantic Similarity) Text Summarization \u2192 UiPath GenAI Activities ( Summarize Text ) Named Entity Recognition \u2192 UiPath GenAI Activities ( Named Entity Recognition ) Sentiment Analysis \u2192 UiPath GenAI Activities ( Sentiment Analysis ) Text Classification \u2192 UiPath Communications Mining or UiPath GenAI Activities ( Categorize ) English to French Translation \u2192 UiPath GenAI Activities ( Translate ) English to German Translation \u2192 UiPath GenAI Activities ( Translate ) English to Russian Translation \u2192 UiPath GenAI Activities ( Translate ) German to English Translation \u2192 UiPath GenAI Activities ( Translate ) Russian to English Translation \u2192 UiPath GenAI Activities ( Translate ) Multilingual Translator \u2192 UiPath GenAI Activities ( Translate )",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-ai-center-python36",
+      "product": "AI Center",
+      "feature": "Python36",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2023-01-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Python36"
+        ]
+      },
+      "recommended_alternative": "use them.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Python36 | January 2023 | January 2023 | To avoid any interruptions in your AI Center experience, we have new versions of the models and we strongly encourage you to use them. To avoid any issues, we recommend moving your own packages from Python36 to Python 38.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-ai-center-python37",
+      "product": "AI Center",
+      "feature": "Python37",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2023-06-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Python37"
+        ]
+      },
+      "recommended_alternative": "use them.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Python37 | January 2023 | June 2023 | To avoid any interruptions in your AI Center experience, we have new versions of the models and we strongly encourage you to use them. To avoid any issues, we recommend moving your own packages to Python 38.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-connections-in-vb-apps",
+      "product": "Apps",
+      "feature": "Connections in VB Apps",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2025-12-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "Connections in VB Apps"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Connections in VB Apps | September 2025 | December 2025 | Connections in VB Apps, which were only available in public preview, are now fully deprecated. You can no longer add new connections, and existing ones will be retired in a future release. We recommend either replacing connections with processes that call the Connections activity, or rebuilding apps in Studio Web .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-editing-cloning-and-import-of-legacy-apps-in-automation-cloud",
+      "product": "Apps",
+      "feature": "Editing, cloning and import of Legacy Apps in Automation Cloud",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2024-12-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Editing, cloning and import of Legacy Apps in Automation Cloud",
+          "Legacy Apps runtime",
+          "legacy expression language",
+          "legacyRuntime"
+        ]
+      },
+      "recommended_alternative": "use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Editing, cloning and import of Legacy Apps in Automation Cloud | July 2024 | December 2024 | Apps Studio is read-only for Legacy Apps. We recommend transitioning to VB expressions. Read how to leverage VB expressions in your apps. You can use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-creation-of-new-legacy-expression-apps-in-automation-suite-2024-10",
+      "product": "Apps",
+      "feature": "Creation of new Legacy expression Apps in Automation Suite 2024.10",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-10-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Creation of new Legacy expression Apps in Automation Suite 2024.10",
+          "Legacy Apps runtime",
+          "legacy expression language",
+          "legacyRuntime"
+        ]
+      },
+      "recommended_alternative": "create new apps with legacy expressions.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Creation of new Legacy expression Apps in Automation Suite 2024.10 | September 2024 | October 2024 | We recommend transitioning to VB expressions. Legacy apps remain functional. You can still edit, clone and import legacy apps, but you cannot create new apps with legacy expressions. Read how to leverage VB expressions in your apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-creation-of-new-legacy-expression-language-apps-in-automation-cloud",
+      "product": "Apps",
+      "feature": "Creation of new Legacy expression language Apps in Automation Cloud",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2024-08-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Creation of new Legacy expression language Apps in Automation Cloud",
+          "Legacy Apps runtime",
+          "legacy expression language",
+          "legacyRuntime"
+        ]
+      },
+      "recommended_alternative": "create new apps with legacy expressions.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Creation of new Legacy expression language Apps in Automation Cloud | July 2024 | August 2024 | We recommend transitioning to VB expressions. Legacy apps remain functional, but you cannot create new apps with legacy expressions. Read how to leverage VB expressions in your apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-security-updates-for-mongodb-in-automation-suite-versions-2022-4-9-and-2022-10-0",
+      "product": "Automation Suite",
+      "feature": "Security updates for MongoDB in Automation Suite versions 2022.4.9 and 2022.10.0",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-06-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Security updates for MongoDB in Automation Suite versions 2022.4.9 and 2022.10.0"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Security updates for MongoDB in Automation Suite versions 2022.4.9 and 2022.10.0 | 2022.4.9 Release Notes 2022.10.9 Release Notes | June 2024 | We recommend transitioning to Automation Suite version 2023.10 to maintain a safe security posture in your apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-automation-suite-apps-and-standalone-orchestrator-compatibility",
+      "product": "Orchestrator",
+      "feature": "Automation Suite Apps and standalone Orchestrator compatibility",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite",
+        "standalone Orchestrator"
+      ],
+      "deprecation_date": "2023-04-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Automation Suite Apps and standalone Orchestrator compatibility"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Automation Suite Apps and standalone Orchestrator compatibility | 2023.4 Release Notes | April 2023 | If you are using earlier versions of Automation suite and want to upgrade to 2023.4 version, please keep in mind, that Apps having processes connected to a standalone Orchestrator will no longer work. For such scenarios, make sure to migrate all your Orchestrator workloads from the standalone Orchestrator to the Automation Suite Orchestrator!",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-legacy-apps-legacy-expression-language-and-their-runtime-in-automation-cloud",
+      "product": "Apps",
+      "feature": "Legacy Apps, Legacy expression language and their runtime in Automation Cloud",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2024-07-01",
+      "removal_date": "2025-07-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Legacy Apps runtime",
+          "Legacy Apps, Legacy expression language and their runtime in Automation Cloud",
+          "legacy expression language",
+          "legacyRuntime"
+        ]
+      },
+      "recommended_alternative": "Use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Legacy Apps, Legacy expression language and their runtime in Automation Cloud | July 2024 | July 2025 | Use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-apps-legacy-apps-legacy-expression-language-and-their-runtime-in-automation-suite-2-2510-0",
+      "product": "Apps",
+      "feature": "Legacy Apps, Legacy expression language and their runtime in Automation Suite 2.2510.0",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-09-01",
+      "removal_date": "2025-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Legacy Apps runtime",
+          "Legacy Apps, Legacy expression language and their runtime in Automation Suite 2.2510.0",
+          "legacy expression language",
+          "legacyRuntime"
+        ]
+      },
+      "recommended_alternative": "use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Legacy Apps, Legacy expression language and their runtime in Automation Suite 2.2510.0 | September 2024 | November 2025 | We recommend transitioning to VB expressions. You can use the VB migration tool to facilitate the migration of Legacy Apps.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-interactive-installer-automation-suite-on-linux",
+      "product": "Automation Suite",
+      "feature": "Interactive installer - Automation Suite on Linux",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2025-12-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Interactive installer - Automation Suite on Linux"
+        ]
+      },
+      "recommended_alternative": "replaces the interactive installer previously used to generate the configuration file.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "Interactive installer - Automation Suite on Linux | June 2025 | December 2025 | The GUI-based configuration generator is generally available. It replaces the interactive installer previously used to generate the configuration file. Starting with Automation Suite 2024.10.3, no new releases of the interactive installer shell script are planned.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-uipath-managed-backup-automation-suite-on-eks-aks",
+      "product": "Automation Suite",
+      "feature": "UiPath managed backup - Automation Suite on EKS/AKS",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-10-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "configuration_key",
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "UiPath managed backup - Automation Suite on EKS/AKS"
+        ]
+      },
+      "recommended_alternative": "managed backup - Automation Suite on EKS/AKS | June 2025 | October 2025 | Starting with Automation Suite on EKS/AKS 2.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "UiPath managed backup - Automation Suite on EKS/AKS | June 2025 | October 2025 | Starting with Automation Suite on EKS/AKS 2.2510.0, if you are using Automation Suite on AWS EKS or Azure AKS, you will need to leverage the AWS or Azure managed backup solution for backups. This allows you to unify your cloud backup strategy. The backup solution previously managed by UiPath will no longer be available.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-uipath-backup-based-on-nfs-server-automation-suite-on-linux",
+      "product": "Automation Suite",
+      "feature": "UiPath backup based on NFS server - Automation Suite on Linux",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-10-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "UiPath backup based on NFS server - Automation Suite on Linux"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "UiPath backup based on NFS server - Automation Suite on Linux | June 2025 | October 2025 | Starting with Automation Suite on Linux 2.2510.0, NFS server-based backups will not be supported if you are using an external objectstore. Your backups will be stored directly in the external objectstore. If you are upgrading to 2.2510.0, you are encouraged to switch to the external objectstore for backups. Learn more about Configuring the external objectstore or reach out to support.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-deployment-templates-aws-marketplace-deployment-azure-deployment-template-gcp-deployment-template",
+      "product": "Automation Suite",
+      "feature": "Deployment Templates: AWS Marketplace deployment Azure Deployment Template GCP Deployment Template",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-05-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Deployment Templates: AWS Marketplace deployment Azure Deployment Template GCP Deployment Template"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Deployment Templates: AWS Marketplace deployment Azure Deployment Template GCP Deployment Template | May 2025 | May 2025 | As an alternative, consider using Automation Suite on EKS/AKS or reach out to support.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-internal-docker-registry",
+      "product": "Automation Suite",
+      "feature": "Internal Docker Registry",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-06-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "Internal Docker Registry"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Internal Docker Registry | April 2023 | June 2023 | We recommend using an external Docker registry. See how to configure an external Docker registry in a single-node or multi-node installation of 2023.4 Automation Suite.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-orchestrator-configurator-tool",
+      "product": "Orchestrator",
+      "feature": "Orchestrator Configurator Tool",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Orchestrator Configurator Tool"
+        ]
+      },
+      "recommended_alternative": "replaced by uipathctl .",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Orchestrator Configurator Tool | November 2023 | November 2023 | This will soon be replaced by uipathctl .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-aws-signature-version-2",
+      "product": "Automation Suite",
+      "feature": "AWS Signature Version 2",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-08-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "AWS Signature Version 2"
+        ]
+      },
+      "recommended_alternative": "use AWS Signature Version 4 exclusively.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "AWS Signature Version 2 | August 2024 | August 2024 | On future Automation Suite versions, starting with 2024.10, all S3 API requests will use AWS Signature Version 4 exclusively. This will impact the use of Automation Suite with S3 servers that do not support AWS Signature Version 4.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-automation-suite-on-eks-aks-2023-4",
+      "product": "Automation Suite",
+      "feature": "Automation Suite on EKS/AKS 2023.4",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-09-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "Automation Suite on EKS/AKS 2023.4"
+        ]
+      },
+      "recommended_alternative": "use Automation Suite on EKS/AKS 2023.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Automation Suite on EKS/AKS 2023.4 | September 2024 | September 2024 | Automation Suite on EKS/AKS 2023.4 is deprecated and will no longer receive any Cumulative Updates (CU) or security hotfixes. Make sure you use Automation Suite on EKS/AKS 2023.10 or later. Automation Suite on Linux 2023.4 will continue to receive support, as per Product lifecycle .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-task-mining-task-mining-service",
+      "product": "Task Mining",
+      "feature": "Task Mining service",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2024-11-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Task Mining service"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "Task Mining service | November 2024 | October 2025 (2025.10 LTS) | For more information, check out the FAQ on Unassisted Task Mining deprecation .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-support-for-rhel-8-2",
+      "product": "Automation Suite",
+      "feature": "Support for RHEL 8.2",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2022-09-01",
+      "removal_date": "2022-09-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Support for RHEL 8.2"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Support for RHEL 8.2 | September 2022 | September 2022 | For the RHEL versions that Automation Suite currently supports, see the Automation Suite on Linux installation guide.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-longhorn",
+      "product": "Automation Suite",
+      "feature": "Longhorn",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "2023-11-01",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "Longhorn"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Longhorn | November 2023 | November 2023 | We have removed Longhorn from the list of internal components bundled with Automation Suite on Linux to improve the storage stability.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-deployment-assistant",
+      "product": "Automation Suite",
+      "feature": "Deployment Assistant",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "2023-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Deployment Assistant"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Deployment Assistant | November 2023 | November 2023 | For details, see the Automation Suite on Linux release notes .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-automation-suite-diagnostics-tool-diagnostics-report-sh",
+      "product": "Automation Suite",
+      "feature": "Automation Suite Diagnostics Tool ( diagnostics-report.sh )",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "2023-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Automation Suite Diagnostics Tool ( diagnostics-report.sh )"
+        ]
+      },
+      "recommended_alternative": "Replaced by uipathctl and uipathtools .",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Automation Suite Diagnostics Tool ( diagnostics-report.sh ) | November 2023 | November 2023 | Replaced by uipathctl and uipathtools .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-support-for-rhel-8-3-8-4-8-5-and-8-7",
+      "product": "Automation Suite",
+      "feature": "Support for RHEL 8.3, 8.4, 8.5, and 8.7",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-12-01",
+      "removal_date": "2023-12-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Support for RHEL 8.3, 8.4, 8.5, and 8.7"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Support for RHEL 8.3, 8.4, 8.5, and 8.7 | December 2023 | December 2023 | For the RHEL versions that Automation Suite currently supports, see the Automation Suite on Linux installation guide.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-support-for-kubernetes-1-25-and-1-26",
+      "product": "Automation Suite",
+      "feature": "Support for Kubernetes 1.25 and 1.26",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-02-01",
+      "removal_date": "2024-02-01",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "Support for Kubernetes 1.25 and 1.26"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Support for Kubernetes 1.25 and 1.26 | February 2024 | February 2024 | For the Kubernetes versions that Automation Suite currently supports, see the Automation Suite on EKS/AKS installation guide.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-classic-left-rail",
+      "product": "Automation Cloud",
+      "feature": "Classic left rail",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2024-09-01",
+      "removal_date": "2024-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Classic left rail"
+        ]
+      },
+      "recommended_alternative": "Use the left rail to navigate in Automation Cloud.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Classic left rail | September 2024 | November 2024 | Use the left rail to navigate in Automation Cloud.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-tls-1-0-1-1-in-external-connections",
+      "product": "Automation Cloud",
+      "feature": "TLS 1.0/1.1 in external connections",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2024-06-01",
+      "removal_date": "2024-10-01",
+      "match": {
+        "types": [
+          "connector_name",
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "TLS 1.0/1.1 in external connections"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "TLS 1.0/1.1 in external connections | June 2024 | July - October 2024 | All application connections from Automation Cloud to external systems will require support for TLS 1.2 minimum.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-orchestrator-api-access",
+      "product": "Orchestrator",
+      "feature": "Orchestrator API access",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2024-04-01",
+      "removal_date": "2025-03-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Orchestrator API access"
+        ]
+      },
+      "recommended_alternative": "use the refresh token exchange on account.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Orchestrator API access | April 2024 | March 2025 | We recommend using External Applications or Personal Access Tokens (PATs) as the primary method of authentication. Computer Vision and Document Understanding\u2122 API keys will not be removed. Orchestrator API access has been removed. You cannot use the refresh token exchange on account.uipath.com/oauth/token to obtain an access token to access Orchestrator APIs.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-hub-use-of-the-classic-url-when-using-automation-hub-s-open-api-service",
+      "product": "Automation Hub",
+      "feature": "Use of the classic URL when using Automation Hub\u2019s Open API Service",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2024-07-01",
+      "removal_date": "2024-08-30",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Use of the classic URL when using Automation Hub\u2019s Open API Service"
+        ]
+      },
+      "recommended_alternative": "Use of the classic URL when using Automation Hub\u2019s Open API Service | July 2024 | August 30, 2024 | Any customers using the classic URL should start using the standard cloud URL instead.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "Use of the classic URL when using Automation Hub\u2019s Open API Service | July 2024 | August 30, 2024 | Any customers using the classic URL should start using the standard cloud URL instead. For more details on the difference between the classic URL and the standard cloud URL and what the change entails, please check out our deprecation announcement here .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-solutions-management",
+      "product": "Orchestrator",
+      "feature": "Solutions Management",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2025-02-01",
+      "removal_date": "2025-03-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Solutions Management"
+        ]
+      },
+      "recommended_alternative": "Management | February 2025 | March 2025 | We moved Solutions Management from Automation Ops to Orchestrator.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Solutions Management | February 2025 | March 2025 | We moved Solutions Management from Automation Ops to Orchestrator. Accessing Solutions Management from Automation Ops now redirects you to Solutions in Orchestrator.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-uipath-chinese-japanese-korean-ocr",
+      "product": "Automation Cloud",
+      "feature": "UiPath Chinese, Japanese, Korean OCR",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-01-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "UiPath Chinese, Japanese, Korean OCR"
+        ]
+      },
+      "recommended_alternative": "replaces the UiPath Chinese, Japanese, Korean OCR .",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "UiPath Chinese, Japanese, Korean OCR | 8 July 2024 | January 2025 | For Document Understanding\u2122 deployed in Automation Cloud\u2122, we recommend using the UiPath Extended Languages OCR activity and public endpoint instead of UiPath Chinese, Japanese, Korean OCR . For Document Understanding deployed in Automation Suite, once the UiPath Extended Languages OCR is released, it replaces the UiPath Chinese, Japanese, Korean OCR .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-security-updates-for-document-understanding-2022-4-ml-packages-python37duv3-and-python37duv4-in-automation-suite-2022-10-13-onwards",
+      "product": "Automation Suite",
+      "feature": "Security updates for Document Understanding 2022.4 ML packages: python37duv3 and python37duv4 in Automation Suite 2022.10.13 onwards",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-08-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Security updates for Document Understanding 2022.4 ML packages: python37duv3 and python37duv4 in Automation Suite 2022.10.13 onwards"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Security updates for Document Understanding 2022.4 ML packages: python37duv3 and python37duv4 in Automation Suite 2022.10.13 onwards | August 2024 | August 2024 | We recommend updating to a newer model (2022.10) to maintain a safe security posture in your environments.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-high-availability-add-on-ubuntu-18-04",
+      "product": "High Availability Add-On",
+      "feature": "Ubuntu 18.04",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Ubuntu 18.04"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Ubuntu 18.04 | November 2023 | November 2023 | The High Availability Add-on still supports this version of the platform, but support will be removed in a future release.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-high-availability-add-on-rhel-and-centos-7-0-7-9",
+      "product": "High Availability Add-On",
+      "feature": "RHEL and CentOS 7.0-7.9",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "RHEL and CentOS 7.0-7.9"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "RHEL and CentOS 7.0-7.9 | November 2023 | November 2023 | The High Availability Add-on still supports these versions of the platform, but support will be removed in a future release.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-high-availability-add-on-rhel-8-0-8-1-8-2-8-3-8-4-8-5-and-8-7",
+      "product": "High Availability Add-On",
+      "feature": "RHEL 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, and 8.7",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2024-04-01",
+      "removal_date": "2024-04-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "RHEL 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, and 8.7"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "RHEL 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, and 8.7 | April 2024 | April 2024 | High Availability Add-on currently supports RHEL/CentOS 8.6, 8.8, 8.9, 9.3",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-insights-versions-of-insights-2021-4-and-prior",
+      "product": "Insights",
+      "feature": "Versions of Insights 2021.4 and prior",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-01-26",
+      "removal_date": "2023-12-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Versions of Insights 2021.4 and prior"
+        ]
+      },
+      "recommended_alternative": "use Insights after that time.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed Features or Capabilities \u200b",
+      "source_text": "Versions of Insights 2021.4 and prior | 26 January 2023 | December 2023 | Versions 2019.10.x, 2020.4.x, 2020.10.x, 2021.4.x will stop working in December 2023. Customers on impacted versions need to upgrade to version 2021.10 or higher to continue to use Insights after that time.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-insights-insights-data-model-queues-dimensions-specific-data-analytics-data-and-output",
+      "product": "Insights",
+      "feature": "Insights Data Model - Queues dimensions (Specific Data, Analytics Data, and Output)",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2022-10-01",
+      "removal_date": "2022-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Insights Data Model - Queues dimensions (Specific Data, Analytics Data, and Output)"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed Features or Capabilities \u200b",
+      "source_text": "Insights Data Model - Queues dimensions (Specific Data, Analytics Data, and Output) | Insights 2022.4.0 Release Notes | October 2022 | To configure dashboards that cover these metrics, we recommend using Custom Variables .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-insights-insights-data-model-robot-logs-dimensions-raw-message",
+      "product": "Insights",
+      "feature": "Insights Data Model - Robot Logs dimensions (Raw Message)",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-04-01",
+      "removal_date": "2023-04-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Insights Data Model - Robot Logs dimensions (Raw Message)"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed Features or Capabilities \u200b",
+      "source_text": "Insights Data Model - Robot Logs dimensions (Raw Message) | Insights 2022.10.0 Release Notes | April 2023 |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-connection-management-in-integration-service-in-automation-cloud",
+      "product": "Orchestrator",
+      "feature": "Connection management in Integration Service in Automation Cloud",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2026-03-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "Connection management in Integration Service in Automation Cloud",
+          "Integration Service",
+          "connection management"
+        ]
+      },
+      "recommended_alternative": "management in Integration Service in Automation Cloud | March 2026 | March 2026 | Connection management and creation have been moved to Orchestrator.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Connection management in Integration Service in Automation Cloud | March 2026 | March 2026 | Connection management and creation have been moved to Orchestrator. There is no impact on your automations. Existing connections created in Integration Service will continue to work as expected.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-integration-service-entry-in-the-automation-cloud-product-launcher",
+      "product": "Orchestrator",
+      "feature": "Integration Service entry in the Automation Cloud product launcher",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2026-03-01",
+      "removal_date": "2026-03-01",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "Integration Service",
+          "Integration Service entry in the Automation Cloud product launcher",
+          "connection management"
+        ]
+      },
+      "recommended_alternative": "management of Integration Service assets is being consolidated into Orchestrator , the central location for managing automation resources in Automation Cloud.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "Integration Service entry in the Automation Cloud product launcher | March 2026 | December 2026 | The management of Integration Service assets is being consolidated into Orchestrator , the central location for managing automation resources in Automation Cloud. This transition began in 2025 and is planned for completion by the end of 2026: April 2025 - Event trigger management moved to Orchestrator. March 2026 - Connection management moved to Orchestrator. Later in 2026 - The Connector Builder experience will move to Studio Web . After the transition is complete, the Integration Service entry will be removed from the product launcher in Automation Cloud.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-integration-service-custom-password-based-authentication-for-the-snowflake-connector",
+      "product": "Integration Service",
+      "feature": "Custom (password-based) authentication for the Snowflake connector",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2026-07-08",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "Custom (password-based) authentication for the Snowflake connector"
+        ]
+      },
+      "recommended_alternative": "users and removes password access for service accounts, rolling out between August and October 2026.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "Custom (password-based) authentication for the Snowflake connector | July 8, 2026 | July 20, 2026 | Snowflake's Phase 3 strong authentication rollout enforces multi-factor authentication (MFA) for all human users and removes password access for service accounts, rolling out between August and October 2026. Ahead of this enforcement, the Custom authentication method will be removed from the Snowflake connector in Integration Service starting with July 20, 2026 . Existing connections using Custom authentication will continue working until Snowflake applies enforcement to your account. Recreate them using one of the following authentication methods: OAuth 2.0 Authorization Code \u2014 recommended for human users RSA Key Pair \u2014 recommended for service/unattended scenarios Personal Access Token \u2014 alternative for programmatic access For setup instructions, refer to Snowflake authentication in the Integration Service user guide.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-build-tab-available-for-each-connector-in-integration-service-in-automation-cloud",
+      "product": "Automation Cloud",
+      "feature": "Build tab available for each connector in Integration Service in Automation Cloud",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2026-03-01",
+      "removal_date": "2026-03-01",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "Build tab available for each connector in Integration Service in Automation Cloud"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Build tab available for each connector in Integration Service in Automation Cloud | March 2026 | March 2026 | The quick actions available on this tab are no longer available, but there is no impact on building automations: You can continue creating projects directly from Studio and Studio Web. Templates will remain available in Studio Web as they are today. Existing automations and connections will continue to work as expected.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-maestro-c-expressions-in-maestro",
+      "product": "Maestro",
+      "feature": "C# expressions in Maestro",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2026-01-01",
+      "removal_date": "2026-02-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "C# expressions in Maestro"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "C# expressions in Maestro | January 2026 | February 2026 | Maestro is introducing JavaScript-based expressions as the new standard for writing expressions, moving away from the C# expressions.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-the-break-inheritance-settings-model",
+      "product": "Automation Suite",
+      "feature": "The break inheritance settings model",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-05-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "The break inheritance settings model"
+        ]
+      },
+      "recommended_alternative": "replaced by the union of privileges model.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "The break inheritance settings model | May 2024 | Q1 (for Community and Enterprise cloud environments), October 2025 (for Automation Suite environments) | The current break inheritance settings model will be replaced by the union of privileges model. The new model will propagate any adjustments made at the group level to all users within the group. The settings impacted by the new model are: UI Profile settings (No UI access, Personal Workspace only, Standard Interface) Update policy settings Enable user to run automations Create a personal workspaces for this user Ensure that you migrate to the new model as soon as it is announced in this release note . The deprecation is only planned for the cloud and Automation Suite environments.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-mixed-roles",
+      "product": "Orchestrator",
+      "feature": "Mixed roles",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2024-11-01",
+      "removal_date": "2025-04-01",
+      "match": {
+        "types": [
+          "api_field",
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "/odata/Users",
+          "Mixed roles",
+          "odata/Users"
+        ]
+      },
+      "recommended_alternative": "migrate any remaining mixed roles.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "Mixed roles | November 2024 | April 2025 | We recommend that you avoid using mixed roles in access configurations. By the time the deprecation is complete, we will migrate any remaining mixed roles. Warning: Once mixed roles are deprecated, the following API calls will fail: Any GET call that retrieves a role by name, if it refers to the name of a deprecated mixed role. Any POST call to the /odata/Users endpoint, if the request payload includes a mixed role assignment. We strongly recommend that you migrate all your automations that currently use the affected endpoints. To maintain equivalent privileges, take the following steps: Replace the Administrator role with the following roles: The Orchestrator Administrator role. Note: The Orchestrator Administrator role also includes the permissions of the Solution Administrator role. The Folder Administrator role. Replace the Robot role with the following roles: The tenant-level Allow to be Automation User role; The folder-level Automation User role. Note: We recommend this approach only for users who have not modified the Robot role. Users who have created custom versions of the Robot role should determine the most suitable way to divide it into tenant and folder roles to accommodate their permission levels. To fully transition from mixed roles, divide existing roles into tenant- and folder-scoped roles, as needed.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-classic-folders",
+      "product": "Orchestrator",
+      "feature": "Classic folders",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite",
+        "standalone Orchestrator"
+      ],
+      "deprecation_date": "2023-05-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Classic folders"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Classic folders | October 2021 | October 2022 | We recommend migrating to modern folders within these deadlines: *before the middle of May 2023 if you are using Orchestrator in Automation Cloud *before upgrading to 2023.4 if you are using standalone or Automation Suite Orchestrator",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-changing-a-transaction-final-state-via-api-for-automation-cloud-users",
+      "product": "Automation Cloud",
+      "feature": "Changing a transaction final state via API (for Automation Cloud users)",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2023-05-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Changing a transaction final state via API (for Automation Cloud users)"
+        ]
+      },
+      "recommended_alternative": "users) | January 2023 | January 2023 (for Community users) May 2023 (for Enterprise users) | Output and Analytics data of a transaction can be set regardless of the transaction final status (both Successful and Failed).",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Changing a transaction final state via API (for Automation Cloud users) | January 2023 | January 2023 (for Community users) May 2023 (for Enterprise users) | Output and Analytics data of a transaction can be set regardless of the transaction final status (both Successful and Failed).",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-changing-a-transaction-final-state-via-api-for-orchestrator-on-prem-users",
+      "product": "Orchestrator",
+      "feature": "Changing a transaction final state via API (for Orchestrator on-prem users)",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2023-10-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Changing a transaction final state via API (for Orchestrator on-prem users)"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Changing a transaction final state via API (for Orchestrator on-prem users) | May 2023 | October 2023",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-support-for-smb-storage-in-automation-suite",
+      "product": "Automation Suite",
+      "feature": "Support for SMB storage in Automation Suite",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-10-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "Support for SMB storage in Automation Suite"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Support for SMB storage in Automation Suite | October 2023 | October 2023 | This type of setup can cause configuration issues. Consequently, it will soon be removed. As such, we advise against using it.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-orchestrator-configurator-tool-in-automation-suite",
+      "product": "Orchestrator",
+      "feature": "Orchestrator Configurator Tool in Automation Suite",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Orchestrator Configurator Tool in Automation Suite"
+        ]
+      },
+      "recommended_alternative": "replaced by uipathctl .",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Orchestrator Configurator Tool in Automation Suite | November 2023 | November 2023 | This will soon be replaced by uipathctl .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-orchestrator-mobile-apps-for-ios-and-android",
+      "product": "Orchestrator",
+      "feature": "Orchestrator Mobile apps for iOS and Android",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2025-05-01",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Orchestrator Mobile apps for iOS and Android"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "Orchestrator Mobile apps for iOS and Android | May 2025 | May 2025 | For emergency access to Orchestrator on a mobile device, you can navigate to your Orchestrator URL in a mobile browser, using desktop mode.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-testing-module-in-orchestrator",
+      "product": "Orchestrator",
+      "feature": "Testing Module in Orchestrator",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2025-11-11",
+      "removal_date": "2026-06-30",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Orchestrator test cases",
+          "Orchestrator test schedules",
+          "Orchestrator test set",
+          "Testing Module in Orchestrator"
+        ]
+      },
+      "recommended_alternative": "use Test Manager.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "Testing Module in Orchestrator | November 11, 2025 | June 30, 2026 | As of January 1, 2026, the Testing module in Orchestrator will not display any test results anymore. In addition, it will not be possible to execute tests or test sets from Orchestrator. To consume test results and execute, it is required to use Test Manager. Test Set creation and execution in Orchestrator will be removed, with Test Manager becoming the sole platform for creating and executing test sets. This change will take effect on June 30, 2026.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-break-inheritance-settings-model",
+      "product": "Orchestrator",
+      "feature": "The break inheritance settings model",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-05-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "api_field",
+          "service_feature"
+        ],
+        "patterns": [
+          "The break inheritance settings model"
+        ]
+      },
+      "recommended_alternative": "replaced by the union of privileges model.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The break inheritance settings model | May 2024 | Q1 (for Community and Enterprise cloud environments), October 2025 (for Automation Suite environments) | The current break inheritance settings model will be replaced by the union of privileges model. The new model will propagate any adjustments made at the group level to all users within the group. The settings impacted by the new model are: UI Profile settings (No UI access, Personal Workspace only, Standard Interface) Update policy settings Enable user to run automations Create a personal workspaces for this user Ensure that you migrate to the new model as soon as it is announced in this release note . The deprecation is only planned for the cloud and Automation Suite environments. The removal occurs in one of the following scenarios: You migrate to the new union of privileges model via the migration tool. You are automatically migrated in at least three months after we implement the migration tool for transitioning to the union of privileges model. Support for mixed roles will be removed in Orchestrator with the Automation Suite 2.2510.0 release . Mixed role permissions and mixed role assignments will be migrated automatically.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-alerts-api-endpoints",
+      "product": "Orchestrator",
+      "feature": "The /Alerts API endpoints",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "The /Alerts API endpoints"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The /Alerts API endpoints | June 2025 | March 2026 (Automation Cloud Orchestrator), October 2026 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-organizationunits-api-endpoints",
+      "product": "Orchestrator",
+      "feature": "The /OrganizationUnits API endpoints",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-03-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "The /OrganizationUnits API endpoints"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The /OrganizationUnits API endpoints | June 2025 | October 2025 (Automation Cloud Orchestrator), March 2026 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-organizationunits-property-in-users-endpoints",
+      "product": "Orchestrator",
+      "feature": "The OrganizationUnits property in /Users endpoints",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-03-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "The OrganizationUnits property in /Users endpoints"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The OrganizationUnits property in /Users endpoints | June 2025 | October 2025 (Automation Cloud Orchestrator), March 2026 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-uipath-server-configuration-odata-verifysmtpsetting-api-endpoint",
+      "product": "Orchestrator",
+      "feature": "The /UiPath.Server.Configuration.OData.VerifySmtpSetting API endpoint",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "The /UiPath.Server.Configuration.OData.VerifySmtpSetting API endpoint"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The /UiPath.Server.Configuration.OData.VerifySmtpSetting API endpoint | June 2025 | December 2025 (Automation Cloud Orchestrator), October 2026 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-includealertsenabled-query-parameter-in-the-request-and-the-hasalertsenabled-property-in-the-response-to-get-odata-folders-uipath-server-configuration-odata-getusersforfolder-assignment-key-key-includeinherited-includeinherited-key-key-includeinherited-includeinherited-requests",
+      "product": "Orchestrator",
+      "feature": "The IncludeAlertsEnabled query parameter in the request and the HasAlertsEnabled property in the response to GET /odata/Folders/ UiPath.Server.Configuration.OData.GetUsersForFolder assignment ( key = { key } , includeInherited = { includeInherited } ) (key= {key},includeInherited={includeInherited}) requests.",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "/odata/Folders/",
+          "The IncludeAlertsEnabled query parameter in the request and the HasAlertsEnabled property in the response to GET /odata/Folders/ UiPath.Server.Configuration.OData.GetUsersForFolder assignment ( key = { key } , includeInherited = { includeInherited } ) (key= {key},includeInherited={includeInherited}) requests.",
+          "odata/Folders/"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The IncludeAlertsEnabled query parameter in the request and the HasAlertsEnabled property in the response to GET /odata/Folders/ UiPath.Server.Configuration.OData.GetUsersForFolder assignment ( key = { key } , includeInherited = { includeInherited } ) (key= {key},includeInherited={includeInherited}) requests. | June 2025 | March 2026 (Automation Cloud Orchestrator), October 2026 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-notificationsubscription-object-in-users-and-queueitems-endpoints",
+      "product": "Orchestrator",
+      "feature": "The NotificationSubscription object in /Users and /QueueItems endpoints.",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2025-06-01",
+      "removal_date": "2026-03-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "The NotificationSubscription object in /Users and /QueueItems endpoints."
+        ]
+      },
+      "recommended_alternative": "Users and /QueueItems endpoints.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming removals \u200b",
+      "source_text": "The NotificationSubscription object in /Users and /QueueItems endpoints. | June 2025 | March 2026 for Automation Cloud Orchestrator | As this information is not maintained in Orchestrator, this functionality may not reflect correct user subscription information in Automation Cloud.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-messagetemplate-orchestrator-api-endpoints-get-odata-messagetemplates-put-odata-messagetemplates-key",
+      "product": "Orchestrator",
+      "feature": "MessageTemplate Orchestrator API endpoints: GET /odata/MessageTemplates PUT /odata/MessageTemplates('{key}')",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-05-01",
+      "removal_date": "2023-10-01",
+      "match": {
+        "types": [
+          "endpoint",
+          "service_feature"
+        ],
+        "patterns": [
+          "/odata/MessageTemplates",
+          "MessageTemplate Orchestrator API endpoints: GET /odata/MessageTemplates PUT /odata/MessageTemplates('{key}')",
+          "odata/MessageTemplates"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "MessageTemplate Orchestrator API endpoints: GET /odata/MessageTemplates PUT /odata/MessageTemplates('{key}') | May 2023 | October 2023 | We recommend using the Identity Server MessageTemplate API endpoints instead.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-standalone-orchestrator-deployment-to-the-aws-cloud",
+      "product": "Orchestrator",
+      "feature": "Standalone Orchestrator deployment to the AWS Cloud",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "standalone Orchestrator"
+      ],
+      "deprecation_date": "2025-02-01",
+      "removal_date": "2024-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Standalone Orchestrator deployment to the AWS Cloud"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Standalone Orchestrator deployment to the AWS Cloud | February 2025 | October 2024 | Due to the deprecation of Quick Start by AWS, standalone Orchestrator can no longer be deployed in AWS Cloud via a Quick Start template. For other deployment options, see the Orchestrator Installation Guide .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-password-fields-from-the-users-and-tenants-apis",
+      "product": "Orchestrator",
+      "feature": "Password fields from the Users and Tenants APIs",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-10-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "api_field",
+          "service_feature"
+        ],
+        "patterns": [
+          "Password fields from the Users and Tenants APIs"
+        ]
+      },
+      "recommended_alternative": "Users and Tenants APIs | October 2024 | January 2025 (Automation Cloud Orchestrator), October 2025 (Automation Suite Orchestrator) | We are removing the password fields from the Users and Tenants APIs, because they are currently deprecated.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Password fields from the Users and Tenants APIs | October 2024 | January 2025 (Automation Cloud Orchestrator), October 2025 (Automation Suite Orchestrator) | We are removing the password fields from the Users and Tenants APIs, because they are currently deprecated. Alternatively, use the Platform Management User APIs .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-environments-apis",
+      "product": "Orchestrator",
+      "feature": "The Environments APIs",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-03-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "The Environments APIs"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "The Environments APIs | March 2025 | April 2025 (Automation Cloud Orchestrator), October 2025 (Automation Suite Orchestrator) | The removal affects the Environments APIs along with migrating to modern folders.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-the-setactive-endpoint-in-users-apis",
+      "product": "Orchestrator",
+      "feature": "The SetActive endpoint in Users APIs",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud",
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-04-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "The SetActive endpoint in Users APIs"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "The SetActive endpoint in Users APIs | April 2025 | May 2025 (Automation Cloud Orchestrator), October 2025 (Automation Suite Orchestrator) |",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-support-for-apache-airflow-versions-older-than-airflow-2-9-0",
+      "product": "Automation Suite",
+      "feature": "Support for Apache Airflow versions older than Airflow 2.9.0.",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2025-11-11",
+      "removal_date": "2025-11-11",
+      "match": {
+        "types": [
+          "configuration_key",
+          "service_feature"
+        ],
+        "patterns": [
+          "Support for Apache Airflow versions older than Airflow 2.9.0."
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Support for Apache Airflow versions older than Airflow 2.9.0. | Process Mining 2024.10.3 release notes Process Mining 2023.10.9 release notes | November 11, 2025 (Process Mining on Automation Suite 2.2510) | This applies to both new installations and existing installations that upgrade to 2.2510. Note: For the AutomationSuite_Airflow database, Microsoft SQL Server is no longer supported in newer Airflow versions and will require PostgreSQL databases.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-old-data-uploading-settings",
+      "product": "Automation Suite",
+      "feature": "Old data uploading settings",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-03-01",
+      "removal_date": "2023-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Old data uploading settings"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Old data uploading settings | Process Mining Cloud Release Notes - March 2023 | October 2023 (Cloud) 2023.10.3 (Automation Suite) | AddRawTablePostfixStripSpecialCharacters",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-marker-files-marker-csv",
+      "product": "Automation Suite",
+      "feature": "Marker files marker.csv",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-05-01",
+      "removal_date": "2023-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Marker files marker.csv"
+        ]
+      },
+      "recommended_alternative": "Use the end of upload API .",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Marker files marker.csv | Process Mining Cloud Release Notes - May 2023 | November 2023 (Cloud) (Automation Suite n/a) | Use the end of upload API . See Upload data using an extractor .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-process-graph-layout",
+      "product": "Automation Suite",
+      "feature": "Process graph layout",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2023-02-01",
+      "removal_date": "2023-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Process graph layout"
+        ]
+      },
+      "recommended_alternative": "use TRACY for the process graph layout.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Process graph layout | Process Mining Cloud Release Notes - February 2023 | October 2023 (Cloud), Process Mining 2023.10 (Automation Suite) | With the introduction of TRACY, all process apps will use TRACY for the process graph layout. Existing process apps using the previous process graph layout will no longer work in Process Mining (Cloud) and Process Mining 2023.10 (Automation Suite). Recreate or migrate your process apps before installing Process Mining 2023.10 , to make sure the process apps are still accessible. See Migrating apps for the new process graph layout .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-orchestrator-http-unsecure-requests-through-nuget-feeds",
+      "product": "Orchestrator",
+      "feature": "HTTP (unsecure) requests through NuGet feeds",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [],
+      "deprecation_date": "2025-02-01",
+      "removal_date": "2025-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "HTTP (unsecure) requests through NuGet feeds"
+        ]
+      },
+      "recommended_alternative": "use HTTPS.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "HTTP (unsecure) requests through NuGet feeds | February 2025 | October 2025 | Starting with the Robot releases in February 2025 (for the latest versions) and October 2025 (for LTS versions), NuGet-supported packages no longer allow calls to HTTP external feeds. This type of feeds can be configured in Orchestrator or in the NuGet.config file . Note that built-in Orchestrator feeds always use HTTPS. Using HTTP results in errors, and opting out of this behavior is not possible. This change is part of an ongoing effort to enforce HTTPS usage across NuGet client experiences . Transition to HTTPS feeds to avoid disruptions.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-cloud-unassisted-task-mining-in-automation-cloud",
+      "product": "Automation Cloud",
+      "feature": "Unassisted Task Mining in Automation Cloud",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Cloud"
+      ],
+      "deprecation_date": "2025-12-01",
+      "removal_date": "2025-12-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Unassisted Task Mining in Automation Cloud"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Unassisted Task Mining in Automation Cloud | December 2025 release notes | 1 December 2025 | For more information, check out the FAQ on Unassisted Task Mining deprecation .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-automation-suite-task-mining-in-automation-suite",
+      "product": "Automation Suite",
+      "feature": "Task Mining in Automation Suite",
+      "lifecycle_status": "removed",
+      "delivery_models": [
+        "Automation Suite"
+      ],
+      "deprecation_date": "2024-11-01",
+      "removal_date": "2025-11-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Task Mining in Automation Suite"
+        ]
+      },
+      "recommended_alternative": "Review UiPath migration guidance for this server-side feature.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Task Mining in Automation Suite | November 2024 release notes | 11 November 2025 | For more information, check out the FAQ on Unassisted Task Mining deprecation .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-task-mining-unassisted-task-mining-legacy-projects",
+      "product": "Task Mining",
+      "feature": "Unassisted Task Mining legacy projects",
+      "lifecycle_status": "removed",
+      "delivery_models": [],
+      "deprecation_date": "2023-11-01",
+      "removal_date": "2023-12-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Unassisted Task Mining legacy projects"
+        ]
+      },
+      "recommended_alternative": "created with the previous back-end architecture for Unassisted Task Mining.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Removed features or capabilities \u200b",
+      "source_text": "Unassisted Task Mining legacy projects | November 2023 release notes August 2023 release notes July 2023 release notes | 1 December 2023 | Legacy projects are Unassisted Task Mining projects that were created with the previous back-end architecture for Unassisted Task Mining.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-test-manager-test-manager-standalone-deprecation",
+      "product": "Test Manager",
+      "feature": "Test Manager standalone deprecation",
+      "lifecycle_status": "removal_scheduled",
+      "delivery_models": [
+        "standalone Orchestrator"
+      ],
+      "deprecation_date": "2026-03-01",
+      "removal_date": "2026-10-01",
+      "match": {
+        "types": [
+          "service_feature"
+        ],
+        "patterns": [
+          "Test Manager standalone deprecation"
+        ]
+      },
+      "recommended_alternative": "Manager standalone deprecation | March 2026 | October 2026 | We would like to inform you that Test Manager 2025.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Upcoming deprecations \u200b",
+      "source_text": "Test Manager standalone deprecation | March 2026 | October 2026 | We would like to inform you that Test Manager 2025.10 (standalone) was the final standalone release of Test Manager. There will be no standalone Test Manager 2026.10 release . What this means for you 2025.10 is the last standalone version of Test Manager. If you are using the standalone edition, you should plan your transition strategy accordingly. Continued innovation and enhancements will focus on the integrated delivery models. We are committed to making this transition as smooth as possible. We encourage you to transition to Test Cloud by adhering to the platform migration instructions and the artefact migration instructions . If you have questions, please reach out to your UiPath representative.",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-test-manager-servicenow-native-connector-note-the-previously-deprecated-native-connectors-were-re-activated-on-june-26-2025",
+      "product": "Test Manager",
+      "feature": "ServiceNow native connector Note: The previously deprecated native connectors were re-activated on June 26, 2025 .",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2024-10-17",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "ServiceNow native connector Note: The previously deprecated native connectors were re-activated on June 26, 2025 ."
+        ]
+      },
+      "recommended_alternative": "create new connections.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "ServiceNow native connector Note: The previously deprecated native connectors were re-activated on June 26, 2025 . | March 19, 2024 | October 17, 2024 | Existing connections are still supported, but you cannot create new connections. The alternative of this native integration is Test Manager Connect .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    },
+    {
+      "rule_id": "uipath-server-test-manager-qtest-native-connector",
+      "product": "Test Manager",
+      "feature": "qTest native connector",
+      "lifecycle_status": "deprecated",
+      "delivery_models": [],
+      "deprecation_date": "2025-04-29",
+      "removal_date": "",
+      "match": {
+        "types": [
+          "connector_name",
+          "service_feature"
+        ],
+        "patterns": [
+          "qTest native connector"
+        ]
+      },
+      "recommended_alternative": "create new connections.",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "source_section": "Deprecated features or capabilities \u200b",
+      "source_text": "qTest native connector | September 18, 2024 | April 29, 2025 | Existing connections are still supported, but you cannot create new connections. The alternative of this native integration is Test Manager Connect .",
+      "confidence": "high",
+      "fetched_at": "2026-07-13T12:03:31+00:00"
+    }
+  ]
+}

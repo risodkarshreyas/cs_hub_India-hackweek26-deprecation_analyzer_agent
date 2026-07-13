@@ -132,6 +132,17 @@ python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --ou
 - Server inputs: exported JSON/CSV/XML/text from Orchestrator, Apps, Automation Suite, Integration Service, AI Center, API collections, tenant settings, service versions, and platform configuration.
 - Mixed inputs: one folder that contains both RPA source/package evidence and tenant/platform export evidence.
 
+## Sample Prompts and Expected Outputs
+
+Use the [`resources` folder](resources/) to understand how to request an analysis and what the generated reports can look like:
+
+1. Open [`resources/Sample Input Prompts`](resources/Sample%20Input%20Prompts) and use the included prompt as a starting point. Replace its client project path, output path, organization, tenant, folder, and UiPath URL with values from your own environment. Keep the read-only and redaction instructions when analyzing shared or production environments.
+2. Review the [client-side HTML dashboard example](resources/Sample%20Outputs/Client%20Side%20Findings%20Dashboard%20example/uipath_deprecation_dashboard.html) to preview a report generated from RPA project, package, and XAML evidence.
+3. Review the [combined client/server HTML dashboard example](resources/Sample%20Outputs/Client%20Server%20Side%20Findings%20Dashboard%20example/uipath_deprecation_dashboard.html) to preview a unified report that includes both project and platform findings.
+4. Browse [`resources/Sample Outputs/Other Files`](resources/Sample%20Outputs/Other%20Files/) for representative Markdown, JSON, CSV, XLSX, and normalized server-rule artifacts.
+
+The sample dashboards illustrate the expected layout and report sections. Actual findings, metrics, deadlines, evidence, coverage gaps, and recommended actions are generated from the supplied input and may differ from the examples.
+
 ## Project Structure
 
 ```text
@@ -157,6 +168,12 @@ python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --ou
 |   |-- report_schema.md
 |   |-- risk_scoring_model.md
 |   `-- example_findings.md
+|-- resources/
+|   |-- Sample Input Prompts
+|   `-- Sample Outputs/
+|       |-- Client Side Findings Dashboard example/
+|       |-- Client Server Side Findings Dashboard example/
+|       `-- Other Files/
 `-- tests/
     |-- test_deprecation_analyzer.py
     |-- test_skill_contract.py
