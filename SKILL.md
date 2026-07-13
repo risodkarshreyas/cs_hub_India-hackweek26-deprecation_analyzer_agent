@@ -1,7 +1,7 @@
 ---
 name: uipath-deprecation-analyzer
-description: Use when analyzing UiPath deprecation risk or generating deprecation reports/dashboards for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
-allowed-tools: Read, Bash(python3 *), Bash(python *)
+description: Use when analyzing UiPath deprecation risk or generating deprecation reports/dashboards for RPA projects, XAML, project.json, .nupkg, Studio/Robot/activity packages, Orchestrator, Orchestrator Testing Module, Test Cases, Test Sets, Test Manager migration, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Ops, Maestro, tenant/platform exports, or mixed client/server inputs.
+allowed-tools: Read, Bash(python3 *), Bash(python *), Bash(uip login status *), Bash(uip or folders list *)
 ---
 
 # UiPath Deprecation Analyzer
@@ -14,10 +14,11 @@ Use this skill as the agent-facing entrypoint for UiPath deprecation analysis in
 2. Read `references/common_analysis_rules.md`.
 3. Select `client`, `server`, or `mixed` using the routing table below.
 4. Read only the route-specific analyzer reference needed for the request.
-5. Prefer `<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful. Resolve `<SKILL_DIR>` as described under CLI Usage; do not assume the session is running from the skill folder.
-6. Read `references/reporting-dashboard-ideas.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
-7. Review generated JSON, Markdown, and HTML reports before responding when those outputs are requested or required.
-8. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
+5. For an Orchestrator URL or tenant/folder request, use an authenticated browser or UiPath API capability for read-only inspection when available. Resolve the folder name and capture only supported GET resources; never create, edit, execute, publish, migrate, delete, or open mutation menus.
+6. Prefer `<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful. Resolve `<SKILL_DIR>` as described under CLI Usage; do not assume the session is running from the skill folder.
+7. Read `references/reporting-dashboard-ideas.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
+8. Review generated JSON, Markdown, and HTML reports before responding when those outputs are requested or required.
+9. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
 
 ## Required References
 
@@ -46,7 +47,7 @@ Choose the analyzer by evidence type:
 | Input or request mentions | Route |
 |---|---|
 | RPA source project, workflow, XAML, `project.json`, `.nupkg`, Studio, Robot, activity package, NuGet dependency, package replacement, Windows-Legacy package compatibility | Client-side analyzer |
-| Orchestrator tenant/folder resources, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding service configuration, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, tenant/platform administration, APIs, infrastructure, service versions | Server-side analyzer |
+| Orchestrator tenant/folder resources, Orchestrator Testing Module, Test Cases, Test Sets, Test Set/Test Case Executions, Test Manager migration, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding service configuration, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, tenant/platform administration, APIs, infrastructure, service versions | Server-side analyzer |
 | Repo plus tenant export, source code plus platform export, package dependencies plus Orchestrator/API/service configuration, unclear mixed folder | Both analyzers |
 
 If the input is ambiguous, inspect filenames and visible content first. Prefer both analyzers when there is credible client and server evidence.
@@ -79,6 +80,15 @@ Use `scripts/uipath_deprecation_analyzer.py` for deterministic analysis when loc
 - `--mode auto`: choose client, server, or mixed based on detected artifacts.
 
 Server-side script details are documented in `references/server_rule_schema.md` and `references/server_inventory_schema.md`.
+
+### Live Orchestrator Inspection
+
+For an authenticated Orchestrator tenant or folder, collect only read-only testing resources when the request concerns the Testing Module:
+
+- Resolve the requested folder before scanning and preserve its tenant, organization, folder, delivery model, and source URL in a `context.json` sidecar.
+- Capture `/odata/TestSets`, `/odata/TestCaseDefinitions`, `/odata/TestCaseExecutions`, `/odata/TestSetExecutions`, and `/odata/TestSetSchedules` when available.
+- Sanitize snapshots before analysis. Remove owner identifiers, machine names, job keys, credentials, cookies, bearer headers, and tokens.
+- Do not install preview UI automation packages automatically. If authentication or a permitted browser/API capability is unavailable, request a sanitized export or screenshot and report the unavailable live inventory as a coverage gap with reduced confidence.
 
 ### CLI Usage
 

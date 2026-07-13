@@ -108,22 +108,31 @@
 ```json
 {
   "id": "F-101",
-  "severity": "high",
-  "status": "removal_scheduled",
+  "severity": "critical",
+  "status": "removed",
   "domain": "server",
   "product": "Orchestrator",
   "feature_or_package": "Testing Module in Orchestrator",
-  "environment": "Automation Cloud tenant",
+  "environment": "Nilekha&Demo",
   "evidence": [
     {
-      "path": "tenant-export/orchestrator/test_sets.json",
-      "object": "Regression Suite",
-      "matched_value": "Orchestrator test set"
+      "path": "orchestrator/test_case_definitions.json",
+      "matched_value": "Orchestrator testing artifacts",
+      "endpoint": "/odata/TestCaseDefinitions",
+      "folder": "Nilekha&Demo",
+      "artifact_counts": {
+        "test_set": 8,
+        "test_case": 18,
+        "test_case_execution": 15
+      },
+      "representative_objects": {
+        "test_case": ["Login.xaml", "CreateInvoice.xaml"]
+      }
     }
   ],
-  "impact": "The tenant still manages test artifacts in Orchestrator for a feature scheduled for removal; ownership should move to Test Manager.",
+  "impact": "The folder contains Orchestrator testing artifacts for a removed capability; ownership should move to Test Manager.",
   "deadline": "2026-06-30",
-  "recommended_action": "Migrate test cases, test sets, schedules, execution history review, and validation ownership to Test Manager using UiPath migration guidance.",
+  "recommended_action": "Migrate Orchestrator test cases, test sets, test executions, and schedules to Test Manager.",
   "mitigation_route": "ai_assisted_change",
   "recommended_skill": "uipath-test",
   "time_savings_kpi": {
@@ -138,8 +147,8 @@
   "confidence": "high",
   "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
   "delivery_model": "Automation Cloud",
-  "tenant_or_service": "FinanceTenant",
-  "configuration_object": "Orchestrator test set"
+  "tenant_or_service": "UiPath default",
+  "configuration_object": "Nilekha&Demo"
 }
 ```
 

@@ -175,9 +175,9 @@ def _lifecycle_status(text: str, removal_date: str, deprecation_date: str) -> st
 def _delivery_models(product: str, text: str) -> list[str]:
     lower = text.lower()
     models: list[str] = []
-    if "automation cloud" in lower:
+    if "automation cloud" in lower or (product == "Orchestrator" and "for cloud" in lower):
         models.append("Automation Cloud")
-    if "automation suite" in lower or product == "Automation Suite":
+    if "automation suite" in lower or (product == "Orchestrator" and "for automation suite" in lower) or product == "Automation Suite":
         models.append("Automation Suite")
     if "standalone" in lower:
         models.append("standalone Orchestrator")
@@ -203,7 +203,19 @@ def _patterns(feature: str, text: str) -> list[str]:
     candidates.update(re.findall(r"\b(?:api|odata|identity|account)/[A-Za-z0-9_./{}-]+", text, re.I))
     candidates.update(re.findall(r"/(?:odata|api|identity|account)/[A-Za-z0-9_./{}-]+", text, re.I))
     if "test set" in text.lower() or "testing module" in text.lower():
-        candidates.update({"Orchestrator test set", "Orchestrator test cases", "Orchestrator test schedules"})
+        candidates.update(
+            {
+                "Orchestrator test set",
+                "Orchestrator test cases",
+                "Orchestrator test schedules",
+                "/odata/TestSets",
+                "/odata/TestCases",
+                "/odata/TestCaseDefinitions",
+                "/odata/TestCaseExecutions",
+                "/odata/TestSetExecutions",
+                "/odata/TestSetSchedules",
+            }
+        )
     if "nfs backup" in text.lower():
         candidates.update({"NFS backup", "external objectstore"})
     if "legacy apps runtime" in text.lower():
@@ -214,6 +226,8 @@ def _patterns(feature: str, text: str) -> list[str]:
 
 
 def _recommended_alternative(text: str) -> str:
+    if "testing module in orchestrator" in text.lower():
+        return "Migrate Orchestrator test cases, test sets, test executions, and schedules to Test Manager."
     match = re.search(r"\b(?:migrate|move|use|create|manage|replace)[^.]+\.", text, re.I)
     return match.group(0).strip() if match else "Review UiPath migration guidance for this server-side feature."
 

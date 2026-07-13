@@ -1,0 +1,18 @@
+{
+  "@odata.context": "https://staging.uipath.com/odata/$metadata#TestCaseExecutions",
+  "@odata.count": 2,
+  "value": [
+    {
+      "EntryPointPath": "Login.xaml",
+      "Status": "Passed",
+      "RuntimeType": "TestAutomation",
+      "JobKey": "private-execution-key"
+    },
+    {
+      "EntryPointPath": "CreateInvoice.xaml",
+      "Status": "Cancelled",
+      "RuntimeType": "TestAutomation",
+      "HostMachineName": "private-machine"
+    }
+  ]
+}

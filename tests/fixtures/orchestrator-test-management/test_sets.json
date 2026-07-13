@@ -1,0 +1,18 @@
+{
+  "@odata.context": "https://staging.uipath.com/odata/$metadata#TestSets",
+  "@odata.count": 2,
+  "value": [
+    {
+      "Name": "Nilekha Regression Suite",
+      "SourceType": "ExternalTool",
+      "TestCaseCount": 3,
+      "CreatorUserId": 125785
+    },
+    {
+      "Name": "Nightly Smoke Tests",
+      "SourceType": "ExternalTool",
+      "TestCaseCount": 1,
+      "JobKey": "private-job-key"
+    }
+  ]
+}

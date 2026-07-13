@@ -1,5 +1,6 @@
 from datetime import date, datetime
-from typing import Any, Optional
+from collections import Counter
+from typing import Any, Optional, Union
 
 
 def match_server_deprecations(
@@ -14,55 +15,91 @@ def match_server_deprecations(
     matched_rule_ids: set[str] = set()
 
     for rule in server_rules:
+        matches: list[tuple[dict[str, Any], str]] = []
         for item in evidence:
             if not _delivery_model_applies(rule, item):
+                continue
+            if not _product_applies(rule, item):
                 continue
             matched_pattern = _matched_pattern(rule, item)
             if not matched_pattern:
                 continue
-            matched_rule_ids.add(rule["rule_id"])
-            findings.append(_build_finding(rule, item, matched_pattern, as_of))
-            break
+            matches.append((item, matched_pattern))
+        if not matches:
+            continue
+        matched_rule_ids.add(rule["rule_id"])
+        if _is_testing_module_rule(rule):
+            grouped = _group_testing_evidence(matches)
+            findings.append(_build_finding(rule, grouped, "Testing Module in Orchestrator", as_of))
+        else:
+            findings.append(_build_finding(rule, matches[0][0], matches[0][1], as_of))
 
     gaps = _coverage_gaps(server_rules, evidence, matched_rule_ids)
     findings.sort(key=lambda item: (_severity_rank(item["severity"]), item["product"], item["feature"]))
     return findings, gaps
 
 
-def _build_finding(rule: dict[str, Any], evidence: dict[str, Any], matched_pattern: str, as_of: date) -> dict[str, Any]:
+def _build_finding(
+    rule: dict[str, Any], evidence: Union[dict[str, Any], list[dict[str, Any]]], matched_pattern: str, as_of: date
+) -> dict[str, Any]:
     deadline = rule.get("removal_date", "")
     status = _status(rule, as_of)
     severity = _severity(status, deadline, as_of)
+    evidence_items = evidence if isinstance(evidence, list) else [evidence]
+    primary = evidence_items[0] if evidence_items else {}
+    finding_evidence = [_evidence_record(item, matched_pattern) for item in evidence_items]
+    folder = primary.get("folder", "")
+    tenant = primary.get("tenant_or_service") or primary.get("tenant", "")
+    environment = folder or tenant or primary.get("delivery_model") or "server inventory"
+    impact = f"Detected server-side usage of {rule.get('feature', '')} in inventory evidence."
+    if primary.get("artifact_counts"):
+        counts = ", ".join(
+            f"{count} {artifact.replace('_', ' ')}" for artifact, count in primary["artifact_counts"].items()
+        )
+        impact = f"Detected {counts} in Orchestrator folder {folder or tenant or 'inventory'}."
     return {
         "rule_id": rule.get("rule_id", ""),
         "severity": severity,
         "status": status,
-        "product": rule.get("product", evidence.get("product", "")),
+        "product": rule.get("product", primary.get("product", "")),
         "feature": rule.get("feature", ""),
-        "environment": evidence.get("tenant_or_service") or evidence.get("delivery_model") or "server inventory",
-        "evidence": [
-            {
-                "path": evidence.get("path", ""),
-                "object_path": evidence.get("object_path", ""),
-                "matched_value": evidence.get("matched_value") or matched_pattern,
-                "endpoint": evidence.get("endpoint", ""),
-                "api_field": evidence.get("api_field", ""),
-            }
-        ],
-        "impact": f"Detected server-side usage of {rule.get('feature', '')} in inventory evidence.",
+        "environment": environment,
+        "evidence": finding_evidence,
+        "impact": impact,
         "deadline": deadline,
         "recommended_action": rule.get("recommended_alternative") or "Review UiPath migration guidance for this server-side feature.",
         "source_url": rule.get("source_url", ""),
-        "confidence": _confidence(rule, evidence),
-        "delivery_model": evidence.get("delivery_model", ""),
-        "tenant_or_service": evidence.get("tenant_or_service", ""),
-        "endpoint": evidence.get("endpoint", ""),
-        "api_field": evidence.get("api_field", ""),
-        "service_version": evidence.get("service_version", ""),
-        "configuration_object": evidence.get("configuration_object", ""),
+        "confidence": _confidence(rule, primary),
+        "delivery_model": primary.get("delivery_model", ""),
+        "tenant_or_service": tenant,
+        "endpoint": primary.get("endpoint", ""),
+        "api_field": primary.get("api_field", ""),
+        "service_version": primary.get("service_version", ""),
+        "configuration_object": folder or primary.get("configuration_object", ""),
         "source_section": rule.get("source_section", ""),
         "source_text": rule.get("source_text", ""),
     }
+
+
+def _evidence_record(evidence: dict[str, Any], matched_pattern: str) -> dict[str, Any]:
+    record = {
+        "path": evidence.get("path", ""),
+        "object_path": evidence.get("object_path", ""),
+        "matched_value": evidence.get("matched_value") or matched_pattern,
+        "endpoint": evidence.get("endpoint", ""),
+        "api_field": evidence.get("api_field", ""),
+        "configuration_object": evidence.get("configuration_object", ""),
+        "artifact_type": evidence.get("artifact_type", ""),
+        "organization": evidence.get("organization", ""),
+        "tenant": evidence.get("tenant", ""),
+        "folder": evidence.get("folder", ""),
+        "source_url": evidence.get("source_url", ""),
+        "evidence_source": evidence.get("evidence_source", ""),
+    }
+    for key in ("artifact_counts", "representative_objects"):
+        if key in evidence:
+            record[key] = evidence[key]
+    return {key: value for key, value in record.items() if value not in ("", None, [], {})}
 
 
 def _delivery_model_applies(rule: dict[str, Any], evidence: dict[str, Any]) -> bool:
@@ -73,6 +110,60 @@ def _delivery_model_applies(rule: dict[str, Any], evidence: dict[str, Any]) -> b
     if not evidence_model:
         return True
     return any(model == evidence_model for model in models)
+
+
+def _product_applies(rule: dict[str, Any], evidence: dict[str, Any]) -> bool:
+    rule_product = str(rule.get("product", "")).strip().lower()
+    evidence_product = str(evidence.get("product", "")).strip().lower()
+    return not rule_product or not evidence_product or rule_product == evidence_product
+
+
+def _is_testing_module_rule(rule: dict[str, Any]) -> bool:
+    feature = str(rule.get("feature", "")).lower()
+    return "testing module" in feature and "orchestrator" in feature
+
+
+def _group_testing_evidence(matches: list[tuple[dict[str, Any], str]]) -> list[dict[str, Any]]:
+    unique: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str, str]] = set()
+    counts: Counter[str] = Counter()
+    representatives: dict[str, list[str]] = {}
+    for item, _matched_pattern in matches:
+        endpoint = item.get("endpoint", "")
+        artifact_type = item.get("artifact_type") or _artifact_type_from_endpoint(endpoint)
+        object_name = item.get("configuration_object", "")
+        if artifact_type and object_name:
+            counts[artifact_type] += 1
+            if object_name and object_name not in representatives.setdefault(artifact_type, []) and len(
+                representatives[artifact_type]
+            ) < 5:
+                representatives[artifact_type].append(object_name)
+        identity = (item.get("path", ""), item.get("object_path", ""), endpoint, object_name)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        unique.append(dict(item))
+
+    if not unique:
+        return []
+    summary = dict(unique[0])
+    summary["matched_value"] = "Orchestrator testing artifacts"
+    summary["artifact_counts"] = dict(counts)
+    summary["representative_objects"] = representatives
+    summary["evidence_type"] = "service_feature"
+    summary["confidence"] = "high" if all(item.get("confidence") == "high" for item in unique) else "medium"
+    return [summary] + unique
+
+
+def _artifact_type_from_endpoint(endpoint: str) -> str:
+    return {
+        "/odata/testsets": "test_set",
+        "/odata/testcases": "test_case",
+        "/odata/testcasedefinitions": "test_case",
+        "/odata/testcaseexecutions": "test_case_execution",
+        "/odata/testsetexecutions": "test_set_execution",
+        "/odata/testsetschedules": "test_set_schedule",
+    }.get(str(endpoint).lower(), "")
 
 
 def _matched_pattern(rule: dict[str, Any], evidence: dict[str, Any]) -> str:

@@ -70,6 +70,23 @@ SERVER_TIMELINE_HTML = """
 </html>
 """
 
+ORCHESTRATOR_TIMELINE_HTML = """
+<html>
+  <body>
+    <h3>Upcoming removals</h3>
+    <table>
+      <tr><th>Feature or capability</th><th>Removal announced in</th><th>Scheduled removal date</th><th>Notes</th></tr>
+      <tr>
+        <td>Testing Module in Orchestrator</td>
+        <td>November 11, 2025</td>
+        <td>June 30, 2026</td>
+        <td>As of January 1, 2026, the Testing module in Orchestrator will not display any test results anymore. Test Set creation and execution in Orchestrator will be removed, with Test Manager becoming the sole platform for creating and executing test sets.</td>
+      </tr>
+    </table>
+  </body>
+</html>
+"""
+
 
 class ServerSideAnalyzerTests(unittest.TestCase):
     def test_server_rule_normalization_keeps_non_package_rows(self):
@@ -162,6 +179,112 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         findings, _gaps = match_server_deprecations(inventory, rules, analysis_date="2026-07-09")
 
         self.assertEqual([], findings)
+
+    def test_orchestrator_testing_artifacts_are_grouped_with_context_and_redacted(self):
+        inventory = scan_server_inputs(ROOT / "tests" / "fixtures" / "orchestrator-test-management")
+        rules = normalize_server_rules_from_html(
+            ORCHESTRATOR_TIMELINE_HTML,
+            source_url="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+            fetched_at="2026-07-13T00:00:00Z",
+        )
+
+        endpoints = {item["endpoint"] for item in inventory["server_evidence"] if item.get("endpoint")}
+        evidence_text = json.dumps(inventory["server_evidence"])
+        self.assertTrue(
+            {
+                "/odata/TestSets",
+                "/odata/TestCaseDefinitions",
+                "/odata/TestCaseExecutions",
+                "/odata/TestSetExecutions",
+            }.issubset(endpoints)
+        )
+        self.assertNotIn(
+            "/odata/TestSetSchedules",
+            {item["endpoint"] for item in inventory["server_evidence"] if item.get("endpoint")},
+        )
+        self.assertIn("Nilekha&Demo", evidence_text)
+        self.assertIn("UiPath default", evidence_text)
+        self.assertNotIn("125785", evidence_text)
+        self.assertNotIn("private-job-key", evidence_text)
+        self.assertNotIn("private-machine", evidence_text)
+
+        findings, _gaps = match_server_deprecations(inventory, rules, analysis_date="2026-07-13")
+
+        self.assertEqual(1, len(findings))
+        finding = findings[0]
+        self.assertEqual("Orchestrator", finding["product"])
+        self.assertEqual("Testing Module in Orchestrator", finding["feature"])
+        self.assertEqual("removed", finding["status"])
+        self.assertEqual("critical", finding["severity"])
+        self.assertEqual("Nilekha&Demo", finding["environment"])
+        self.assertEqual("UiPath default", finding["tenant_or_service"])
+        self.assertEqual("Nilekha&Demo", finding["configuration_object"])
+        self.assertIn("Test Manager", finding["recommended_action"])
+        summary = finding["evidence"][0]
+        self.assertEqual(
+            {
+                "test_set": 2,
+                "test_case": 3,
+                "test_case_execution": 2,
+                "test_set_execution": 1,
+            },
+            summary["artifact_counts"],
+        )
+        self.assertEqual(
+            "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+            summary["source_url"],
+        )
+        self.assertIn("/odata/TestCaseDefinitions", {item.get("endpoint") for item in finding["evidence"]})
+        self.assertIn("Login.xaml", json.dumps(finding["evidence"]))
+
+    def test_orchestrator_testing_cli_writes_json_and_html(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            cache = tmp_path / "server-rules.json"
+            output = tmp_path / "reports"
+            rules = normalize_server_rules_from_html(
+                ORCHESTRATOR_TIMELINE_HTML,
+                source_url="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+                fetched_at="2026-07-13T00:00:00Z",
+            )
+            cache.write_text(json.dumps({"entries": rules}), encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPTS / "uipath_deprecation_analyzer.py"),
+                    "--input",
+                    str(ROOT / "tests" / "fixtures" / "orchestrator-test-management"),
+                    "--output",
+                    str(output),
+                    "--mode",
+                    "server",
+                    "--server-rule-cache",
+                    str(cache),
+                    "--offline",
+                    "--format",
+                    "json,csv,html",
+                    "--analysis-date",
+                    "2026-07-13",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            paths = json.loads(result.stdout)["reports"]
+            report = json.loads(Path(paths["json"]).read_text(encoding="utf-8"))
+            csv_report = Path(paths["csv"]).read_text(encoding="utf-8")
+            html = Path(paths["html"]).read_text(encoding="utf-8")
+
+        self.assertEqual(1, report["summary"]["total_findings"])
+        self.assertIn("Nilekha&Demo", json.dumps(report))
+        self.assertIn("Test Manager", json.dumps(report))
+        self.assertIn("/odata/TestCaseDefinitions", json.dumps(report))
+        self.assertIn("/odata/TestCaseDefinitions", csv_report)
+        self.assertIn("Nilekha&Demo", csv_report)
+        self.assertIn("UiPath Deprecation Risk Command Center", html)
+        self.assertIn("Nilekha&amp;Demo", html)
+        self.assertIn("Test Manager", html)
 
     def test_common_normalization_for_client_and_server_findings(self):
         client = normalize_client_finding(
@@ -293,6 +416,10 @@ class ServerSideAnalyzerTests(unittest.TestCase):
             "timeline-detail",
             "action-card",
             "class=\"donut\"",
+            "evidence-summary",
+            "artifact-counts",
+            "View evidence details",
+            "Evidence files",
             "Risk By Product",
             "Upcoming Deadlines",
             "Top Findings",
@@ -312,6 +439,7 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("[REDACTED]", html)
         self.assertIn("postman_collection_with_a_very_long_nested_folder_name", html)
         self.assertIn("missing", html)
+        self.assertNotIn("artifact_counts={", html)
         self.assertNotIn("Bearer abc123", html)
 
     def test_cli_routes_server_and_mixed_modes_with_cache_only(self):

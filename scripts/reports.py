@@ -525,6 +525,121 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       font-weight: 800;
       margin-bottom: 4px;
     }}
+    .finding-title {{
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+    }}
+    .finding-context {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }}
+    .context-tag {{
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fafc;
+      color: var(--slate);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }}
+    .evidence-summary {{
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #e3e9f1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }}
+    .evidence-heading {{
+      margin-bottom: 8px;
+      color: var(--slate);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }}
+    .evidence-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }}
+    .evidence-item {{
+      min-width: 0;
+      padding: 8px;
+      border-radius: 6px;
+      background: #ffffff;
+    }}
+    .evidence-label {{
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }}
+    .evidence-value {{
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }}
+    .artifact-counts {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }}
+    .count-chip {{
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #eaf1fb;
+      color: #264c7c;
+      font-size: 11px;
+      font-weight: 700;
+    }}
+    .evidence-details {{
+      margin-top: 9px;
+      border-top: 1px solid #e3e9f1;
+      padding-top: 8px;
+    }}
+    .evidence-details summary {{
+      cursor: pointer;
+      color: #315f96;
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .evidence-detail-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }}
+    .evidence-detail-grid h4 {{
+      margin: 0 0 5px;
+      color: var(--slate);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }}
+    .evidence-detail-grid ul {{
+      margin: 0;
+      padding-left: 17px;
+      color: var(--slate);
+      font-size: 12px;
+    }}
+    .evidence-detail-grid li {{
+      margin: 3px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }}
+    .source-line {{
+      margin-top: 8px;
+    }}
     .muted {{
       color: var(--muted);
       font-size: 12px;
@@ -649,6 +764,10 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
         grid-template-columns: 1fr;
       }}
       .bar-row {{
+        grid-template-columns: 1fr;
+      }}
+      .evidence-grid,
+      .evidence-detail-grid {{
         grid-template-columns: 1fr;
       }}
     }}
@@ -888,7 +1007,7 @@ def _timeline_items(findings: list[dict[str, Any]], analysis_date: str) -> list[
                 "days": days,
                 "severity": str(finding.get("severity", "low")).lower(),
                 "title": finding.get("feature_or_package") or finding.get("product") or "Finding",
-                "detail": _timeline_detail(finding),
+                "finding": finding,
             }
         )
     return items[:4]
@@ -945,7 +1064,7 @@ def _timeline_item_cards(items: list[dict[str, Any]]) -> str:
         f'<div class="deadline">{_h(_short_deadline(item["date"]))}</div>'
         '<div class="timeline-content">'
         f'<strong>{_h(item["title"])}</strong>'
-        f'<div class="muted timeline-detail">{_h(item["detail"])}</div>'
+        f'<div class="timeline-detail">{_finding_evidence_html(item["finding"], compact=True)}</div>'
         "</div>"
         f'<span class="pill {_pill_class(item["severity"])}">{_h(_days_label(item["days"]))}</span>'
         "</div>"
@@ -961,9 +1080,9 @@ def _findings_command_table(findings: list[dict[str, Any]]) -> str:
         f'<td><span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span></td>'
         f"<td>{_h(finding.get('product', ''))}</td>"
         "<td>"
-        f'<div class="feature">{_h(finding.get("feature_or_package", ""))}</div>'
-        f'<div class="muted">Evidence: {_h(_evidence_text(finding.get("evidence", [])))}</div>'
-        f'<div class="muted">Source: {_source_html(finding.get("source_url"))}</div>'
+        f'<div class="finding-title">{_h(finding.get("feature_or_package", ""))}</div>'
+        f'{_finding_context_html(finding)}'
+        f'{_finding_evidence_html(finding)}'
         "</td>"
         f"<td>{_h(_display_deadline(finding.get('deadline')))}</td>"
         f'<td><span class="pill {_route_pill_class(finding)}">{_h(finding.get("recommended_skill") or finding.get("mitigation_route", ""))}</span></td>'
@@ -1005,6 +1124,165 @@ def _timeline_detail(finding: dict[str, Any]) -> str:
     if evidence and evidence != "missing":
         return f"Evidence: {evidence}"
     return finding.get("impact") or finding.get("recommended_action") or "Review finding evidence and remediation guidance."
+
+
+def _finding_context_html(finding: dict[str, Any]) -> str:
+    """Render scannable finding context instead of flattening it into one long line."""
+    values = [
+        ("Status", str(finding.get("status", "")).replace("_", " ").title()),
+        ("Environment", finding.get("environment")),
+        ("Folder", finding.get("configuration_object")),
+        ("Confidence", finding.get("confidence")),
+    ]
+    tags = "".join(
+        f'<span class="context-tag"><strong>{_h(label)}:</strong>&nbsp;{_h(value)}</span>'
+        for label, value in values
+        if value
+    )
+    return f'<div class="finding-context">{tags}</div>' if tags else ""
+
+
+def _finding_evidence_html(finding: dict[str, Any], compact: bool = False) -> str:
+    """Render evidence as labeled context, counts, and expandable detail lists."""
+    evidence = finding.get("evidence", [])
+    records = evidence if isinstance(evidence, list) else [evidence]
+    dictionaries = [record for record in records if isinstance(record, dict)]
+    scalar_values = [str(record) for record in records if record not in (None, "", [], {}) and not isinstance(record, dict)]
+    if not dictionaries and not scalar_values:
+        return '<div class="evidence-summary"><span class="evidence-heading">Evidence</span><span class="evidence-value">Missing</span></div>'
+
+    context = _evidence_context(dictionaries, finding)
+    counts = _evidence_counts(dictionaries)
+    endpoints = _unique_evidence_values(dictionaries, "endpoint")
+    paths = _unique_evidence_values(dictionaries, "path")
+    objects = _evidence_objects(dictionaries)
+    signals = _unique_evidence_values(dictionaries, "matched_value")
+    source = finding.get("source_url") or context.get("source_url")
+
+    if compact:
+        summary_bits = []
+        if counts:
+            summary_bits.append("; ".join(f"{_human_label(key)}: {value}" for key, value in counts.items()))
+        if context.get("folder"):
+            summary_bits.append(f"Folder: {context['folder']}")
+        if context.get("evidence_source"):
+            summary_bits.append(f"Source: {context['evidence_source']}")
+        reference = f'<div class="source-line muted">Reference: {_source_html(source)}</div>' if source else ""
+        return (
+            '<div class="evidence-summary">'
+            '<div class="evidence-heading">Evidence summary</div>'
+            f'<span class="evidence-value">{_h(" | ".join(summary_bits) or "Available")}</span>'
+            f'{reference}'
+            '</div>'
+        )
+
+    context_cells = []
+    for label, key in (
+        ("Organization", "organization"),
+        ("Tenant", "tenant"),
+        ("Folder", "folder"),
+        ("Evidence source", "evidence_source"),
+    ):
+        value = context.get(key)
+        if value:
+            context_cells.append(
+                f'<div class="evidence-item"><span class="evidence-label">{_h(label)}</span>'
+                f'<span class="evidence-value">{_h(value)}</span></div>'
+            )
+    if source:
+        context_cells.append(
+            f'<div class="evidence-item"><span class="evidence-label">Reference</span>'
+            f'<span class="evidence-value">{_source_html(source)}</span></div>'
+        )
+    if scalar_values:
+        context_cells.append(
+            '<div class="evidence-item"><span class="evidence-label">Captured evidence</span>'
+            f'<span class="evidence-value">{_h("; ".join(scalar_values))}</span></div>'
+        )
+
+    count_chips = "".join(
+        f'<span class="count-chip">{_h(_human_label(key))}: {_h(value)}</span>'
+        for key, value in counts.items()
+    )
+    detail_blocks = []
+    if endpoints:
+        detail_blocks.append(_evidence_detail_list("Endpoints", endpoints))
+    if paths:
+        detail_blocks.append(_evidence_detail_list("Evidence files", paths))
+    if objects:
+        detail_blocks.append(_evidence_detail_list("Representative objects", objects))
+    if signals:
+        detail_blocks.append(_evidence_detail_list("Matched signals", signals))
+    details = "".join(detail_blocks) or '<p class="muted">No additional details captured.</p>'
+    context_html = "".join(context_cells) or '<div class="evidence-item"><span class="evidence-value">Available</span></div>'
+    counts_html = f'<div class="artifact-counts">{count_chips}</div>' if count_chips else ""
+    return (
+        '<div class="evidence-summary">'
+        '<div class="evidence-heading">Evidence summary</div>'
+        f'<div class="evidence-grid">{context_html}</div>'
+        f'{counts_html}'
+        '<details class="evidence-details">'
+        '<summary>View evidence details</summary>'
+        f'<div class="evidence-detail-grid">{details}</div>'
+        '</details>'
+        '</div>'
+    )
+
+
+def _evidence_context(records: list[dict[str, Any]], finding: dict[str, Any]) -> dict[str, Any]:
+    context: dict[str, Any] = {}
+    for key in ("organization", "tenant", "folder", "evidence_source", "source_url"):
+        value = next((record.get(key) for record in records if record.get(key)), None)
+        if value:
+            context[key] = value
+    if finding.get("environment") and not context.get("folder"):
+        context["folder"] = finding.get("configuration_object") or finding.get("environment")
+    return context
+
+
+def _evidence_counts(records: list[dict[str, Any]]) -> dict[str, Any]:
+    counts: dict[str, Any] = {}
+    for record in records:
+        values = record.get("artifact_counts")
+        if isinstance(values, dict):
+            for key, value in values.items():
+                if value not in (None, "", 0):
+                    counts[str(key)] = value
+    return dict(sorted(counts.items()))
+
+
+def _unique_evidence_values(records: list[dict[str, Any]], key: str, limit: int = 8) -> list[str]:
+    values: list[str] = []
+    for record in records:
+        value = record.get(key)
+        if value not in (None, "", [], {}):
+            text = str(value)
+            if text not in values:
+                values.append(text)
+    return values[:limit]
+
+
+def _evidence_objects(records: list[dict[str, Any]], limit: int = 8) -> list[str]:
+    values: list[str] = []
+    for record in records:
+        representative = record.get("representative_objects")
+        if isinstance(representative, dict):
+            candidates = [item for items in representative.values() if isinstance(items, list) for item in items]
+        else:
+            candidates = [record.get("configuration_object")] if record.get("configuration_object") else []
+        for value in candidates:
+            if value not in (None, "") and str(value) not in values:
+                values.append(str(value))
+    return values[:limit]
+
+
+def _evidence_detail_list(title: str, values: list[str]) -> str:
+    items = "".join(f"<li>{_h(value)}</li>" for value in values)
+    return f"<div><h4>{_h(title)}</h4><ul>{items}</ul></div>"
+
+
+def _human_label(value: Any) -> str:
+    return str(value).replace("_", " ").title()
 
 
 def _pill_class(value: Any) -> str:
@@ -1343,7 +1621,10 @@ def _write_findings_csv(payload: dict[str, Any], path: Path) -> None:
         writer.writeheader()
         for finding in payload.get("findings", []):
             row = {name: finding.get(name, "") for name in fieldnames}
-            row["evidence"] = "; ".join(finding.get("evidence", []))
+            row["evidence"] = "; ".join(
+                json.dumps(item, sort_keys=True) if isinstance(item, dict) else str(item)
+                for item in finding.get("evidence", [])
+            )
             writer.writerow(row)
 
 

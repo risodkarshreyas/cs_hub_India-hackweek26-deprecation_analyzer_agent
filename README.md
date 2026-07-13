@@ -237,6 +237,14 @@ Server-side tenant/platform export:
 python3 scripts/uipath_deprecation_analyzer.py --input ./tenant-export --output ./reports --mode server --format markdown,json,xlsx,html
 ```
 
+Orchestrator Testing Module snapshot with mandatory HTML output:
+
+```bash
+python3 scripts/uipath_deprecation_analyzer.py --input ./orchestrator-test-management --output ./reports --mode server --format markdown,json,xlsx,html
+```
+
+The snapshot should contain sanitized read-only collections such as `TestSets`, `TestCaseDefinitions`, `TestCaseExecutions`, `TestSetExecutions`, and `TestSetSchedules`, plus a `context.json` file containing the organization, tenant, folder, source URL, and evidence provenance. The analyzer groups these records into a folder-level Orchestrator Testing Module finding and recommends migration to Test Manager. Never include credentials, tokens, cookies, owner identifiers, machine names, or job keys.
+
 Mixed repo plus platform export:
 
 ```bash

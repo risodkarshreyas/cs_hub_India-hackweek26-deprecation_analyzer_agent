@@ -51,6 +51,30 @@ Accept any combination of these inputs:
 - Screenshots or CSV inventories from Admin, Orchestrator, Apps, Test Manager, or Automation Suite when APIs are unavailable.
 - A manually prepared inventory table with columns such as product, feature, setting, endpoint, version, object name, environment type, evidence, and owner.
 
+For Orchestrator Testing Module analysis, prefer a sanitized API snapshot plus a `context.json` sidecar:
+
+```json
+{
+  "product": "Orchestrator",
+  "delivery_model": "Automation Cloud",
+  "organization": "example-org",
+  "tenant": "UiPath default",
+  "folder": "Nilekha&Demo",
+  "source_url": "https://staging.uipath.com/example-org/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+  "evidence_source": "live_api"
+}
+```
+
+Capture only read-only resources under the requested folder:
+
+- `/odata/TestSets`
+- `/odata/TestCaseDefinitions`
+- `/odata/TestCaseExecutions`
+- `/odata/TestSetExecutions`
+- `/odata/TestSetSchedules`
+
+Remove owner identifiers, machine names, job keys, credentials, cookies, bearer headers, and tokens before writing the snapshot. The analyzer groups matching test artifacts by folder and capability while retaining counts, endpoints, object paths, and representative object names.
+
 If the user has no export, ask for the minimum inventory needed for the requested product family. For example, Orchestrator API deprecations need endpoint usage evidence; Automation Suite infrastructure deprecations need deployment version and infrastructure configuration.
 
 ## Workflow
@@ -71,6 +95,7 @@ If the user has no export, ask for the minimum inventory needed for the requeste
    - Parse JSON, CSV, YAML, XML, Terraform, Helm values, Kubernetes manifests, Postman collections, OpenAPI specs, logs, and plain text inventories with structured parsers when possible.
    - Extract evidence that can be tied to a rule: endpoint paths, API fields, roles, permissions, service versions, object names, connector names, app expression/runtime model, storage mode, backup mode, OS/Kubernetes/SQL versions, and product launcher/service usage.
    - Record where each piece of evidence came from: file path, object identifier, endpoint, line number, row number, or API response path.
+   - For an authenticated Orchestrator URL, resolve the requested folder first, capture testing collections with GET requests only, and retain the supplied tenant/folder URL in the sanitized context sidecar. Never click or invoke create, edit, execute, publish, migrate, menu, or delete controls.
 
 4. Match rules to evidence:
    - Use exact matching for API endpoints, fields, object names, version numbers, service names, connector names, and known feature labels.
@@ -112,6 +137,8 @@ Extract these evidence types when available:
 - `api_field`: deprecated request/response field, query option, permission, role, or setting name.
 - `service_version`: product, Automation Suite, standalone component, OS, Kubernetes, SQL, or runtime version.
 - `configuration_object`: app, connector, connection, trigger, queue, process, bucket, test set, machine, role, policy, cluster setting, Helm value, Kubernetes resource, or admin setting.
+- Orchestrator testing artifacts: classify `TestSets` as `test_set`, `TestCaseDefinitions`/`TestCases` as `test_case`, `TestCaseExecutions` as `test_case_execution`, `TestSetExecutions` as `test_set_execution`, and `TestSetSchedules` as `test_set_schedule`.
+- Preserve `organization`, `tenant`, `folder`, `source_url`, and `evidence_source` when a sanitized context sidecar is available.
 
 Redact secrets before reporting evidence.
 
@@ -126,6 +153,9 @@ Look for:
 - Access model issues: mixed roles, break-inheritance settings, deprecated role names in API payloads, and old permissions.
 - Tenant settings: tenant-level SMTP, SMB storage in Automation Suite, old SQL or Windows Server dependencies.
 - Test execution from Orchestrator instead of Test Manager.
+- OData testing collections: `/odata/TestSets`, `/odata/TestCaseDefinitions`, `/odata/TestCaseExecutions`, `/odata/TestSetExecutions`, and `/odata/TestSetSchedules`.
+- Existing test cases, test sets, test executions, and schedules in a tenant folder. Group overlapping collections into one folder-level capability finding and recommend migration to Test Manager.
+- Treat structured API evidence as high confidence. Treat CSV or manually prepared inventories as medium confidence and screenshot-only evidence as low or medium confidence depending on visible labels and corroboration.
 
 ### Automation Cloud
 

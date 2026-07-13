@@ -29,6 +29,8 @@ Apply scope constraints before reporting:
 - Do not report client package deprecations against server-only evidence.
 - Do not report server or platform deprecations against RPA package evidence unless a server configuration directly references the deprecated feature.
 - Apply delivery model, product version, compatibility, and date constraints from the source row.
+- Require known evidence and rule products to agree before reporting a server finding. Delivery-model labels such as Automation Cloud or Automation Suite do not replace the product identified by the evidence.
+- When multiple structured records represent one server capability in the same tenant or folder, group them into one finding and preserve artifact counts, endpoints, object paths, and representative object names in the evidence array.
 - If evidence is missing or incomplete, report a coverage gap instead of a finding.
 
 ## Classification
