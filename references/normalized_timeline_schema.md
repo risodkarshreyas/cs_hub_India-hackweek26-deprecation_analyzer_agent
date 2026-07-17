@@ -2,6 +2,8 @@
 
 Normalized client/package timeline entries are stored as JSON objects. The live UiPath deprecation timeline remains authoritative; cached entries are fallback or explicit offline data. Server-side rules use `references/server_rule_schema.md`.
 
+This schema covers only the deprecation-timeline page. Two related client-side datasets have their own schemas: `references/activities_lifecycle_schema.md` (activity package version-per-release-train matrix, used to flag out-of-support dependency versions) and `references/out_of_support_versions_schema.md` (product version end-of-support dates).
+
 Required fields:
 
 | Field | Type | Meaning |

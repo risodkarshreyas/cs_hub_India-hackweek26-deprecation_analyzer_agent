@@ -1371,6 +1371,8 @@ def _pill_class(value: Any) -> str:
         return severity
     if severity in {"removed", "overdue"}:
         return "critical"
+    if severity == "out_of_support":
+        return "high"
     return "gray"
 
 

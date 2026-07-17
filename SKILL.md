@@ -34,6 +34,7 @@ Then read only the analyzer reference needed for the request:
 - `references/common_analysis_rules.md`: required for every route, output schema, severity/status rules, evidence rules, KPI rules, and guardrails.
 - `references/client_side_analyzer.md`: client route workflow, evidence sources, script behavior, and legacy-to-common field mapping.
 - `references/server_side_analyzer.md`: server route workflow, product scope, server evidence extraction, and matching guidance.
+- `references/activities_lifecycle_schema.md` and `references/out_of_support_versions_schema.md`: activity-package lifecycle matrix and product version end-of-support datasets used for `out_of_support` findings.
 - `references/report_schema.md`: legacy client report payload interpretation and mapping to common fields.
 - `references/example_findings.md`: examples of normalized client, server, and mixed findings.
 - `references/package_matching_rules.md` and `references/risk_scoring_model.md`: client matching, false-positive, and legacy risk details.
@@ -107,6 +108,13 @@ python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --ou
 ```
 
 Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server-side report output should include HTML. Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.
+
+Every run also refreshes two support-lifecycle pages to surface `out_of_support` findings (severity `high`):
+
+- The activities-lifecycle page flags installed activity-package (dependency) versions that are below the package's minimum supported version. Override the source with `--activities-lifecycle-url` and cache it with `--activities-lifecycle-cache`.
+- The out-of-support versions page flags detected UiPath product versions (client Studio `studioVersion` and server `service_version`) whose release train has reached end of extended support. Override the source with `--out-of-support-url` and cache it with `--out-of-support-cache`.
+
+Both checks respect `--offline`/`--use-cache-only` and fall back to their cache files when the live pages are unavailable.
 
 ## Runtime Notes
 

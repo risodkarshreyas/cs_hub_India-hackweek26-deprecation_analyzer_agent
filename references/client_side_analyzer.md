@@ -32,6 +32,13 @@ Use the live UiPath deprecation timeline by default. Cached normalized data is o
 
 The client scripts normalize package-like timeline entries. Keep entries such as `UiPath.*.Activities`, canonicalized short package names, `UiPath.DocumentUnderstanding.ML`, and Document Understanding ML package identifiers when they appear in the timeline.
 
+The client route also refreshes two support-lifecycle pages on every run:
+
+- **Activities lifecycle** (`.../overview/activities-lifecycle`): a matrix of activity package versions per platform release train. An installed activity-package version below the package's minimum still-supported version is reported as `out_of_support` (severity `high`). The support floor is computed from the out-of-support release trains, so it stays correct as trains age out. Schema: `references/activities_lifecycle_schema.md`.
+- **Out-of-support product versions** (`.../overview/out-of-support-versions`): product version end-of-support dates. The Studio version declared in `project.json` (`studioVersion`) is matched to its release train; a train whose End of Extended Support date has passed is reported as `out_of_support` (severity `high`). Schema: `references/out_of_support_versions_schema.md`.
+
+Both checks degrade gracefully: when a page cannot be fetched and no cache exists, the analyzer records a coverage gap instead of guessing.
+
 ## Workflow
 
 1. Identify the input: source project folder, GitHub checkout, folder of `.nupkg` packages, Orchestrator package export, or mixed folder.
@@ -55,7 +62,10 @@ Keep these scripts unchanged unless the user explicitly requests implementation 
 - `scripts/uipath_deprecation_analyzer.py`: CLI entrypoint.
 - `scripts/project_inventory.py`: scans source projects and `.nupkg` packages using embedded UiPath project discovery and package inventory logic.
 - `scripts/timeline.py`: fetches, filters, normalizes, and caches package-like timeline entries.
-- `scripts/matcher.py`: matches project/package inventory to normalized timeline entries and classifies risk.
+- `scripts/activities_lifecycle.py`: fetches and normalizes the activity package version-per-release-train matrix.
+- `scripts/out_of_support_versions.py`: fetches and normalizes product version end-of-support entries and derives out-of-support release trains.
+- `scripts/matcher.py`: matches project/package inventory to normalized timeline entries, classifies risk, and flags out-of-support dependency versions against the lifecycle floor.
+- `scripts/out_of_support_matcher.py`: matches detected Studio/server product versions against out-of-support product trains.
 - `scripts/reports.py`: generates Markdown, JSON, CSV, Excel, and optional HTML dashboard outputs.
 
 CLI flags:
@@ -65,7 +75,12 @@ CLI flags:
 --output PATH
 --refresh-timeline
 --use-cache-only
+--offline
 --timeline-cache PATH
+--activities-lifecycle-cache PATH
+--out-of-support-cache PATH
+--activities-lifecycle-url URL
+--out-of-support-url URL
 --format markdown,json,csv,xlsx[,html]
 --include-xaml
 --include-nupkg
@@ -80,6 +95,8 @@ Live timeline refresh is the default. Use `--use-cache-only` with `--timeline-ca
 Read these only when interpreting or extending client script behavior:
 
 - `references/normalized_timeline_schema.md`: package-only normalized timeline fields.
+- `references/activities_lifecycle_schema.md`: activity package version-per-release-train matrix used for the dependency out-of-support floor.
+- `references/out_of_support_versions_schema.md`: product version end-of-support entries used for the product out-of-support check.
 - `references/package_matching_rules.md`: package matching and false-positive rules for the current scripts.
 - `references/report_schema.md`: legacy raw client report payload and its mapping to the common schema.
 - `references/risk_scoring_model.md`: legacy raw client risk fields and their mapping to common severity.

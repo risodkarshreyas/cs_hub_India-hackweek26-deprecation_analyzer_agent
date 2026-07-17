@@ -1,0 +1,88 @@
+{
+  "source_url": "https://docs.uipath.com/overview/other/latest/overview/activities-lifecycle",
+  "fetched_at": "2026-07-17T00:00:00+00:00",
+  "entries": [
+    {
+      "package_name": "UiPath.Excel.Activities",
+      "versions_by_release": [
+        {
+          "release_train": "2025.10",
+          "release_label": "2025.10 LTS",
+          "version": "3.3.1"
+        },
+        {
+          "release_train": "2024.10",
+          "release_label": "2024.10 LTS",
+          "version": "2.24.4"
+        },
+        {
+          "release_train": "2023.10",
+          "release_label": "2023.10 LTS",
+          "version": "2.22.4"
+        },
+        {
+          "release_train": "2023.4",
+          "release_label": "2023.4 LTS",
+          "version": "2.20.3"
+        },
+        {
+          "release_train": "2022.10",
+          "release_label": "2022.10 LTS",
+          "version": "2.16.4"
+        },
+        {
+          "release_train": "2018.4",
+          "release_label": "2018.4 LTS",
+          "version": "2.5.1"
+        }
+      ],
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/activities-lifecycle",
+      "source_section_title": "Packages included in on-premises releases",
+      "source_text": "UiPath.Excel.Activities | 3.3.1 | 2.24.4 | 2.22.4 | 2.20.3 | 2.16.4 | 2.5.1",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "package_name": "UiPath.System.Activities",
+      "versions_by_release": [
+        {
+          "release_train": "2025.10",
+          "release_label": "2025.10 LTS",
+          "version": "25.10.5"
+        },
+        {
+          "release_train": "2024.10",
+          "release_label": "2024.10 LTS",
+          "version": "24.10.8"
+        },
+        {
+          "release_train": "2023.10",
+          "release_label": "2023.10 LTS",
+          "version": "23.10.6"
+        },
+        {
+          "release_train": "2023.4",
+          "release_label": "2023.4 LTS",
+          "version": "23.4.5"
+        },
+        {
+          "release_train": "2022.10",
+          "release_label": "2022.10 LTS",
+          "version": "22.10.8"
+        },
+        {
+          "release_train": "2018.4",
+          "release_label": "2018.4 LTS",
+          "version": "18.4.1"
+        }
+      ],
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/activities-lifecycle",
+      "source_section_title": "Packages included in on-premises releases",
+      "source_text": "UiPath.System.Activities | 25.10.5 | 24.10.8 | 23.10.6 | 23.4.5 | 22.10.8 | 18.4.1",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    }
+  ]
+}

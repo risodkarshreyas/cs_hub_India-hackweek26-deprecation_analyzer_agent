@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 
 WINDOWS_LEGACY_CLASSIFICATION = ".NET Framework 4.6.1 / Windows-Legacy Compatibility Impact"
+OUT_OF_SUPPORT_CLASSIFICATION = "Out Of Support"
 
 
 def match_deprecations(
@@ -75,6 +76,117 @@ def match_deprecations(
     # needs attention before lower-risk scheduled removals.
     findings.sort(key=lambda item: (_risk_rank(item["risk_level"]), item["package_name"]))
     return findings
+
+
+def match_activities_lifecycle(
+    inventory: dict[str, Any],
+    lifecycle_entries: list[dict[str, Any]],
+    out_of_support_trains: dict[str, str],
+    analysis_date: Optional[str] = None,
+) -> list[dict[str, Any]]:
+    """Flag installed activity-package versions that are below the supported version floor.
+
+    The activities-lifecycle page maps each package to the version shipped in every release
+    train. A train is out of support when it appears in ``out_of_support_trains`` (derived
+    from the out-of-support versions page relative to the analysis date). The support floor
+    for a package is the version shipped in the oldest still-supported train; an installed
+    version below that floor is out of support.
+    """
+    as_of = _parse_date(analysis_date) or date.today()
+    projects = {project.get("name"): project for project in inventory.get("projects", [])}
+    entries_by_package = {
+        entry.get("package_name", "").lower(): entry for entry in lifecycle_entries
+    }
+    findings: list[dict[str, Any]] = []
+
+    for package in inventory.get("package_inventory", []):
+        current_version = package.get("version", "")
+        if not current_version:
+            continue  # XAML-only references carry no version to compare.
+        entry = entries_by_package.get(package.get("package_name", "").lower())
+        if not entry:
+            continue
+        floor = _supported_version_floor(entry, out_of_support_trains)
+        if not floor:
+            continue  # No supported train resolved; avoid a false positive.
+        if _version_tuple(current_version) >= _version_tuple(floor["version"]):
+            continue
+
+        owning = _owning_release(entry, current_version)
+        out_of_support_since = ""
+        release_label = ""
+        if owning:
+            release_label = owning.get("release_label", "")
+            out_of_support_since = out_of_support_trains.get(owning.get("release_train", ""), "")
+        project = projects.get(package.get("project_name"), {})
+        recommendation = (
+            f"Upgrade {package.get('package_name', '')} to at least {floor['version']} "
+            f"({floor['release_label']}) to return to a supported release."
+        )
+        findings.append(
+            {
+                "project_name": package.get("project_name", ""),
+                "package_name": package.get("package_name", ""),
+                "current_version": current_version,
+                "classification": OUT_OF_SUPPORT_CLASSIFICATION,
+                "risk_level": "High",
+                "urgency": "Upgrade to a supported version",
+                "recommendation": recommendation,
+                "replacement_package": "",
+                "affected_version": f"< {floor['version']}",
+                "min_supported_version": floor["version"],
+                "deprecation_date": "",
+                "removal_date": out_of_support_since,
+                "compatibility_scope": "all_projects",
+                "project_compatibility": project.get("compatibility")
+                or package.get("project_compatibility", ""),
+                "evidence": package.get("evidence", []),
+                "source_url": entry.get("source_url", ""),
+                "source_section_title": entry.get("source_section_title", ""),
+                "source_text": (
+                    f"{package.get('package_name', '')} {current_version} maps to "
+                    f"{release_label or 'an out-of-support release train'}; minimum supported "
+                    f"version is {floor['version']} ({floor['release_label']})."
+                ),
+                "confidence": _combined_confidence(entry, package),
+                "owner_action": _owner_action(OUT_OF_SUPPORT_CLASSIFICATION),
+                "validation_steps": _validation_steps(OUT_OF_SUPPORT_CLASSIFICATION),
+                "impact": _impact_estimate(inventory, package, OUT_OF_SUPPORT_CLASSIFICATION),
+            }
+        )
+
+    findings.sort(key=lambda item: (_risk_rank(item["risk_level"]), item["package_name"]))
+    return findings
+
+
+def _supported_version_floor(
+    entry: dict[str, Any],
+    out_of_support_trains: dict[str, str],
+) -> Optional[dict[str, str]]:
+    """Return the lowest version shipped in a still-supported release train."""
+    supported = [
+        release
+        for release in entry.get("versions_by_release", [])
+        if release.get("version")
+        and release.get("release_train")
+        and release["release_train"] not in out_of_support_trains
+    ]
+    if not supported:
+        return None
+    return min(supported, key=lambda release: _version_tuple(release["version"]))
+
+
+def _owning_release(entry: dict[str, Any], current_version: str) -> Optional[dict[str, str]]:
+    """Find the newest release train whose shipped version is at or below the installed one."""
+    current = _version_tuple(current_version)
+    candidates = [
+        release
+        for release in entry.get("versions_by_release", [])
+        if release.get("version") and _version_tuple(release["version"]) <= current
+    ]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda release: _version_tuple(release["version"]))
 
 
 def _classify(entry: dict[str, Any], analysis_date: date, project: dict[str, Any]) -> str:
@@ -150,6 +262,8 @@ def _recommendation(entry: dict[str, Any], classification: str) -> str:
     replacement = entry.get("replacement_package")
     if replacement:
         return f"Replace with {replacement}."
+    if classification == OUT_OF_SUPPORT_CLASSIFICATION:
+        return "Upgrade the package to a version shipped in a currently supported release train."
     if "Windows-Legacy" in classification:
         return "Migrate from Windows-Legacy or pin to the last supported package version documented by UiPath."
     return "No direct replacement stated - review manually."
@@ -159,6 +273,8 @@ def _risk_and_urgency(classification: str) -> tuple[str, str]:
     """Map classifications to the report-facing risk and urgency labels."""
     if classification == "Already Removed":
         return "Critical", "Immediate"
+    if classification == OUT_OF_SUPPORT_CLASSIFICATION:
+        return "High", "Upgrade to a supported version"
     if classification == "Removal Imminent":
         return "High", "Next 0-6 months"
     if classification == "Removal Scheduled":
@@ -172,6 +288,8 @@ def _owner_action(classification: str) -> str:
     """Suggest the next owner-level action for remediation planning."""
     if classification == "Already Removed":
         return "Assign migration owner and remediate before next package upgrade or deployment."
+    if classification == OUT_OF_SUPPORT_CLASSIFICATION:
+        return "Plan a package upgrade to a supported release train in the next maintenance window."
     if classification == "Removal Imminent":
         return "Schedule migration in the next release cycle."
     if "Windows-Legacy" in classification:
@@ -186,6 +304,8 @@ def _validation_steps(classification: str) -> list[str]:
         "Open the project in UiPath Studio and resolve missing activities.",
         "Run workflow validation and smoke-test affected entry points.",
     ]
+    if classification == OUT_OF_SUPPORT_CLASSIFICATION:
+        steps.insert(0, "Confirm the target supported package version against the UiPath activities lifecycle page.")
     if "Windows-Legacy" in classification:
         steps.insert(0, "Validate whether the project still targets Windows-Legacy/.NET Framework 4.6.1.")
     return steps

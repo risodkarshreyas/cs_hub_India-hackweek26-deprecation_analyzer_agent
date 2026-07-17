@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 CLIENT_STATUS_MAP = {
     "Already Removed": "removed",
+    "Out Of Support": "out_of_support",
     "Removal Imminent": "removal_scheduled",
     "Removal Scheduled": "removal_scheduled",
     ".NET Framework 4.6.1 / Windows-Legacy Compatibility Impact": "deprecated",
@@ -41,6 +42,37 @@ def normalize_client_finding(raw: dict[str, Any], index: int, analysis_date: str
             "project_compatibility": raw.get("project_compatibility", ""),
         }
     )
+    return finding
+
+
+def normalize_product_finding(raw: dict[str, Any], index: int, analysis_date: str) -> dict[str, Any]:
+    """Normalize an out-of-support product-version finding (client Studio or server product)."""
+    domain = raw.get("domain") or "client"
+    product = raw.get("product", "")
+    finding = _base_finding(
+        index=index,
+        domain=domain,
+        severity=raw.get("severity", "high"),
+        status=raw.get("status", "out_of_support"),
+        product=product,
+        feature_or_package=raw.get("feature_or_package") or product,
+        environment=raw.get("environment") or raw.get("project_name") or "unknown",
+        evidence=raw.get("evidence", []),
+        impact=raw.get("impact", ""),
+        deadline=raw.get("deadline", ""),
+        recommended_action=raw.get("recommended_action", ""),
+        confidence=raw.get("confidence", "medium"),
+        source_url=raw.get("source_url", ""),
+        analysis_date=analysis_date,
+    )
+    finding["current_version"] = raw.get("current_version", "")
+    if domain == "client":
+        finding["project_name"] = raw.get("project_name", "")
+    else:
+        finding["tenant_or_service"] = raw.get("tenant_or_service", "")
+        finding["service_version"] = raw.get("service_version", "")
+    # Product/version upgrades are owner or infrastructure decisions, not AI-applied edits.
+    finding["mitigation_route"] = "owner_review"
     return finding
 
 

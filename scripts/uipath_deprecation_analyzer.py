@@ -3,8 +3,25 @@ import json
 from datetime import date
 from pathlib import Path
 
-from matcher import match_deprecations
-from normalizer import normalize_client_finding, normalize_server_finding
+from activities_lifecycle import (
+    DEFAULT_ACTIVITIES_LIFECYCLE_URL,
+    fetch_activities_lifecycle,
+)
+from matcher import match_activities_lifecycle, match_deprecations
+from normalizer import (
+    normalize_client_finding,
+    normalize_product_finding,
+    normalize_server_finding,
+)
+from out_of_support_matcher import (
+    collect_server_product_records,
+    match_out_of_support_products,
+)
+from out_of_support_versions import (
+    DEFAULT_OUT_OF_SUPPORT_URL,
+    fetch_out_of_support_versions,
+    platform_out_of_support_trains,
+)
 from project_inventory import scan_inputs
 from reports import build_common_report_payload, build_report_payload, write_reports
 from server_inventory import looks_like_server_input, scan_server_inputs
@@ -38,6 +55,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeline-cache", default="", help="Alias for --client-timeline-cache.")
     parser.add_argument("--client-timeline-cache", default="", help="Path to normalized client timeline cache JSON.")
     parser.add_argument("--server-rule-cache", default="", help="Path to normalized server rule cache JSON.")
+    parser.add_argument(
+        "--activities-lifecycle-cache",
+        default="",
+        help="Path to normalized activities-lifecycle cache JSON.",
+    )
+    parser.add_argument(
+        "--out-of-support-cache",
+        default="",
+        help="Path to normalized out-of-support product versions cache JSON.",
+    )
+    parser.add_argument(
+        "--activities-lifecycle-url",
+        default=DEFAULT_ACTIVITIES_LIFECYCLE_URL,
+        help="Override the UiPath activities-lifecycle documentation URL.",
+    )
+    parser.add_argument(
+        "--out-of-support-url",
+        default=DEFAULT_OUT_OF_SUPPORT_URL,
+        help="Override the UiPath out-of-support versions documentation URL.",
+    )
     parser.add_argument("--offline", action="store_true", help="Use cache files only; do not fetch live UiPath docs.")
     parser.add_argument(
         "--format",
@@ -63,6 +100,32 @@ def main() -> int:
     coverage_gaps: list[dict] = []
     inventory_summary: dict = {"route": route}
     raw_client_payload = {}
+    product_records: list[dict] = []
+
+    # Both the client lifecycle floor and the product-version check read the out-of-support
+    # versions page, so fetch and normalize it once for every route.
+    out_of_support_cache = (
+        Path(args.out_of_support_cache)
+        if args.out_of_support_cache
+        else output_dir / "normalized_out_of_support_versions.json"
+    )
+    out_of_support_entries: list[dict] = []
+    try:
+        out_of_support_entries = fetch_out_of_support_versions(
+            source_url=args.out_of_support_url,
+            cache_path=out_of_support_cache,
+            refresh=args.refresh_timeline,
+            use_cache_only=use_cache_only,
+        )
+    except Exception as exc:  # noqa: BLE001 - degrade gracefully when the page is unavailable
+        coverage_gaps.append(
+            {
+                "type": "missing_source",
+                "product": "UiPath products",
+                "feature": "out-of-support versions",
+                "message": f"Could not load the out-of-support versions page: {exc}",
+            }
+        )
 
     if route in {"client", "mixed"}:
         timeline_cache = Path(args.client_timeline_cache or args.timeline_cache) if (args.client_timeline_cache or args.timeline_cache) else output_dir / "normalized_deprecation_timeline.json"
@@ -94,6 +157,47 @@ def main() -> int:
             normalize_client_finding(finding, start + index, args.analysis_date)
             for index, finding in enumerate(client_findings)
         )
+
+        # Out-of-support activity-package (dependency) versions, using the support floor
+        # derived from the out-of-support release trains.
+        lifecycle_cache = (
+            Path(args.activities_lifecycle_cache)
+            if args.activities_lifecycle_cache
+            else output_dir / "normalized_activities_lifecycle.json"
+        )
+        try:
+            lifecycle_entries = fetch_activities_lifecycle(
+                source_url=args.activities_lifecycle_url,
+                cache_path=lifecycle_cache,
+                refresh=args.refresh_timeline,
+                use_cache_only=use_cache_only,
+            )
+        except Exception as exc:  # noqa: BLE001 - degrade gracefully when the page is unavailable
+            lifecycle_entries = []
+            coverage_gaps.append(
+                {
+                    "type": "missing_source",
+                    "product": "Studio/Robot activity packages",
+                    "feature": "activities lifecycle",
+                    "message": f"Could not load the activities lifecycle page: {exc}",
+                }
+            )
+        oos_trains = platform_out_of_support_trains(out_of_support_entries, args.analysis_date)
+        lifecycle_findings = match_activities_lifecycle(
+            client_inventory,
+            lifecycle_entries,
+            oos_trains,
+            analysis_date=args.analysis_date,
+        )
+        start = len(normalized_findings) + 1
+        normalized_findings.extend(
+            normalize_client_finding(finding, start + index, args.analysis_date)
+            for index, finding in enumerate(lifecycle_findings)
+        )
+
+        # Client Studio product versions feed the shared out-of-support product check.
+        for product in client_inventory.get("product_inventory", []):
+            product_records.append({**product, "domain": "client"})
         inventory_summary["client"] = client_inventory.get("summary", {})
 
     if route in {"server", "mixed"}:
@@ -115,7 +219,21 @@ def main() -> int:
             normalize_server_finding(finding, start + index, args.analysis_date)
             for index, finding in enumerate(server_findings)
         )
+        product_records.extend(collect_server_product_records(server_inventory))
         inventory_summary["server"] = server_inventory.get("summary", {})
+
+    # Shared out-of-support product-version check across client Studio and server products.
+    if out_of_support_entries and product_records:
+        product_findings = match_out_of_support_products(
+            product_records,
+            out_of_support_entries,
+            analysis_date=args.analysis_date,
+        )
+        start = len(normalized_findings) + 1
+        normalized_findings.extend(
+            normalize_product_finding(finding, start + index, args.analysis_date)
+            for index, finding in enumerate(product_findings)
+        )
 
     payload = build_common_report_payload(
         findings=normalized_findings,

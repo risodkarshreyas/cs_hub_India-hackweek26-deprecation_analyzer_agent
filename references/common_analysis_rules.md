@@ -8,7 +8,12 @@ Use the live UiPath deprecation timeline as the default authoritative source:
 
 `https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline`
 
-Refresh live source data by default. Use cached timeline data only when the live fetch fails, when offline mode is explicitly requested, or for repeatable tests with a visible cache timestamp. Use out-of-support pages only for `out_of_support` findings.
+Two additional authoritative pages drive `out_of_support` findings and are refreshed on every client/server run:
+
+- Activity package (dependency) support floors: `https://docs.uipath.com/overview/other/latest/overview/activities-lifecycle`
+- UiPath product version end-of-support dates: `https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions`
+
+Refresh live source data by default. Use cached data only when the live fetch fails, when offline mode is explicitly requested, or for repeatable tests with a visible cache timestamp. Use the out-of-support and activities-lifecycle pages only for `out_of_support` findings. An out-of-support dependency version or product version maps to `high` severity, because running an unsupported version means no vendor support or security fixes even though nothing is scheduled for removal.
 
 Do not rely on memory for dates, statuses, removal scope, or alternatives.
 

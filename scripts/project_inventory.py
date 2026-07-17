@@ -37,6 +37,7 @@ def scan_inputs(
         "input_path": str(root),
         "projects": [],
         "package_inventory": [],
+        "product_inventory": [],
         "workflow_inventory": [],
         "xaml_references": [],
         "errors": [],
@@ -74,6 +75,7 @@ def scan_inputs(
             inventory["xaml_references"].extend(project["xaml_references"])
             for package in project["packages"]:
                 add_package(package)
+            inventory["product_inventory"].extend(project.get("products", []))
         except Exception as exc:  # noqa: BLE001 - collect scan errors per project
             inventory["errors"].append({"path": str(project_path), "error": str(exc)})
 
@@ -86,12 +88,14 @@ def scan_inputs(
                 inventory["xaml_references"].extend(package["xaml_references"])
                 for item in package["packages"]:
                     add_package(item)
+                inventory["product_inventory"].extend(package.get("products", []))
             except Exception as exc:  # noqa: BLE001 - collect scan errors per package
                 inventory["errors"].append({"path": str(nupkg_path), "error": str(exc)})
 
     inventory["summary"] = {
         "project_count": len(inventory["projects"]),
         "package_count": len(inventory["package_inventory"]),
+        "product_count": len(inventory["product_inventory"]),
         "workflow_count": len(inventory["workflow_inventory"]),
         "xaml_reference_count": len(inventory["xaml_references"]),
     }
@@ -200,9 +204,11 @@ def _scan_source_project(
         "target_framework": _project_value(project_json, "targetFramework"),
         "xaml_files": [workflow["path"] for workflow in workflows],
     }
+    products = _studio_products(project_json, project_name, str(_relative(project_json_path, root)))
     return {
         "project": project,
         "packages": packages,
+        "products": products,
         "workflows": workflows,
         "xaml_references": xaml_refs,
     }
@@ -294,9 +300,11 @@ def _scan_nupkg(nupkg_path: Path, root: Path, include_xaml: bool) -> dict[str, A
         "target_framework": lib_prefix.strip("/").split("/")[-1] if lib_prefix else "",
         "xaml_files": [workflow["path"] for workflow in workflows],
     }
+    products = _studio_products(project_json, project_name, f"{evidence_base}!/{lib_prefix}project.json")
     return {
         "project": project,
         "packages": packages,
+        "products": products,
         "workflows": workflows,
         "xaml_references": xaml_refs,
     }
@@ -349,6 +357,31 @@ def _iter_dependencies(project_json: dict[str, Any]) -> list[tuple[str, str]]:
                 if package_name:
                     pairs.append((package_name, str(item.get("version", ""))))
     return pairs
+
+
+def _studio_products(project_json: dict[str, Any], project_name: str, evidence: str) -> list[dict[str, Any]]:
+    """Capture the Studio product version declared in project.json for lifecycle checks.
+
+    UiPath project files record the authoring Studio version in ``studioVersion`` (or the
+    older ``toolVersion``). This is the product-version signal the out-of-support versions
+    check compares against the UiPath support dates.
+    """
+    version = str(
+        _project_value(project_json, "studioVersion")
+        or _project_value(project_json, "toolVersion")
+        or ""
+    ).strip()
+    if not version:
+        return []
+    return [
+        {
+            "product": "Studio",
+            "version": version,
+            "project_name": project_name,
+            "source": "project.json",
+            "evidence": [evidence],
+        }
+    ]
 
 
 def _extract_packages_from_xaml_text(text: str) -> set[str]:

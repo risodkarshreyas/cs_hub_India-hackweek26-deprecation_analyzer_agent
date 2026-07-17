@@ -1,0 +1,110 @@
+{
+  "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+  "fetched_at": "2026-07-17T00:00:00+00:00",
+  "entries": [
+    {
+      "product": "Studio",
+      "version": "2023.4.14",
+      "release_train": "2023.4",
+      "support_model": "LTS",
+      "end_of_extended_support": "2026-04-27",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "Studio StudioX | 2023.4.14 | LTS | Apr 27, 2026",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Studio",
+      "version": "2022.10.18",
+      "release_train": "2022.10",
+      "support_model": "LTS",
+      "end_of_extended_support": "2025-10-27",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2022.10.18 | LTS | Oct 27, 2025",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Studio",
+      "version": "2022.4.10",
+      "release_train": "2022.4",
+      "support_model": "LTS",
+      "end_of_extended_support": "2025-05-09",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2022.4.10 | LTS | May 9, 2025",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Studio",
+      "version": "2021.10.10",
+      "release_train": "2021.10",
+      "support_model": "LTS",
+      "end_of_extended_support": "2024-10-27",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2021.10.10 | LTS | Oct 27, 2024",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Studio",
+      "version": "2018.4.8",
+      "release_train": "2018.4",
+      "support_model": "LTS",
+      "end_of_extended_support": "2021-12-12",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2018.4.8 | LTS | Dec 12, 2021",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Orchestrator",
+      "version": "2022.10.18",
+      "release_train": "2022.10",
+      "support_model": "LTS",
+      "end_of_extended_support": "2025-11-14",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "Orchestrator | 2022.10.18 | LTS | Nov 14, 2025",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Orchestrator",
+      "version": "2022.4.17",
+      "release_train": "2022.4",
+      "support_model": "LTS",
+      "end_of_extended_support": "2025-05-23",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2022.4.17 | LTS | May 23, 2025",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    },
+    {
+      "product": "Orchestrator",
+      "version": "2021.10.15",
+      "release_train": "2021.10",
+      "support_model": "LTS",
+      "end_of_extended_support": "2024-11-03",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/out-of-support-versions",
+      "source_section_title": "Product versions out-of-support",
+      "source_text": "2021.10.15 | LTS | Nov 3, 2024",
+      "confidence": "high",
+      "fetched_at": "2026-07-17T00:00:00+00:00",
+      "normalization_warnings": []
+    }
+  ]
+}
