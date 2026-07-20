@@ -17,6 +17,8 @@ node_modules/
 dist/
 build/
 .next/
+test-results/
+playwright-report/
 
 # Coded Agents — Python artifacts
 __pycache__/

@@ -43,6 +43,15 @@ The HTML dashboard must include:
 - Coverage gaps section.
 - Appendix with source URLs and raw evidence.
 
+The Top Findings table renders the complete severity/deadline-ranked finding set. Its
+severity, product, and route filters operate on all findings, combine with AND semantics,
+show every matching row, and expose an accessible visible-results count and empty state.
+The route value is `recommended_skill` with `mitigation_route` as its fallback.
+
+Coverage Gaps must be the final content section in both HTML and Markdown reports. In the
+HTML dashboard it appears immediately before the footer; navigation may still link directly
+to its anchor.
+
 ## Data Contract
 
 Use the common finding schema from `references/common_analysis_rules.md`.

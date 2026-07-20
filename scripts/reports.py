@@ -187,18 +187,18 @@ def _render_common_markdown_report(payload: dict[str, Any]) -> str:
     ):
         lines.extend(["", f"## {title}", ""])
         lines.extend(_common_finding_bullets([f for f in findings if f.get("domain") == domain]))
-    lines.extend(["", "## Coverage Gaps", ""])
-    if payload.get("coverage_gaps"):
-        for gap in payload["coverage_gaps"]:
-            lines.append(f"- {gap.get('product', 'Unknown')}: {gap.get('message', gap.get('feature', 'Missing context'))}")
-    else:
-        lines.append("- None.")
     lines.extend(["", "## Remediation Roadmap", ""])
     for item in payload.get("remediation_roadmap", []):
         lines.append(f"- {item['timeframe']}: {item['action']} ({item['count']} findings)")
     lines.extend(["", "## Time Savings KPI", ""])
     lines.append(f"- Estimated total hours saved: {summary.get('total_estimated_hours_saved', 0)}")
     lines.append("- KPI estimates are conservative and based on inventory review, source matching, and remediation planning effort.")
+    lines.extend(["", "## Coverage Gaps", ""])
+    if payload.get("coverage_gaps"):
+        for gap in payload["coverage_gaps"]:
+            lines.append(f"- {gap.get('product', 'Unknown')}: {gap.get('message', gap.get('feature', 'Missing context'))}")
+    else:
+        lines.append("- None.")
     return "\n".join(lines) + "\n"
 
 
@@ -244,7 +244,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     findings = payload.get("findings", [])
     coverage_gaps = payload.get("coverage_gaps", [])
     summary = _dashboard_summary(payload)
-    top_findings = _sort_findings_for_dashboard(findings)[:10]
+    top_findings = _sort_findings_for_dashboard(findings)
     actions = _sort_findings_for_dashboard(findings)
     analysis_date = payload.get("analysis_date", "")
     product_rows = _product_risk_rows(findings)
@@ -509,6 +509,17 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       color: var(--slate);
       min-width: 156px;
       font: inherit;
+    }}
+    .filter-status {{
+      align-self: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }}
+    .no-filter-results td {{
+      color: var(--muted);
+      padding: 28px 16px;
+      text-align: center;
     }}
     table {{
       width: 100%;
@@ -860,32 +871,26 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     <section id="findings" class="panel">
       <h2>Top Findings</h2>
       <div class="toolbar">
-        <select class="filter" aria-label="Severity filter">
-          <option>All severities</option>
-          <option>Critical</option>
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
+        <select id="findings-severity-filter" class="filter" aria-label="Severity filter">
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
         </select>
-        <select class="filter" aria-label="Product filter">
-          <option>All products</option>
+        <select id="findings-product-filter" class="filter" aria-label="Product filter">
+          <option value="">All products</option>
           {product_options}
         </select>
-        <select class="filter" aria-label="Route filter">
-          <option>All mitigation routes</option>
+        <select id="findings-route-filter" class="filter" aria-label="Route filter">
+          <option value="">All routes</option>
           {route_options}
         </select>
+        <p id="findings-filter-status" class="filter-status" role="status" aria-live="polite">Showing {_h(len(top_findings))} of {_h(len(top_findings))} findings</p>
       </div>
 
       <div class="table-wrap">
         {_findings_command_table(top_findings)}
-      </div>
-    </section>
-
-    <section id="coverage" class="panel" style="margin-top: 16px;">
-      <h2>Coverage Gaps</h2>
-      <div class="table-wrap">
-        {_coverage_gap_table(coverage_gaps)}
       </div>
     </section>
 
@@ -929,10 +934,62 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       </article>
     </section>
 
+    <section id="coverage" class="panel" style="margin-top: 16px;">
+      <h2>Coverage Gaps</h2>
+      <div class="table-wrap">
+        {_coverage_gap_table(coverage_gaps)}
+      </div>
+    </section>
+
     <footer>
       Generated analyzer report. Coverage gaps: {_h(len(coverage_gaps))}. Empty source URLs are shown as missing in the findings table. Source links should point to UiPath documentation and local evidence in production reports.
     </footer>
   </main>
+  <script>
+    (() => {{
+      const normalize = (value) => String(value || "").trim().toLowerCase();
+      const initializeFindingsFilters = () => {{
+        const table = document.getElementById("top-findings-table");
+        if (!table) return;
+
+        const rows = Array.from(table.querySelectorAll("tbody tr.finding-row"));
+        const emptyState = document.getElementById("findings-empty-state");
+        const status = document.getElementById("findings-filter-status");
+        const controls = {{
+          severity: document.getElementById("findings-severity-filter"),
+          product: document.getElementById("findings-product-filter"),
+          route: document.getElementById("findings-route-filter"),
+        }};
+
+        const applyFilters = () => {{
+          const selected = Object.fromEntries(
+            Object.entries(controls).map(([key, control]) => [key, normalize(control?.value)])
+          );
+          let visible = 0;
+
+          rows.forEach((row) => {{
+            const matches = Object.entries(selected).every(
+              ([key, value]) => !value || normalize(row.dataset[key]) === value
+            );
+            row.hidden = !matches;
+            if (matches) visible += 1;
+          }});
+
+          if (emptyState) emptyState.hidden = visible !== 0;
+          if (status) status.textContent = `Showing ${{visible}} of ${{rows.length}} findings`;
+        }};
+
+        Object.values(controls).forEach((control) => control?.addEventListener("change", applyFilters));
+        applyFilters();
+      }};
+
+      if (document.readyState === "loading") {{
+        document.addEventListener("DOMContentLoaded", initializeFindingsFilters, {{ once: true }});
+      }} else {{
+        initializeFindingsFilters();
+      }}
+    }})();
+  </script>
 </body>
 </html>
 """
@@ -1106,8 +1163,23 @@ def _decision_summary_html(summary: dict[str, Any]) -> str:
 
 
 def _filter_options(values: Any) -> str:
-    unique = sorted({str(value) for value in values if value})
-    return "\n".join(f"<option>{_h(value)}</option>" for value in unique)
+    unique = {
+        _filter_value(value): str(value).strip()
+        for value in values
+        if str(value or "").strip()
+    }
+    return "\n".join(
+        f'<option value="{_h(normalized)}">{_h(label)}</option>'
+        for normalized, label in sorted(unique.items(), key=lambda item: item[1].lower())
+    )
+
+
+def _filter_value(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def _finding_route_value(finding: dict[str, Any]) -> str:
+    return str(finding.get("recommended_skill") or finding.get("mitigation_route") or "").strip()
 
 
 def _product_risk_bars(rows: list[dict[str, Any]]) -> str:
@@ -1144,7 +1216,9 @@ def _findings_command_table(findings: list[dict[str, Any]]) -> str:
     if not findings:
         return '<p class="muted">No findings.</p>'
     body = "\n".join(
-        "<tr>"
+        f'<tr class="finding-row" data-severity="{_h(_filter_value(finding.get("severity")))}" '
+        f'data-product="{_h(_filter_value(finding.get("product")))}" '
+        f'data-route="{_h(_filter_value(_finding_route_value(finding)))}">'
         f'<td><span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span></td>'
         f"<td>{_h(finding.get('product', ''))}</td>"
         "<td>"
@@ -1153,13 +1227,13 @@ def _findings_command_table(findings: list[dict[str, Any]]) -> str:
         f'{_finding_evidence_html(finding)}'
         "</td>"
         f"<td>{_h(_display_deadline(finding.get('deadline')))}</td>"
-        f'<td><span class="pill {_route_pill_class(finding)}">{_h(finding.get("recommended_skill") or finding.get("mitigation_route", ""))}</span></td>'
+        f'<td><span class="pill {_route_pill_class(finding)}">{_h(_finding_route_value(finding))}</span></td>'
         f"<td>{_h(_kpi_value(finding, 'hours_saved'))}h / {_h(_kpi_value(finding, 'percent_saved'))}%</td>"
         "</tr>"
         for finding in findings
     )
     return (
-        "<table>"
+        '<table id="top-findings-table">'
         "<thead><tr>"
         '<th style="width: 110px;">Severity</th>'
         '<th style="width: 160px;">Product</th>'
@@ -1167,7 +1241,8 @@ def _findings_command_table(findings: list[dict[str, Any]]) -> str:
         '<th style="width: 130px;">Deadline</th>'
         '<th style="width: 170px;">Route</th>'
         '<th style="width: 150px;">AI Saved</th>'
-        f"</tr></thead><tbody>{body}</tbody></table>"
+        f'</tr></thead><tbody>{body}<tr id="findings-empty-state" class="no-filter-results" hidden>'
+        '<td colspan="6">No findings match these filters.</td></tr></tbody></table>'
     )
 
 

@@ -375,6 +375,8 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("Server-Side Findings", markdown)
         self.assertIn("Coverage Gaps", markdown)
         self.assertIn("Time Savings KPI", markdown)
+        self.assertGreater(markdown.index("## Coverage Gaps"), markdown.index("## Time Savings KPI"))
+        self.assertTrue(markdown.rstrip().endswith("- Apps: No Apps export found."))
 
     def test_html_dashboard_contains_required_sections_and_redacted_evidence(self):
         finding = normalize_server_finding(
@@ -444,6 +446,55 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("missing", html)
         self.assertNotIn("artifact_counts={", html)
         self.assertNotIn("Bearer abc123", html)
+        self.assertGreater(html.index('id="coverage"'), html.index('id="ai-savings"'))
+        self.assertGreater(html.index('id="coverage"'), html.index("Recommended Actions"))
+        self.assertLess(html.index('id="coverage"'), html.index("<footer>"))
+
+    def test_html_dashboard_filters_cover_all_ranked_findings(self):
+        findings = []
+        for index in range(12):
+            product = "R&D <Core>" if index == 11 else ("Orchestrator" if index % 2 else "Apps")
+            finding = normalize_server_finding(
+                {
+                    "product": product,
+                    "feature": f"Finding {index + 1}",
+                    "status": "removed" if index % 3 == 0 else "deprecated",
+                    "severity": "critical" if index % 3 == 0 else "high",
+                    "deadline": f"2026-0{(index % 9) + 1}-01",
+                    "recommended_action": "Review and remediate.",
+                    "evidence": [f"evidence-{index + 1}.json"],
+                    "confidence": "high",
+                    "source_url": "source",
+                },
+                index + 1,
+                "2026-07-10",
+            )
+            finding["recommended_skill"] = "uipath-test" if index % 2 else "uipath-platform"
+            findings.append(finding)
+
+        findings[-1]["recommended_skill"] = ""
+        findings[-1]["mitigation_route"] = "owner_review"
+        payload = build_common_report_payload(
+            findings=findings,
+            analysis_date="2026-07-10",
+            coverage_gaps=[{"type": "missing_context", "product": "Apps", "message": "Missing export."}],
+        )
+
+        html = render_html_dashboard_report(payload)
+
+        self.assertEqual(html.count('class="finding-row"'), 12)
+        self.assertIn('id="top-findings-table"', html)
+        self.assertIn('id="findings-severity-filter"', html)
+        self.assertIn('id="findings-product-filter"', html)
+        self.assertIn('id="findings-route-filter"', html)
+        self.assertIn('aria-live="polite"', html)
+        self.assertIn("Showing 12 of 12 findings", html)
+        self.assertIn('data-product="r&amp;d &lt;core&gt;"', html)
+        self.assertIn('value="r&amp;d &lt;core&gt;"', html)
+        self.assertIn('data-route="owner_review"', html)
+        self.assertIn("No findings match these filters.", html)
+        self.assertIn("initializeFindingsFilters", html)
+        self.assertIn("normalize(row.dataset[key]) === value", html)
 
     def test_html_dashboard_labels_client_scope_as_project(self):
         finding = normalize_client_finding(
