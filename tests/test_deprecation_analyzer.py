@@ -740,6 +740,7 @@ class DeprecationAnalyzerTests(unittest.TestCase):
                 self.assertEqual(0, cli.main())
 
             report = json.loads((output / "uipath_deprecation_findings.json").read_text(encoding="utf-8"))
+            dashboard_html = (output / "uipath_deprecation_dashboard.html").read_text(encoding="utf-8")
             generated = {path.name for path in output.iterdir()}
             with zipfile.ZipFile(output / "uipath_deprecation_report.xlsx") as zf:
                 workbook_xml = zf.read("xl/workbook.xml").decode("utf-8")
@@ -757,6 +758,8 @@ class DeprecationAnalyzerTests(unittest.TestCase):
         self.assertTrue(any(item["product"] == "Studio" for item in report["findings"]))
         self.assertEqual("Production", report["findings"][0]["environment"])
         self.assertIn("Coverage Gaps", workbook_xml)
+        self.assertIn('id="findings-data"', dashboard_html)
+        self.assertIn('"version":', dashboard_html)
 
     def test_matching_classifies_removed_package_and_adds_recommendation(self):
         inventory = {

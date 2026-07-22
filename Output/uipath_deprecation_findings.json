@@ -1,0 +1,1125 @@
+{
+  "analysis_date": "2026-07-13",
+  "summary": {
+    "total_findings": 1,
+    "severity_counts": {
+      "critical": 1
+    },
+    "status_counts": {
+      "removed": 1
+    },
+    "domain_counts": {
+      "server": 1
+    },
+    "product_counts": {
+      "Orchestrator": 1
+    },
+    "coverage_gap_count": 54,
+    "total_estimated_hours_saved": 8.0
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "critical",
+      "status": "removed",
+      "domain": "server",
+      "product": "Orchestrator",
+      "feature_or_package": "Testing Module in Orchestrator",
+      "environment": "Nilekha&Demo",
+      "evidence": [
+        {
+          "path": "test_case_definitions.json",
+          "matched_value": "Orchestrator testing artifacts",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api",
+          "artifact_counts": {
+            "test_case": 18,
+            "test_case_execution": 15,
+            "test_set_execution": 8,
+            "test_set": 8
+          },
+          "representative_objects": {
+            "test_case": [
+              "TestCase1.xaml",
+              "TestCase2.xaml",
+              "TestCase.xaml",
+              "MainTest.xaml",
+              "Test Cases\\Batch_1\\TC_UiBank_01.xaml"
+            ],
+            "test_case_execution": [
+              "TestCase2.xaml",
+              "TestCase1.xaml",
+              "TestCase.xaml"
+            ],
+            "test_set_execution": [
+              "Automated - Nilekha - 1.0.222694305",
+              "Automated - NIR:8 - 20260122.1009",
+              "TestSet - 20260127.0744",
+              "Automated - HNIL:5 - 20260319.1957",
+              "Automated - Day1Test - 20260319.2021"
+            ],
+            "test_set": [
+              "Automated - Nilekha - 1.0.222694305",
+              "Automated - NIR:8 - 20260122.1009",
+              "TestSet - 20260127.0744",
+              "Automated - HNIL:5 - 20260319.1957",
+              "Automated - Day1Test - 20260319.2021"
+            ]
+          }
+        },
+        {
+          "path": "test_case_definitions.json",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.0",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.1",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.2",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.3",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.4",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "MainTest.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.5",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.6",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.7",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.8",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.9",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.10",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.11",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "Test Cases\\Batch_1\\TC_UiBank_01.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.12",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "Test Cases\\Batch_1\\TC_Login_01.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.13",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.14",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.15",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "Verify successful account registration with valid inputs.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.16",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "Verify registration with invalid email format missing domain.cs",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_definitions.json",
+          "object_path": "value.17",
+          "matched_value": "Orchestrator test case",
+          "endpoint": "/odata/TestCaseDefinitions",
+          "configuration_object": "Verify registration with email containing invalid domain extension with numbers.xaml",
+          "artifact_type": "test_case",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.0",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.1",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.2",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.3",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.4",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.5",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.6",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.7",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.8",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.9",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.10",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.11",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.12",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.13",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase1.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_case_executions.json",
+          "object_path": "value.14",
+          "matched_value": "Orchestrator test case execution",
+          "endpoint": "/odata/TestCaseExecutions",
+          "configuration_object": "TestCase2.xaml",
+          "artifact_type": "test_case_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.0",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - Nilekha - 1.0.222694305",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.1",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - NIR:8 - 20260122.1009",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.2",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "TestSet - 20260127.0744",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.3",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - HNIL:5 - 20260319.1957",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.4",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - Day1Test - 20260319.2021",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.5",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - Day1Test - 20260319.2029",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.6",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Automated - Day1Test - 20260319.2030",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_set_executions.json",
+          "object_path": "value.7",
+          "matched_value": "Orchestrator test set execution",
+          "endpoint": "/odata/TestSetExecutions",
+          "configuration_object": "Day1Test - 20260324.0856",
+          "artifact_type": "test_set_execution",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.0",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - Nilekha - 1.0.222694305",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.1",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - NIR:8 - 20260122.1009",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.2",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "TestSet - 20260127.0744",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.3",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - HNIL:5 - 20260319.1957",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.4",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - Day1Test - 20260319.2021",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.5",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - Day1Test - 20260319.2029",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.6",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Automated - Day1Test - 20260319.2030",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        },
+        {
+          "path": "test_sets.json",
+          "object_path": "value.7",
+          "matched_value": "Orchestrator test set",
+          "endpoint": "/odata/TestSets",
+          "configuration_object": "Day1Test - 20260324.0856",
+          "artifact_type": "test_set",
+          "organization": "uipathtamindia",
+          "tenant": "UiPath default",
+          "folder": "Nilekha&Demo",
+          "source_url": "https://staging.uipath.com/uipathtamindia/UiPathDefault/orchestrator_/test/sets?tid=184&fid=791",
+          "evidence_source": "live_api"
+        }
+      ],
+      "impact": "Detected 18 test case, 15 test case execution, 8 test set execution, 8 test set in Orchestrator folder Nilekha&Demo.",
+      "deadline": "2026-06-30",
+      "recommended_action": "Migrate Orchestrator test cases, test sets, test executions, and schedules to Test Manager.",
+      "mitigation_route": "ai_assisted_change",
+      "recommended_skill": "uipath-test",
+      "time_savings_kpi": {
+        "manual_baseline_hours": 10.0,
+        "ai_assisted_hours": 2.0,
+        "hours_saved": 8.0,
+        "percent_saved": 80,
+        "basis": "AI mapped server inventory evidence to UiPath deprecation rules, ranked risk, and drafted remediation ownership.",
+        "confidence": "medium"
+      },
+      "owner_hint": "QA/Test Manager owner",
+      "confidence": "high",
+      "source_url": "https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline",
+      "delivery_model": "Automation Cloud",
+      "tenant_or_service": "UiPath default",
+      "endpoint": "/odata/TestCaseDefinitions",
+      "api_field": "",
+      "service_version": "",
+      "configuration_object": "Nilekha&Demo"
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "AI Center bring your own models in Automation Cloud\u2122",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "AI Center out of the box models - Open Source models (English Text Classification, Language Detection) in Automation Cloud\u2122",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "AI Center out of the box models - Open Source models (Custom Named Entity Recognition, Light Text Classification, Multilingual Text Classification) in Automation Cloud\u2122",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "AI Center",
+      "feature": "AI Center out of the box models - part of Open Source models and preview models",
+      "message": "No server inventory evidence was available for AI Center."
+    },
+    {
+      "type": "missing_context",
+      "product": "AI Center",
+      "feature": "Python36",
+      "message": "No server inventory evidence was available for AI Center."
+    },
+    {
+      "type": "missing_context",
+      "product": "AI Center",
+      "feature": "Python37",
+      "message": "No server inventory evidence was available for AI Center."
+    },
+    {
+      "type": "missing_context",
+      "product": "Apps",
+      "feature": "Connections in VB Apps",
+      "message": "No server inventory evidence was available for Apps."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Editing, cloning and import of Legacy Apps in Automation Cloud",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Creation of new Legacy expression Apps in Automation Suite 2024.10",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Creation of new Legacy expression language Apps in Automation Cloud",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Security updates for MongoDB in Automation Suite versions 2022.4.9 and 2022.10.0",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Legacy Apps, Legacy expression language and their runtime in Automation Cloud",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Legacy Apps, Legacy expression language and their runtime in Automation Suite 2.2510.0",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Interactive installer - Automation Suite on Linux",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "UiPath managed backup - Automation Suite on EKS/AKS",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "UiPath backup based on NFS server - Automation Suite on Linux",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Deployment Templates: AWS Marketplace deployment Azure Deployment Template GCP Deployment Template",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Internal Docker Registry",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "AWS Signature Version 2",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Automation Suite on EKS/AKS 2023.4",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Task Mining",
+      "feature": "Task Mining service",
+      "message": "No server inventory evidence was available for Task Mining."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Support for RHEL 8.2",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Longhorn",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Deployment Assistant",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Automation Suite Diagnostics Tool ( diagnostics-report.sh )",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Support for RHEL 8.3, 8.4, 8.5, and 8.7",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Support for Kubernetes 1.25 and 1.26",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Classic left rail",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "TLS 1.0/1.1 in external connections",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Hub",
+      "feature": "Use of the classic URL when using Automation Hub\u2019s Open API Service",
+      "message": "No server inventory evidence was available for Automation Hub."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "UiPath Chinese, Japanese, Korean OCR",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Security updates for Document Understanding 2022.4 ML packages: python37duv3 and python37duv4 in Automation Suite 2022.10.13 onwards",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "High Availability Add-On",
+      "feature": "Ubuntu 18.04",
+      "message": "No server inventory evidence was available for High Availability Add-On."
+    },
+    {
+      "type": "missing_context",
+      "product": "High Availability Add-On",
+      "feature": "RHEL and CentOS 7.0-7.9",
+      "message": "No server inventory evidence was available for High Availability Add-On."
+    },
+    {
+      "type": "missing_context",
+      "product": "High Availability Add-On",
+      "feature": "RHEL 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, and 8.7",
+      "message": "No server inventory evidence was available for High Availability Add-On."
+    },
+    {
+      "type": "missing_context",
+      "product": "Insights",
+      "feature": "Versions of Insights 2021.4 and prior",
+      "message": "No server inventory evidence was available for Insights."
+    },
+    {
+      "type": "missing_context",
+      "product": "Insights",
+      "feature": "Insights Data Model - Queues dimensions (Specific Data, Analytics Data, and Output)",
+      "message": "No server inventory evidence was available for Insights."
+    },
+    {
+      "type": "missing_context",
+      "product": "Insights",
+      "feature": "Insights Data Model - Robot Logs dimensions (Raw Message)",
+      "message": "No server inventory evidence was available for Insights."
+    },
+    {
+      "type": "missing_context",
+      "product": "Integration Service",
+      "feature": "Custom (password-based) authentication for the Snowflake connector",
+      "message": "No server inventory evidence was available for Integration Service."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Build tab available for each connector in Integration Service in Automation Cloud",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Maestro",
+      "feature": "C# expressions in Maestro",
+      "message": "No server inventory evidence was available for Maestro."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "The break inheritance settings model",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Changing a transaction final state via API (for Automation Cloud users)",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Support for SMB storage in Automation Suite",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Support for Apache Airflow versions older than Airflow 2.9.0.",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Old data uploading settings",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Marker files marker.csv",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Process graph layout",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Cloud",
+      "feature": "Unassisted Task Mining in Automation Cloud",
+      "message": "No server inventory evidence was available for Automation Cloud."
+    },
+    {
+      "type": "missing_context",
+      "product": "Automation Suite",
+      "feature": "Task Mining in Automation Suite",
+      "message": "No server inventory evidence was available for Automation Suite."
+    },
+    {
+      "type": "missing_context",
+      "product": "Task Mining",
+      "feature": "Unassisted Task Mining legacy projects",
+      "message": "No server inventory evidence was available for Task Mining."
+    },
+    {
+      "type": "missing_context",
+      "product": "Test Manager",
+      "feature": "Test Manager standalone deprecation",
+      "message": "No server inventory evidence was available for Test Manager."
+    },
+    {
+      "type": "missing_context",
+      "product": "Test Manager",
+      "feature": "ServiceNow native connector Note: The previously deprecated native connectors were re-activated on June 26, 2025 .",
+      "message": "No server inventory evidence was available for Test Manager."
+    },
+    {
+      "type": "missing_context",
+      "product": "Test Manager",
+      "feature": "qTest native connector",
+      "message": "No server inventory evidence was available for Test Manager."
+    }
+  ],
+  "inventory_summary": {
+    "route": "server",
+    "server": {
+      "server_file_count": 6,
+      "server_evidence_count": 240,
+      "products": [
+        "Orchestrator"
+      ]
+    }
+  },
+  "raw_client_summary": {},
+  "remediation_roadmap": [
+    {
+      "timeframe": "Immediate",
+      "action": "Remediate removed or breaking deprecations first",
+      "count": 1
+    }
+  ]
+}

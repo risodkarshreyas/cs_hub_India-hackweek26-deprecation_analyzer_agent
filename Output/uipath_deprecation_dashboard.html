@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UiPath Deprecation Risk Command Center</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e1ec;
+      --critical: #c7352b;
+      --high: #e26c2d;
+      --medium: #d7a514;
+      --low: #3d79c7;
+      --ok: #178064;
+      --slate: #41516a;
+      --soft-red: #fff0ee;
+      --soft-orange: #fff4e8;
+      --soft-yellow: #fff8db;
+      --soft-blue: #edf5ff;
+      --soft-green: #eaf8f2;
+      --shadow: 0 14px 34px rgba(31, 45, 61, 0.10);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 22px 0;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 780px;
+    }
+    .scan-meta {
+      min-width: 236px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    main {
+      padding: 24px 0 34px;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      min-height: 108px;
+    }
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+    .kpi .value {
+      display: block;
+      margin-top: 10px;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .kpi .note {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .critical { color: var(--critical); }
+    .high { color: var(--high); }
+    .medium { color: var(--medium); }
+    .ok { color: var(--ok); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 18px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      color: var(--slate);
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .tab.active {
+      border-color: #26384f;
+      background: #26384f;
+      color: #ffffff;
+    }
+    .tab:hover {
+      border-color: #26384f;
+      color: #26384f;
+    }
+    .tab.active:hover {
+      color: #ffffff;
+    }
+    .tab:focus-visible {
+      outline: 3px solid rgba(61, 121, 199, 0.35);
+      outline-offset: 2px;
+    }
+    #overview,
+    #findings,
+    #timeline,
+    #coverage,
+    #ai-savings {
+      scroll-margin-top: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 42px;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+    }
+    .bar-label {
+      font-weight: 700;
+      color: var(--slate);
+      overflow-wrap: anywhere;
+    }
+    .bar-track {
+      height: 14px;
+      background: #edf1f6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--critical), var(--high));
+    }
+    .deadline {
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .pill.critical { background: var(--soft-red); color: var(--critical); }
+    .pill.high { background: var(--soft-orange); color: var(--high); }
+    .pill.medium { background: var(--soft-yellow); color: #8a6500; }
+    .pill.low { background: var(--soft-blue); color: var(--low); }
+    .pill.ok { background: var(--soft-green); color: var(--ok); }
+    .pill.gray { background: #eef1f5; color: var(--slate); }
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: minmax(56px, 72px) minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      max-width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+    .timeline-content {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .timeline-detail {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 9px 10px;
+      color: var(--slate);
+      min-width: 156px;
+      font: inherit;
+    }
+    .search-filter {
+      flex: 1 1 240px;
+      min-width: 220px;
+    }
+    .filter-status {
+      align-self: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+    .view-toggle {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .toggle-button,
+    .page-button,
+    .evidence-button,
+    .expand-button,
+    .icon-button {
+      border: 0;
+      background: #ffffff;
+      color: var(--slate);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .toggle-button {
+      padding: 9px 11px;
+    }
+    .toggle-button + .toggle-button {
+      border-left: 1px solid var(--line);
+    }
+    .toggle-button[aria-pressed="true"] {
+      background: #26384f;
+      color: #ffffff;
+    }
+    .pagination {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .page-button,
+    .evidence-button {
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+    .page-button:hover:not(:disabled),
+    .evidence-button:hover {
+      border-color: #26384f;
+      color: #26384f;
+    }
+    .page-button:disabled {
+      cursor: default;
+      opacity: .45;
+    }
+    .page-label {
+      min-width: 92px;
+      color: var(--slate);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .no-filter-results td {
+      color: var(--muted);
+      padding: 28px 16px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    #top-findings-table {
+      min-width: 1120px;
+    }
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+    }
+    td {
+      border-bottom: 1px solid #edf1f6;
+      padding: 12px 8px;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    tbody tr:hover {
+      background: #fafcff;
+    }
+    .group-row {
+      background: #f8fafc;
+    }
+    .group-row td {
+      vertical-align: middle;
+    }
+    .child-row td {
+      background: #ffffff;
+    }
+    .child-row .finding-title {
+      padding-left: 26px;
+      font-weight: 700;
+    }
+    .expand-button {
+      display: inline-grid;
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
+      place-items: center;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 16px;
+      vertical-align: middle;
+    }
+    .expand-button:hover {
+      background: #eaf1fb;
+    }
+    .feature {
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .finding-title {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .finding-context {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+    .context-tag {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fafc;
+      color: var(--slate);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+    .evidence-summary {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #e3e9f1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .evidence-heading {
+      margin-bottom: 8px;
+      color: var(--slate);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .evidence-item {
+      min-width: 0;
+      padding: 8px;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .evidence-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .evidence-value {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .artifact-counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .count-chip {
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: #eaf1fb;
+      color: #264c7c;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .evidence-details {
+      margin-top: 9px;
+      border-top: 1px solid #e3e9f1;
+      padding-top: 8px;
+    }
+    .evidence-details summary {
+      cursor: pointer;
+      color: #315f96;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .evidence-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .evidence-detail-grid h4 {
+      margin: 0 0 5px;
+      color: var(--slate);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .evidence-detail-grid ul {
+      margin: 0;
+      padding-left: 17px;
+      color: var(--slate);
+      font-size: 12px;
+    }
+    .evidence-detail-grid li {
+      margin: 3px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .source-line {
+      margin-top: 8px;
+    }
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(23, 32, 51, .36);
+    }
+    .evidence-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 60;
+      width: min(540px, 94vw);
+      height: 100vh;
+      background: #ffffff;
+      border-left: 1px solid var(--line);
+      box-shadow: -18px 0 42px rgba(23, 32, 51, .18);
+      transform: translateX(105%);
+      transition: transform .2s ease;
+      visibility: hidden;
+    }
+    .evidence-drawer.open {
+      transform: translateX(0);
+      visibility: visible;
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .drawer-header h2 {
+      margin: 3px 0 0;
+      font-size: 19px;
+    }
+    .drawer-body {
+      height: calc(100vh - 82px);
+      padding: 18px 20px 30px;
+      overflow-y: auto;
+    }
+    .drawer-body .evidence-summary {
+      margin-top: 0;
+    }
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 24px;
+      line-height: 1;
+    }
+    body.drawer-open {
+      overflow: hidden;
+    }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 22px;
+    }
+    .decision-item {
+      min-width: 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--low);
+    }
+    .decision-item.urgent {
+      border-left-color: var(--critical);
+    }
+    .decision-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .decision-item p {
+      margin: 0;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .action-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      margin-bottom: 10px;
+    }
+    .rank {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #26384f;
+      color: #ffffff;
+      font-weight: 800;
+    }
+    .savings-grid {
+      display: grid;
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 16px;
+    }
+    .donut-wrap {
+      display: grid;
+      place-items: center;
+      padding: 12px 0;
+    }
+    .donut {
+      width: 210px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+        conic-gradient(var(--ok) 0 var(--saved-percent), #e7ecf3 var(--saved-percent) 100%);
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+    }
+    .donut strong {
+      font-size: 38px;
+      line-height: 1;
+    }
+    .donut span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      text-align: center;
+    }
+    .stacked {
+      height: 18px;
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #edf1f6;
+      margin: 8px 0 16px;
+    }
+    .seg-docs { width: 28%; background: #64748b; }
+    .seg-inventory { width: 26%; background: var(--low); }
+    .seg-match { width: 22%; background: var(--high); }
+    .seg-plan { width: 16%; background: var(--medium); }
+    .seg-validate { width: 8%; background: var(--ok); }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--slate);
+      font-size: 13px;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 7px;
+      border-radius: 2px;
+      vertical-align: middle;
+      background: var(--swatch);
+    }
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 18px 0 0;
+    }
+    @media (max-width: 900px) {
+      .topbar,
+      .grid,
+      .savings-grid {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .scan-meta {
+        min-width: 0;
+      }
+      table {
+        min-width: 850px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+    }
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 20px, 1180px);
+      }
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+      .timeline-item,
+      .action-card {
+        grid-template-columns: 1fr;
+      }
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+      .evidence-grid,
+      .evidence-detail-grid,
+      .decision-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell topbar">
+      <div>
+        <h1>UiPath Deprecation Risk Command Center</h1>
+        <p class="subtitle">Static executive report generated from analyzer findings, evidence, remediation routing, and AI time-savings estimates.</p>
+      </div>
+      <div class="scan-meta">
+        <strong>Analyzer scan</strong><br>
+        Environment: Server/platform export<br>
+        Source refreshed: 13 Jul 2026<br>
+        Findings: 1
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="overview" class="kpis" aria-label="Key metrics">
+      <div class="kpi"><span class="label">Critical</span><span class="value critical">1</span><span class="note">Already removed or blocking upgrade</span></div>
+      <div class="kpi"><span class="label">High</span><span class="value high">0</span><span class="note">Due within 180 days</span></div>
+      <div class="kpi"><span class="label">Products</span><span class="value">1</span><span class="note">Products impacted</span></div>
+      <div class="kpi"><span class="label">Next Deadline</span><span class="value medium">Overdue</span><span class="note">Testing Module in Orchestrator</span></div>
+      <div class="kpi"><span class="label">AI Time Saved</span><span class="value ok">80%</span><span class="note">8.0 hours estimated saved</span></div>
+    </section>
+
+    <nav class="tabs" aria-label="Report sections">
+      <a class="tab active" href="#overview">Overview</a>
+      <a class="tab" href="#findings">Findings</a>
+      <a class="tab" href="#timeline">Timeline</a>
+      <a class="tab" href="#coverage">Coverage</a>
+      <a class="tab" href="#ai-savings">AI Savings</a>
+    </nav>
+
+    
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Risk By Product</h2>
+        <div class="bar-row"><div class="bar-label">Orchestrator</div><div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div><strong>1</strong></div>
+      </article>
+
+      <article id="timeline" class="panel">
+        <h2>Upcoming Deadlines</h2>
+        <div class="timeline">
+          <div class="timeline-item"><div class="deadline">30 Jun</div><div class="timeline-content"><strong>Testing Module in Orchestrator</strong><div class="timeline-detail"><div class="evidence-summary"><div class="evidence-heading">Evidence summary</div><span class="evidence-value">Test Case: 18; Test Case Execution: 15; Test Set: 8; Test Set Execution: 8 | Folder: Nilekha&amp;Demo | Source: live_api</span><div class="source-line muted">Reference: <a href="https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline</a></div></div></div></div><span class="pill critical">Overdue</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="findings" class="panel">
+      <h2>Top Findings</h2>
+      
+      <div class="toolbar">
+        <input id="findings-search" class="filter search-filter" type="search" placeholder="Search package, project, status, or version" aria-label="Search findings">
+        <select id="findings-severity-filter" class="filter" aria-label="Severity filter">
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="findings-product-filter" class="filter" aria-label="Product filter">
+          <option value="">All products</option>
+          <option value="orchestrator">Orchestrator</option>
+        </select>
+        <select id="findings-route-filter" class="filter" aria-label="Route filter">
+          <option value="">All routes</option>
+          <option value="uipath-test">uipath-test</option>
+        </select>
+        <div class="view-toggle" role="group" aria-label="Findings view">
+          <button id="findings-grouped-view" class="toggle-button" type="button" aria-pressed="true">Grouped</button>
+          <button id="findings-flat-view" class="toggle-button" type="button" aria-pressed="false">Flat</button>
+        </div>
+        <div class="pagination" aria-label="Findings pages">
+          <button id="findings-prev-page" class="page-button" type="button">Previous</button>
+          <span id="findings-page-label" class="page-label">Page 0 of 0</span>
+          <button id="findings-next-page" class="page-button" type="button">Next</button>
+        </div>
+        <p id="findings-filter-status" class="filter-status" role="status" aria-live="polite">Loading 1 findings...</p>
+      </div>
+      <div class="table-wrap">
+        <table id="top-findings-table">
+          <thead><tr>
+            <th style="width: 100px;">Severity</th>
+            <th style="width: 135px;">Product</th>
+            <th>Activity / Package</th>
+            <th style="width: 105px;">Version</th>
+            <th style="width: 120px;">Affected</th>
+            <th style="width: 125px;">Deadline</th>
+            <th style="width: 155px;">Route</th>
+            <th style="width: 115px;">AI Saved</th>
+            <th style="width: 120px;">Evidence</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    
+    </section>
+
+    <section class="grid" style="margin-top: 16px;">
+      <article class="panel">
+        <h2>Recommended Actions</h2>
+        <div class="action-card"><div class="rank">1</div><div><strong>Remediate Testing Module in Orchestrator</strong><div class="muted">Migrate Orchestrator test cases, test sets, test executions, and schedules to Test Manager.</div></div><span class="pill critical">Critical</span></div>
+      </article>
+
+      <article id="ai-savings" class="panel">
+        <h2>AI Savings</h2>
+        <div class="savings-grid">
+          <div class="donut-wrap">
+            <div class="donut" style="--saved-percent: 80%;">
+              <div>
+                <strong>80%</strong>
+                <span>effort reduction</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p><strong>Manual baseline:</strong> 10.0 hours</p>
+            <p><strong>AI-assisted effort:</strong> 2.0 hours</p>
+            <p><strong>Estimated saved:</strong> 8.0 hours</p>
+            <div class="stacked" aria-label="Savings breakdown">
+              <div class="seg-docs"></div>
+              <div class="seg-inventory"></div>
+              <div class="seg-match"></div>
+              <div class="seg-plan"></div>
+              <div class="seg-validate"></div>
+            </div>
+            <div class="legend">
+              <span style="--swatch:#64748b;">Docs review</span>
+              <span style="--swatch:#3d79c7;">Inventory review</span>
+              <span style="--swatch:#e26c2d;">Evidence matching</span>
+              <span style="--swatch:#d7a514;">Planning</span>
+              <span style="--swatch:#178064;">Validation</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="coverage" class="panel" style="margin-top: 16px;">
+      <h2>Coverage Gaps</h2>
+      
+      <div class="toolbar">
+        <input id="coverage-search" class="filter search-filter" type="search" placeholder="Search coverage gaps" aria-label="Search coverage gaps">
+        <div class="pagination" aria-label="Coverage gap pages">
+          <button id="coverage-prev-page" class="page-button" type="button">Previous</button>
+          <span id="coverage-page-label" class="page-label">Page 0 of 0</span>
+          <button id="coverage-next-page" class="page-button" type="button">Next</button>
+        </div>
+        <p id="coverage-filter-status" class="filter-status" role="status" aria-live="polite">Loading 54 coverage gaps...</p>
+      </div>
+      <div class="table-wrap">
+        <table id="coverage-gaps-table">
+          <thead><tr><th style="width: 180px;">Product</th><th style="width: 180px;">Type</th><th>Message</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    
+    </section>
+
+    <footer>
+      Generated analyzer report. Coverage gaps: 54. Empty source URLs are shown as missing in the findings table. Source links should point to UiPath documentation and local evidence in production reports.
+    </footer>
+  </main>
+  <div id="evidence-overlay" class="drawer-overlay" hidden></div>
+  <aside id="evidence-drawer" class="evidence-drawer" aria-hidden="true" aria-labelledby="evidence-drawer-title" aria-modal="true" role="dialog">
+    <div class="drawer-header">
+      <div>
+        <span class="muted">Finding evidence</span>
+        <h2 id="evidence-drawer-title">Evidence</h2>
+      </div>
+      <button id="evidence-drawer-close" class="icon-button" type="button" aria-label="Close evidence drawer">&times;</button>
+    </div>
+    <div id="evidence-drawer-body" class="drawer-body"></div>
+  </aside>
+  <script type="application/json" id="findings-data">[{"id":"F-001","severity":"critical","product":"Orchestrator","feature_or_package":"Testing Module in Orchestrator","version":"","affected_version":"","min_supported_version":"","status":"removed","environment":"Nilekha&Demo","project_name":"","domain":"server","confidence":"high","deadline":"30 Jun 2026","route":"uipath-test","hours_saved":8.0,"percent_saved":80,"evidence_html":"<div class=\"evidence-summary\"><div class=\"evidence-heading\">Evidence summary<\/div><div class=\"evidence-grid\"><div class=\"evidence-item\"><span class=\"evidence-label\">Organization<\/span><span class=\"evidence-value\">uipathtamindia<\/span><\/div><div class=\"evidence-item\"><span class=\"evidence-label\">Tenant<\/span><span class=\"evidence-value\">UiPath default<\/span><\/div><div class=\"evidence-item\"><span class=\"evidence-label\">Folder<\/span><span class=\"evidence-value\">Nilekha&amp;Demo<\/span><\/div><div class=\"evidence-item\"><span class=\"evidence-label\">Evidence source<\/span><span class=\"evidence-value\">live_api<\/span><\/div><div class=\"evidence-item\"><span class=\"evidence-label\">Reference<\/span><span class=\"evidence-value\"><a href=\"https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline\">https://docs.uipath.com/overview/other/latest/overview/deprecation-timeline<\/a><\/span><\/div><\/div><div class=\"artifact-counts\"><span class=\"count-chip\">Test Case: 18<\/span><span class=\"count-chip\">Test Case Execution: 15<\/span><span class=\"count-chip\">Test Set: 8<\/span><span class=\"count-chip\">Test Set Execution: 8<\/span><\/div><details class=\"evidence-details\"><summary>View evidence details<\/summary><div class=\"evidence-detail-grid\"><div><h4>Endpoints<\/h4><ul><li>/odata/TestCaseDefinitions<\/li><li>/odata/TestCaseExecutions<\/li><li>/odata/TestSetExecutions<\/li><li>/odata/TestSets<\/li><\/ul><\/div><div><h4>Evidence files<\/h4><ul><li>test_case_definitions.json<\/li><li>test_case_executions.json<\/li><li>test_set_executions.json<\/li><li>test_sets.json<\/li><\/ul><\/div><div><h4>Representative objects<\/h4><ul><li>TestCase1.xaml<\/li><li>TestCase2.xaml<\/li><li>TestCase.xaml<\/li><li>MainTest.xaml<\/li><li>Test Cases\\Batch_1\\TC_UiBank_01.xaml<\/li><li>Automated - Nilekha - 1.0.222694305<\/li><li>Automated - NIR:8 - 20260122.1009<\/li><li>TestSet - 20260127.0744<\/li><\/ul><\/div><div><h4>Matched signals<\/h4><ul><li>Orchestrator testing artifacts<\/li><li>Orchestrator test case<\/li><li>Orchestrator test case execution<\/li><li>Orchestrator test set execution<\/li><li>Orchestrator test set<\/li><\/ul><\/div><\/div><\/details><\/div>"}]</script>
+  <script type="application/json" id="coverage-gaps-data">[{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"AI Center","type":"missing_context","message":"No server inventory evidence was available for AI Center."},{"product":"AI Center","type":"missing_context","message":"No server inventory evidence was available for AI Center."},{"product":"AI Center","type":"missing_context","message":"No server inventory evidence was available for AI Center."},{"product":"Apps","type":"missing_context","message":"No server inventory evidence was available for Apps."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Task Mining","type":"missing_context","message":"No server inventory evidence was available for Task Mining."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Hub","type":"missing_context","message":"No server inventory evidence was available for Automation Hub."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"High Availability Add-On","type":"missing_context","message":"No server inventory evidence was available for High Availability Add-On."},{"product":"High Availability Add-On","type":"missing_context","message":"No server inventory evidence was available for High Availability Add-On."},{"product":"High Availability Add-On","type":"missing_context","message":"No server inventory evidence was available for High Availability Add-On."},{"product":"Insights","type":"missing_context","message":"No server inventory evidence was available for Insights."},{"product":"Insights","type":"missing_context","message":"No server inventory evidence was available for Insights."},{"product":"Insights","type":"missing_context","message":"No server inventory evidence was available for Insights."},{"product":"Integration Service","type":"missing_context","message":"No server inventory evidence was available for Integration Service."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Maestro","type":"missing_context","message":"No server inventory evidence was available for Maestro."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Automation Cloud","type":"missing_context","message":"No server inventory evidence was available for Automation Cloud."},{"product":"Automation Suite","type":"missing_context","message":"No server inventory evidence was available for Automation Suite."},{"product":"Task Mining","type":"missing_context","message":"No server inventory evidence was available for Task Mining."},{"product":"Test Manager","type":"missing_context","message":"No server inventory evidence was available for Test Manager."},{"product":"Test Manager","type":"missing_context","message":"No server inventory evidence was available for Test Manager."},{"product":"Test Manager","type":"missing_context","message":"No server inventory evidence was available for Test Manager."}]</script>
+  <script>
+    
+    (() => {
+      const PAGE_SIZE = 25;
+      const normalize = (value) => String(value || "").trim().toLowerCase();
+      const readData = (id) => {
+        const element = document.getElementById(id);
+        if (!element) return [];
+        try {
+          const parsed = JSON.parse(element.textContent || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          console.error(`Unable to parse dashboard data from #${id}`, error);
+          return [];
+        }
+      };
+      const setText = (element, value) => {
+        element.textContent = String(value ?? "");
+        return element;
+      };
+      const make = (tag, className, value) => {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (value !== undefined) setText(element, value);
+        return element;
+      };
+      const appendCell = (row, value, className = "") => {
+        const cell = make("td", className);
+        if (value instanceof Node) cell.appendChild(value);
+        else setText(cell, value);
+        row.appendChild(cell);
+        return cell;
+      };
+      const severityClass = (value) => ["critical", "high", "medium", "low"].includes(normalize(value))
+        ? normalize(value)
+        : "low";
+      const routeClass = (value) => {
+        const route = normalize(value);
+        if (route.includes("test")) return "low";
+        if (route.includes("platform") || route === "ai_assisted_change") return "high";
+        if (route === "owner_review") return "gray";
+        return "low";
+      };
+      const pill = (value, className) => make("span", `pill ${className}`, value || "Not set");
+      const titleCase = (value) => String(value || "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+      const displayVersion = (value) => String(value || "").trim() || "Not captured";
+      const displayAffectedVersion = (finding) => finding.affected_version || finding.min_supported_version || "—";
+      const savedLabel = (hours, percent) => `${Number(hours || 0).toFixed(2).replace(/\.00$/, "")}h / ${Number(percent || 0)}%`;
+      const scopeLabel = (finding) => finding.project_name || finding.environment || "Unknown scope";
+      const severityRank = { critical: 0, high: 1, medium: 2, low: 3 };
+      const monthNumbers = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+      const deadlineRank = (value) => {
+        const parts = String(value || "").split(" ");
+        if (parts.length !== 3 || monthNumbers[parts[1]] === undefined) return Number.POSITIVE_INFINITY;
+        return Date.UTC(Number(parts[2]), monthNumbers[parts[1]], Number(parts[0]));
+      };
+      const unique = (values) => [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
+      const nearestDeadline = (findings) => {
+        const dated = findings.filter((finding) => deadlineRank(finding.deadline) !== Number.POSITIVE_INFINITY);
+        if (!dated.length) return "No date";
+        return dated.reduce((nearest, finding) => deadlineRank(finding.deadline) < deadlineRank(nearest.deadline) ? finding : nearest).deadline;
+      };
+      const contextTags = (cell, entries) => {
+        const values = entries.filter(([, value]) => String(value || "").trim());
+        if (!values.length) return;
+        const container = make("div", "finding-context");
+        values.forEach(([label, value]) => {
+          const tag = make("span", "context-tag");
+          const strong = make("strong", "", `${label}:`);
+          tag.append(strong, document.createTextNode(` ${value}`));
+          container.appendChild(tag);
+        });
+        cell.appendChild(container);
+      };
+
+      const findings = readData("findings-data");
+      const findingsById = new Map(findings.map((finding) => [String(finding.id), finding]));
+      const findingsBody = document.querySelector("#top-findings-table tbody");
+      const findingsStatus = document.getElementById("findings-filter-status");
+      const findingsPageLabel = document.getElementById("findings-page-label");
+      const findingsPrev = document.getElementById("findings-prev-page");
+      const findingsNext = document.getElementById("findings-next-page");
+      const groupedButton = document.getElementById("findings-grouped-view");
+      const flatButton = document.getElementById("findings-flat-view");
+      const findingControls = {
+        search: document.getElementById("findings-search"),
+        severity: document.getElementById("findings-severity-filter"),
+        product: document.getElementById("findings-product-filter"),
+        route: document.getElementById("findings-route-filter"),
+      };
+      let findingsPage = 1;
+      let findingsView = "grouped";
+      const expandedGroups = new Set();
+
+      const filteredFindings = () => {
+        const search = normalize(findingControls.search?.value);
+        const severity = normalize(findingControls.severity?.value);
+        const product = normalize(findingControls.product?.value);
+        const route = normalize(findingControls.route?.value);
+        return findings.filter((finding) => {
+          const searchable = normalize([
+            finding.feature_or_package,
+            finding.project_name,
+            finding.environment,
+            finding.status,
+            finding.version,
+            finding.affected_version,
+            finding.min_supported_version,
+          ].join(" "));
+          return (!search || searchable.includes(search))
+            && (!severity || normalize(finding.severity) === severity)
+            && (!product || normalize(finding.product) === product)
+            && (!route || normalize(finding.route) === route);
+        });
+      };
+
+      const groupFindings = (rows) => {
+        const grouped = new Map();
+        rows.forEach((finding) => {
+          const key = normalize(finding.feature_or_package) || String(finding.id);
+          if (!grouped.has(key)) grouped.set(key, { key, feature: finding.feature_or_package, findings: [] });
+          grouped.get(key).findings.push(finding);
+        });
+        return [...grouped.values()];
+      };
+
+      const evidenceButton = (finding) => {
+        const button = make("button", "evidence-button", "View evidence");
+        button.type = "button";
+        button.dataset.findingId = String(finding.id);
+        return button;
+      };
+
+      const appendFindingRow = (finding, child = false) => {
+        const row = make("tr", child ? "finding-row child-row" : "finding-row flat-row");
+        appendCell(row, pill(titleCase(finding.severity), severityClass(finding.severity)));
+        appendCell(row, finding.product);
+        const findingCell = appendCell(row, "");
+        findingCell.appendChild(make("div", "finding-title", child ? scopeLabel(finding) : finding.feature_or_package));
+        contextTags(findingCell, child
+          ? [["Status", titleCase(finding.status)], ["Confidence", titleCase(finding.confidence)]]
+          : [["Project", finding.project_name], ["Environment", finding.environment], ["Status", titleCase(finding.status)]]);
+        appendCell(row, displayVersion(finding.version));
+        appendCell(row, displayAffectedVersion(finding));
+        appendCell(row, finding.deadline || "No date");
+        appendCell(row, pill(finding.route || "Owner review", routeClass(finding.route)));
+        appendCell(row, savedLabel(finding.hours_saved, finding.percent_saved));
+        appendCell(row, evidenceButton(finding));
+        findingsBody.appendChild(row);
+      };
+
+      const appendGroupRow = (group) => {
+        const members = group.findings;
+        const representative = [...members].sort((left, right) =>
+          (severityRank[normalize(left.severity)] ?? 4) - (severityRank[normalize(right.severity)] ?? 4)
+          || deadlineRank(left.deadline) - deadlineRank(right.deadline)
+        )[0];
+        const products = unique(members.map((finding) => finding.product));
+        const versions = unique(members.map((finding) => finding.version));
+        const routes = unique(members.map((finding) => finding.route));
+        const projects = unique(members.map((finding) => finding.project_name));
+        const totalHours = members.reduce((total, finding) => total + Number(finding.hours_saved || 0), 0);
+        const maxPercent = members.reduce((maximum, finding) => Math.max(maximum, Number(finding.percent_saved || 0)), 0);
+        const expanded = expandedGroups.has(group.key);
+        const row = make("tr", "finding-row group-row");
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-expanded", String(expanded));
+        const toggle = () => {
+          if (expandedGroups.has(group.key)) expandedGroups.delete(group.key);
+          else expandedGroups.add(group.key);
+          renderFindings();
+        };
+        row.addEventListener("click", toggle);
+        row.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+        appendCell(row, pill(titleCase(representative.severity), severityClass(representative.severity)));
+        appendCell(row, products.length === 1 ? products[0] : `${products.length} products`);
+        const featureCell = appendCell(row, "");
+        const expand = make("button", "expand-button", expanded ? "▾" : "▸");
+        expand.type = "button";
+        expand.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${group.feature}`);
+        expand.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggle();
+        });
+        featureCell.append(expand, make("span", "finding-title", group.feature));
+        appendCell(row, versions.length === 0 ? "Not captured" : versions.length === 1 ? versions[0] : `${versions.length} versions`);
+        appendCell(row, projects.length ? `${projects.length} project${projects.length === 1 ? "" : "s"}` : `${members.length} finding${members.length === 1 ? "" : "s"}`);
+        appendCell(row, nearestDeadline(members));
+        appendCell(row, pill(routes.length === 1 ? routes[0] : `${routes.length} routes`, routeClass(representative.route)));
+        appendCell(row, savedLabel(totalHours, maxPercent));
+        appendCell(row, `${members.length} record${members.length === 1 ? "" : "s"}`);
+        findingsBody.appendChild(row);
+        if (expanded) members.forEach((finding) => appendFindingRow(finding, true));
+      };
+
+      const renderFindings = () => {
+        if (!findingsBody) return;
+        const matching = filteredFindings();
+        const items = findingsView === "grouped" ? groupFindings(matching) : matching;
+        const pages = Math.ceil(items.length / PAGE_SIZE);
+        findingsPage = pages ? Math.min(Math.max(findingsPage, 1), pages) : 0;
+        const start = findingsPage ? (findingsPage - 1) * PAGE_SIZE : 0;
+        const currentItems = items.slice(start, start + PAGE_SIZE);
+        findingsBody.replaceChildren();
+        if (!currentItems.length) {
+          const empty = make("tr", "no-filter-results");
+          const cell = appendCell(empty, "No findings match these filters.");
+          cell.colSpan = 9;
+          findingsBody.appendChild(empty);
+        } else if (findingsView === "grouped") {
+          currentItems.forEach(appendGroupRow);
+        } else {
+          currentItems.forEach((finding) => appendFindingRow(finding));
+        }
+        if (findingsStatus) {
+          findingsStatus.textContent = findingsView === "grouped"
+            ? `Showing ${matching.length} finding${matching.length === 1 ? "" : "s"} in ${items.length} group${items.length === 1 ? "" : "s"}`
+            : `Showing ${matching.length} of ${findings.length} finding${findings.length === 1 ? "" : "s"}`;
+        }
+        if (findingsPageLabel) findingsPageLabel.textContent = `Page ${findingsPage} of ${pages}`;
+        if (findingsPrev) findingsPrev.disabled = findingsPage <= 1;
+        if (findingsNext) findingsNext.disabled = findingsPage === 0 || findingsPage >= pages;
+        groupedButton?.setAttribute("aria-pressed", String(findingsView === "grouped"));
+        flatButton?.setAttribute("aria-pressed", String(findingsView === "flat"));
+      };
+
+      Object.values(findingControls).forEach((control) => {
+        const eventName = control?.type === "search" ? "input" : "change";
+        control?.addEventListener(eventName, () => {
+          findingsPage = 1;
+          renderFindings();
+        });
+      });
+      groupedButton?.addEventListener("click", () => {
+        findingsView = "grouped";
+        findingsPage = 1;
+        renderFindings();
+      });
+      flatButton?.addEventListener("click", () => {
+        findingsView = "flat";
+        findingsPage = 1;
+        renderFindings();
+      });
+      findingsPrev?.addEventListener("click", () => {
+        findingsPage = Math.max(1, findingsPage - 1);
+        renderFindings();
+      });
+      findingsNext?.addEventListener("click", () => {
+        findingsPage += 1;
+        renderFindings();
+      });
+
+      const drawer = document.getElementById("evidence-drawer");
+      const drawerOverlay = document.getElementById("evidence-overlay");
+      const drawerTitle = document.getElementById("evidence-drawer-title");
+      const drawerBody = document.getElementById("evidence-drawer-body");
+      const drawerClose = document.getElementById("evidence-drawer-close");
+      let lastEvidenceTrigger = null;
+      const closeDrawer = () => {
+        drawer?.classList.remove("open");
+        drawer?.setAttribute("aria-hidden", "true");
+        if (drawerOverlay) drawerOverlay.hidden = true;
+        document.body.classList.remove("drawer-open");
+        lastEvidenceTrigger?.focus();
+      };
+      const openDrawer = (finding, trigger) => {
+        if (!drawer || !drawerBody) return;
+        lastEvidenceTrigger = trigger;
+        if (drawerTitle) drawerTitle.textContent = `${finding.feature_or_package} — ${scopeLabel(finding)}`;
+        drawerBody.innerHTML = finding.evidence_html || '<p class="muted">Evidence is missing.</p>';
+        drawer.classList.add("open");
+        drawer.setAttribute("aria-hidden", "false");
+        if (drawerOverlay) drawerOverlay.hidden = false;
+        document.body.classList.add("drawer-open");
+        drawerClose?.focus();
+      };
+      document.addEventListener("click", (event) => {
+        const trigger = event.target.closest(".evidence-button");
+        if (!trigger) return;
+        event.stopPropagation();
+        const finding = findingsById.get(String(trigger.dataset.findingId));
+        if (finding) openDrawer(finding, trigger);
+      });
+      drawerClose?.addEventListener("click", closeDrawer);
+      drawerOverlay?.addEventListener("click", closeDrawer);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && drawer?.classList.contains("open")) closeDrawer();
+      });
+
+      const coverageGaps = readData("coverage-gaps-data");
+      const coverageBody = document.querySelector("#coverage-gaps-table tbody");
+      const coverageSearch = document.getElementById("coverage-search");
+      const coverageStatus = document.getElementById("coverage-filter-status");
+      const coveragePageLabel = document.getElementById("coverage-page-label");
+      const coveragePrev = document.getElementById("coverage-prev-page");
+      const coverageNext = document.getElementById("coverage-next-page");
+      let coveragePage = 1;
+      const renderCoverage = () => {
+        if (!coverageBody) return;
+        const search = normalize(coverageSearch?.value);
+        const matching = coverageGaps.filter((gap) => !search || normalize([gap.product, gap.type, gap.message].join(" ")).includes(search));
+        const pages = Math.ceil(matching.length / PAGE_SIZE);
+        coveragePage = pages ? Math.min(Math.max(coveragePage, 1), pages) : 0;
+        const start = coveragePage ? (coveragePage - 1) * PAGE_SIZE : 0;
+        coverageBody.replaceChildren();
+        const current = matching.slice(start, start + PAGE_SIZE);
+        if (!current.length) {
+          const empty = make("tr", "no-filter-results");
+          const cell = appendCell(empty, coverageGaps.length ? "No coverage gaps match this search." : "No coverage gaps.");
+          cell.colSpan = 3;
+          coverageBody.appendChild(empty);
+        } else {
+          current.forEach((gap) => {
+            const row = document.createElement("tr");
+            appendCell(row, gap.product);
+            appendCell(row, titleCase(gap.type));
+            appendCell(row, gap.message);
+            coverageBody.appendChild(row);
+          });
+        }
+        if (coverageStatus) coverageStatus.textContent = `Showing ${matching.length} of ${coverageGaps.length} coverage gaps`;
+        if (coveragePageLabel) coveragePageLabel.textContent = `Page ${coveragePage} of ${pages}`;
+        if (coveragePrev) coveragePrev.disabled = coveragePage <= 1;
+        if (coverageNext) coverageNext.disabled = coveragePage === 0 || coveragePage >= pages;
+      };
+      coverageSearch?.addEventListener("input", () => {
+        coveragePage = 1;
+        renderCoverage();
+      });
+      coveragePrev?.addEventListener("click", () => {
+        coveragePage = Math.max(1, coveragePage - 1);
+        renderCoverage();
+      });
+      coverageNext?.addEventListener("click", () => {
+        coveragePage += 1;
+        renderCoverage();
+      });
+
+      renderFindings();
+      renderCoverage();
+    })();
+    
+  </script>
+</body>
+</html>

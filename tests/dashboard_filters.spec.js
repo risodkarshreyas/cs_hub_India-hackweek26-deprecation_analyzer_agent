@@ -23,54 +23,60 @@ test.afterAll(() => {
   rmSync(fixtureDirectory, { recursive: true, force: true });
 });
 
-test("filters all ranked findings with AND semantics and an accessible empty state", async ({ page }) => {
+test("groups, pages, searches, and opens evidence without eagerly rendering every finding", async ({ page }) => {
   await page.goto(dashboardUrl);
 
-  const rows = page.locator("#top-findings-table tbody tr.finding-row");
-  const visibleRows = page.locator("#top-findings-table tbody tr.finding-row:visible");
+  const groupRows = page.locator("#top-findings-table tbody tr.group-row");
+  const childRows = page.locator("#top-findings-table tbody tr.child-row");
   const status = page.locator("#findings-filter-status");
-  const emptyState = page.locator("#findings-empty-state");
-  const severity = page.locator("#findings-severity-filter");
+  const search = page.locator("#findings-search");
   const product = page.locator("#findings-product-filter");
   const route = page.locator("#findings-route-filter");
 
-  await expect(rows).toHaveCount(12);
-  await expect(visibleRows).toHaveCount(12);
-  await expect(status).toHaveText("Showing 12 of 12 findings");
-  await expect(emptyState).toBeHidden();
+  await expect.poll(() => page.locator("#findings-data").evaluate((node) => JSON.parse(node.textContent).length)).toBe(60);
+  await expect(groupRows).toHaveCount(25);
+  await expect(childRows).toHaveCount(0);
+  await expect(status).toHaveText("Showing 60 findings in 30 groups");
+  await expect(page.locator("#findings-page-label")).toHaveText("Page 1 of 2");
 
-  await severity.selectOption("critical");
-  await expect(visibleRows).toHaveCount(4);
-  await expect(status).toHaveText("Showing 4 of 12 findings");
+  await groupRows.first().locator(".expand-button").click();
+  await expect(childRows).toHaveCount(2);
+  await childRows.first().locator(".evidence-button").click();
+  await expect(page.locator("#evidence-drawer")).toHaveClass(/open/);
+  await expect(page.locator("#evidence-drawer-body")).toContainText("Evidence");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#evidence-drawer")).not.toHaveClass(/open/);
 
-  await severity.selectOption("");
-  await product.selectOption("orchestrator");
-  await expect(visibleRows).toHaveCount(5);
-
-  await product.selectOption("");
-  await route.selectOption("uipath-test");
-  await expect(visibleRows).toHaveCount(5);
-
-  await severity.selectOption("critical");
-  await product.selectOption("orchestrator");
-  await expect(visibleRows).toHaveCount(2);
-  await expect(status).toHaveText("Showing 2 of 12 findings");
-
-  await severity.selectOption("");
+  await search.fill("Finding 30");
+  await expect(groupRows).toHaveCount(1);
+  await expect(status).toHaveText("Showing 2 findings in 1 group");
   await product.selectOption("r&d <core>");
   await route.selectOption("owner_review");
-  await expect(visibleRows).toHaveCount(1);
-  await expect(visibleRows.first()).toContainText("Finding 12");
+  await expect(groupRows).toHaveCount(1);
+  await expect(groupRows.first()).toContainText("2 versions");
 
-  await severity.selectOption("low");
-  await expect(visibleRows).toHaveCount(0);
-  await expect(status).toHaveText("Showing 0 of 12 findings");
-  await expect(emptyState).toBeVisible();
-
-  await severity.selectOption("");
+  await search.fill("");
   await product.selectOption("");
   await route.selectOption("");
-  await expect(visibleRows).toHaveCount(12);
-  await expect(status).toHaveText("Showing 12 of 12 findings");
-  await expect(emptyState).toBeHidden();
+  await page.locator("#findings-flat-view").click();
+  const flatRows = page.locator("#top-findings-table tbody tr.flat-row");
+  await expect(flatRows).toHaveCount(25);
+  await expect(status).toHaveText("Showing 60 of 60 findings");
+  await expect(page.locator("#findings-page-label")).toHaveText("Page 1 of 3");
+  await page.locator("#findings-next-page").click();
+  await expect(flatRows).toHaveCount(25);
+  await page.locator("#findings-next-page").click();
+  await expect(flatRows).toHaveCount(10);
+
+  await search.fill("30.0.1");
+  await expect(flatRows).toHaveCount(1);
+  await expect(flatRows.first()).toContainText("30.0.1");
+
+  const coverageRows = page.locator("#coverage-gaps-table tbody tr:not(.no-filter-results)");
+  await expect(coverageRows).toHaveCount(25);
+  await expect(page.locator("#coverage-page-label")).toHaveText("Page 1 of 2");
+  await page.locator("#coverage-next-page").click();
+  await expect(coverageRows).toHaveCount(5);
+  await page.locator("#coverage-search").fill("Missing export 30");
+  await expect(coverageRows).toHaveCount(1);
 });

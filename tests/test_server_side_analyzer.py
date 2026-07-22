@@ -481,20 +481,26 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         )
 
         html = render_html_dashboard_report(payload)
+        data = json.loads(html.split('id="findings-data">', 1)[1].split("</script>", 1)[0])
 
-        self.assertEqual(html.count('class="finding-row"'), 12)
+        self.assertEqual(12, len(data))
+        self.assertEqual(0, html.count('class="finding-row"'))
         self.assertIn('id="top-findings-table"', html)
+        self.assertIn('id="findings-search"', html)
         self.assertIn('id="findings-severity-filter"', html)
         self.assertIn('id="findings-product-filter"', html)
         self.assertIn('id="findings-route-filter"', html)
+        self.assertIn('id="findings-grouped-view"', html)
+        self.assertIn('id="findings-page-label"', html)
+        self.assertIn('id="evidence-drawer"', html)
         self.assertIn('aria-live="polite"', html)
-        self.assertIn("Showing 12 of 12 findings", html)
-        self.assertIn('data-product="r&amp;d &lt;core&gt;"', html)
+        self.assertIn("Loading 12 findings", html)
+        self.assertTrue(any(item["product"] == "R&D <Core>" for item in data))
         self.assertIn('value="r&amp;d &lt;core&gt;"', html)
-        self.assertIn('data-route="owner_review"', html)
+        self.assertTrue(any(item["route"] == "owner_review" for item in data))
         self.assertIn("No findings match these filters.", html)
-        self.assertIn("initializeFindingsFilters", html)
-        self.assertIn("normalize(row.dataset[key]) === value", html)
+        self.assertIn('readData("findings-data")', html)
+        self.assertIn('findingsView = "grouped"', html)
 
     def test_html_dashboard_labels_client_scope_as_project(self):
         finding = normalize_client_finding(
@@ -516,10 +522,12 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         payload = build_common_report_payload([finding], "2026-07-13")
 
         html = render_html_dashboard_report(payload)
+        data = json.loads(html.split('id="findings-data">', 1)[1].split("</script>", 1)[0])
 
-        self.assertIn("<strong>Project:</strong>", html)
-        self.assertIn("Project: LegacyProcess", html)
-        self.assertNotIn('<span class="evidence-label">Folder</span>', html)
+        self.assertEqual("LegacyProcess", data[0]["project_name"])
+        self.assertIn('<span class="evidence-label">Project</span>', data[0]["evidence_html"])
+        self.assertNotIn('<span class="evidence-label">Folder</span>', data[0]["evidence_html"])
+        self.assertIn('["Project", finding.project_name]', html)
 
     def test_cli_routes_server_and_mixed_modes_with_cache_only(self):
         with tempfile.TemporaryDirectory() as tmp:

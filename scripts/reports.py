@@ -251,6 +251,8 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     timeline_items = _timeline_items(findings, analysis_date)
     product_options = _filter_options(row["product"] for row in product_rows)
     route_options = _filter_options(finding.get("recommended_skill") or finding.get("mitigation_route") for finding in findings)
+    findings_data = _dashboard_json(_findings_dashboard_data(findings))
+    coverage_gaps_data = _dashboard_json(_coverage_gaps_dashboard_data(coverage_gaps))
 
     return f"""<!doctype html>
 <html lang="en">
@@ -510,11 +512,73 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       min-width: 156px;
       font: inherit;
     }}
+    .search-filter {{
+      flex: 1 1 240px;
+      min-width: 220px;
+    }}
     .filter-status {{
       align-self: center;
       color: var(--muted);
       font-size: 13px;
       margin: 0;
+    }}
+    .view-toggle {{
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }}
+    .toggle-button,
+    .page-button,
+    .evidence-button,
+    .expand-button,
+    .icon-button {{
+      border: 0;
+      background: #ffffff;
+      color: var(--slate);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }}
+    .toggle-button {{
+      padding: 9px 11px;
+    }}
+    .toggle-button + .toggle-button {{
+      border-left: 1px solid var(--line);
+    }}
+    .toggle-button[aria-pressed="true"] {{
+      background: #26384f;
+      color: #ffffff;
+    }}
+    .pagination {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }}
+    .page-button,
+    .evidence-button {{
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }}
+    .page-button:hover:not(:disabled),
+    .evidence-button:hover {{
+      border-color: #26384f;
+      color: #26384f;
+    }}
+    .page-button:disabled {{
+      cursor: default;
+      opacity: .45;
+    }}
+    .page-label {{
+      min-width: 92px;
+      color: var(--slate);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
     }}
     .no-filter-results td {{
       color: var(--muted);
@@ -525,6 +589,9 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
+    }}
+    #top-findings-table {{
+      min-width: 1120px;
     }}
     th {{
       text-align: left;
@@ -543,6 +610,33 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     }}
     tbody tr:hover {{
       background: #fafcff;
+    }}
+    .group-row {{
+      background: #f8fafc;
+    }}
+    .group-row td {{
+      vertical-align: middle;
+    }}
+    .child-row td {{
+      background: #ffffff;
+    }}
+    .child-row .finding-title {{
+      padding-left: 26px;
+      font-weight: 700;
+    }}
+    .expand-button {{
+      display: inline-grid;
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
+      place-items: center;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 16px;
+      vertical-align: middle;
+    }}
+    .expand-button:hover {{
+      background: #eaf1fb;
     }}
     .feature {{
       font-weight: 800;
@@ -662,6 +756,61 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     }}
     .source-line {{
       margin-top: 8px;
+    }}
+    .drawer-overlay {{
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(23, 32, 51, .36);
+    }}
+    .evidence-drawer {{
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 60;
+      width: min(540px, 94vw);
+      height: 100vh;
+      background: #ffffff;
+      border-left: 1px solid var(--line);
+      box-shadow: -18px 0 42px rgba(23, 32, 51, .18);
+      transform: translateX(105%);
+      transition: transform .2s ease;
+      visibility: hidden;
+    }}
+    .evidence-drawer.open {{
+      transform: translateX(0);
+      visibility: visible;
+    }}
+    .drawer-header {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }}
+    .drawer-header h2 {{
+      margin: 3px 0 0;
+      font-size: 19px;
+    }}
+    .drawer-body {{
+      height: calc(100vh - 82px);
+      padding: 18px 20px 30px;
+      overflow-y: auto;
+    }}
+    .drawer-body .evidence-summary {{
+      margin-top: 0;
+    }}
+    .icon-button {{
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 24px;
+      line-height: 1;
+    }}
+    body.drawer-open {{
+      overflow: hidden;
     }}
     .decision-grid {{
       display: grid;
@@ -870,28 +1019,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
 
     <section id="findings" class="panel">
       <h2>Top Findings</h2>
-      <div class="toolbar">
-        <select id="findings-severity-filter" class="filter" aria-label="Severity filter">
-          <option value="">All severities</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-        <select id="findings-product-filter" class="filter" aria-label="Product filter">
-          <option value="">All products</option>
-          {product_options}
-        </select>
-        <select id="findings-route-filter" class="filter" aria-label="Route filter">
-          <option value="">All routes</option>
-          {route_options}
-        </select>
-        <p id="findings-filter-status" class="filter-status" role="status" aria-live="polite">Showing {_h(len(top_findings))} of {_h(len(top_findings))} findings</p>
-      </div>
-
-      <div class="table-wrap">
-        {_findings_command_table(top_findings)}
-      </div>
+      {_findings_command_table(top_findings, product_options, route_options)}
     </section>
 
     <section class="grid" style="margin-top: 16px;">
@@ -936,59 +1064,28 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
 
     <section id="coverage" class="panel" style="margin-top: 16px;">
       <h2>Coverage Gaps</h2>
-      <div class="table-wrap">
-        {_coverage_gap_table(coverage_gaps)}
-      </div>
+      {_coverage_gap_table(coverage_gaps)}
     </section>
 
     <footer>
       Generated analyzer report. Coverage gaps: {_h(len(coverage_gaps))}. Empty source URLs are shown as missing in the findings table. Source links should point to UiPath documentation and local evidence in production reports.
     </footer>
   </main>
+  <div id="evidence-overlay" class="drawer-overlay" hidden></div>
+  <aside id="evidence-drawer" class="evidence-drawer" aria-hidden="true" aria-labelledby="evidence-drawer-title" aria-modal="true" role="dialog">
+    <div class="drawer-header">
+      <div>
+        <span class="muted">Finding evidence</span>
+        <h2 id="evidence-drawer-title">Evidence</h2>
+      </div>
+      <button id="evidence-drawer-close" class="icon-button" type="button" aria-label="Close evidence drawer">&times;</button>
+    </div>
+    <div id="evidence-drawer-body" class="drawer-body"></div>
+  </aside>
+  <script type="application/json" id="findings-data">{findings_data}</script>
+  <script type="application/json" id="coverage-gaps-data">{coverage_gaps_data}</script>
   <script>
-    (() => {{
-      const normalize = (value) => String(value || "").trim().toLowerCase();
-      const initializeFindingsFilters = () => {{
-        const table = document.getElementById("top-findings-table");
-        if (!table) return;
-
-        const rows = Array.from(table.querySelectorAll("tbody tr.finding-row"));
-        const emptyState = document.getElementById("findings-empty-state");
-        const status = document.getElementById("findings-filter-status");
-        const controls = {{
-          severity: document.getElementById("findings-severity-filter"),
-          product: document.getElementById("findings-product-filter"),
-          route: document.getElementById("findings-route-filter"),
-        }};
-
-        const applyFilters = () => {{
-          const selected = Object.fromEntries(
-            Object.entries(controls).map(([key, control]) => [key, normalize(control?.value)])
-          );
-          let visible = 0;
-
-          rows.forEach((row) => {{
-            const matches = Object.entries(selected).every(
-              ([key, value]) => !value || normalize(row.dataset[key]) === value
-            );
-            row.hidden = !matches;
-            if (matches) visible += 1;
-          }});
-
-          if (emptyState) emptyState.hidden = visible !== 0;
-          if (status) status.textContent = `Showing ${{visible}} of ${{rows.length}} findings`;
-        }};
-
-        Object.values(controls).forEach((control) => control?.addEventListener("change", applyFilters));
-        applyFilters();
-      }};
-
-      if (document.readyState === "loading") {{
-        document.addEventListener("DOMContentLoaded", initializeFindingsFilters, {{ once: true }});
-      }} else {{
-        initializeFindingsFilters();
-      }}
-    }})();
+    {_dashboard_javascript()}
   </script>
 </body>
 </html>
@@ -1212,38 +1309,106 @@ def _timeline_item_cards(items: list[dict[str, Any]]) -> str:
     )
 
 
-def _findings_command_table(findings: list[dict[str, Any]]) -> str:
-    if not findings:
-        return '<p class="muted">No findings.</p>'
-    body = "\n".join(
-        f'<tr class="finding-row" data-severity="{_h(_filter_value(finding.get("severity")))}" '
-        f'data-product="{_h(_filter_value(finding.get("product")))}" '
-        f'data-route="{_h(_filter_value(_finding_route_value(finding)))}">'
-        f'<td><span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span></td>'
-        f"<td>{_h(finding.get('product', ''))}</td>"
-        "<td>"
-        f'<div class="finding-title">{_h(finding.get("feature_or_package", ""))}</div>'
-        f'{_finding_context_html(finding)}'
-        f'{_finding_evidence_html(finding)}'
-        "</td>"
-        f"<td>{_h(_display_deadline(finding.get('deadline')))}</td>"
-        f'<td><span class="pill {_route_pill_class(finding)}">{_h(_finding_route_value(finding))}</span></td>'
-        f"<td>{_h(_kpi_value(finding, 'hours_saved'))}h / {_h(_kpi_value(finding, 'percent_saved'))}%</td>"
-        "</tr>"
-        for finding in findings
-    )
+def _findings_dashboard_data(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return only the fields needed by the interactive findings table."""
+    rows = []
+    for index, finding in enumerate(_sort_findings_for_dashboard(findings), 1):
+        rows.append(
+            {
+                "id": str(finding.get("id") or f"finding-{index}"),
+                "severity": str(finding.get("severity") or "low").lower(),
+                "product": finding.get("product") or "Unknown",
+                "feature_or_package": finding.get("feature_or_package") or "Unnamed finding",
+                "version": finding.get("current_version") or finding.get("service_version") or "",
+                "affected_version": finding.get("affected_version") or "",
+                "min_supported_version": finding.get("min_supported_version") or "",
+                "status": finding.get("status") or "",
+                "environment": finding.get("environment") or "",
+                "project_name": finding.get("project_name") or "",
+                "domain": finding.get("domain") or "",
+                "confidence": finding.get("confidence") or "",
+                "deadline": _display_deadline(finding.get("deadline")),
+                "route": _finding_route_value(finding),
+                "hours_saved": _kpi_value(finding, "hours_saved"),
+                "percent_saved": _kpi_value(finding, "percent_saved"),
+                "evidence_html": _finding_evidence_html(finding),
+            }
+        )
+    return rows
+
+
+def _coverage_gaps_dashboard_data(gaps: list[dict[str, Any]]) -> list[dict[str, str]]:
+    return [
+        {
+            "product": str(gap.get("product") or "Unknown"),
+            "type": str(gap.get("type") or "coverage_gap"),
+            "message": str(gap.get("message") or gap.get("feature") or "Missing context"),
+        }
+        for gap in gaps
+    ]
+
+
+def _dashboard_json(value: Any) -> str:
+    """Serialize a safe, compact JSON data island for the self-contained report."""
     return (
-        '<table id="top-findings-table">'
-        "<thead><tr>"
-        '<th style="width: 110px;">Severity</th>'
-        '<th style="width: 160px;">Product</th>'
-        "<th>Finding</th>"
-        '<th style="width: 130px;">Deadline</th>'
-        '<th style="width: 170px;">Route</th>'
-        '<th style="width: 150px;">AI Saved</th>'
-        f'</tr></thead><tbody>{body}<tr id="findings-empty-state" class="no-filter-results" hidden>'
-        '<td colspan="6">No findings match these filters.</td></tr></tbody></table>'
+        json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+        .replace("</", "<\\/")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
     )
+
+
+def _findings_command_table(
+    findings: list[dict[str, Any]],
+    product_options: str = "",
+    route_options: str = "",
+) -> str:
+    return f"""
+      <div class="toolbar">
+        <input id="findings-search" class="filter search-filter" type="search" placeholder="Search package, project, status, or version" aria-label="Search findings">
+        <select id="findings-severity-filter" class="filter" aria-label="Severity filter">
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="findings-product-filter" class="filter" aria-label="Product filter">
+          <option value="">All products</option>
+          {product_options}
+        </select>
+        <select id="findings-route-filter" class="filter" aria-label="Route filter">
+          <option value="">All routes</option>
+          {route_options}
+        </select>
+        <div class="view-toggle" role="group" aria-label="Findings view">
+          <button id="findings-grouped-view" class="toggle-button" type="button" aria-pressed="true">Grouped</button>
+          <button id="findings-flat-view" class="toggle-button" type="button" aria-pressed="false">Flat</button>
+        </div>
+        <div class="pagination" aria-label="Findings pages">
+          <button id="findings-prev-page" class="page-button" type="button">Previous</button>
+          <span id="findings-page-label" class="page-label">Page 0 of 0</span>
+          <button id="findings-next-page" class="page-button" type="button">Next</button>
+        </div>
+        <p id="findings-filter-status" class="filter-status" role="status" aria-live="polite">Loading {_h(len(findings))} findings...</p>
+      </div>
+      <div class="table-wrap">
+        <table id="top-findings-table">
+          <thead><tr>
+            <th style="width: 100px;">Severity</th>
+            <th style="width: 135px;">Product</th>
+            <th>Activity / Package</th>
+            <th style="width: 105px;">Version</th>
+            <th style="width: 120px;">Affected</th>
+            <th style="width: 125px;">Deadline</th>
+            <th style="width: 155px;">Route</th>
+            <th style="width: 115px;">AI Saved</th>
+            <th style="width: 120px;">Evidence</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    """
 
 
 def _action_cards(findings: list[dict[str, Any]]) -> str:
@@ -1587,17 +1752,374 @@ def _actions_table(findings: list[dict[str, Any]]) -> str:
 
 
 def _coverage_gap_table(gaps: list[dict[str, Any]]) -> str:
-    if not gaps:
-        return "<p class=\"muted\">None.</p>"
-    body = "\n".join(
-        "<tr>"
-        f"<td>{_h(gap.get('product', 'Unknown'))}</td>"
-        f"<td>{_h(gap.get('type', 'coverage_gap'))}</td>"
-        f"<td>{_h(gap.get('message', gap.get('feature', 'Missing context')))}</td>"
-        "</tr>"
-        for gap in gaps
-    )
-    return f"<table><thead><tr><th>Product</th><th>Type</th><th>Message</th></tr></thead><tbody>{body}</tbody></table>"
+    return f"""
+      <div class="toolbar">
+        <input id="coverage-search" class="filter search-filter" type="search" placeholder="Search coverage gaps" aria-label="Search coverage gaps">
+        <div class="pagination" aria-label="Coverage gap pages">
+          <button id="coverage-prev-page" class="page-button" type="button">Previous</button>
+          <span id="coverage-page-label" class="page-label">Page 0 of 0</span>
+          <button id="coverage-next-page" class="page-button" type="button">Next</button>
+        </div>
+        <p id="coverage-filter-status" class="filter-status" role="status" aria-live="polite">Loading {_h(len(gaps))} coverage gaps...</p>
+      </div>
+      <div class="table-wrap">
+        <table id="coverage-gaps-table">
+          <thead><tr><th style="width: 180px;">Product</th><th style="width: 180px;">Type</th><th>Message</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    """
+
+
+def _dashboard_javascript() -> str:
+    """Client-side rendering for paged findings, evidence, and coverage gaps."""
+    return r"""
+    (() => {
+      const PAGE_SIZE = 25;
+      const normalize = (value) => String(value || "").trim().toLowerCase();
+      const readData = (id) => {
+        const element = document.getElementById(id);
+        if (!element) return [];
+        try {
+          const parsed = JSON.parse(element.textContent || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          console.error(`Unable to parse dashboard data from #${id}`, error);
+          return [];
+        }
+      };
+      const setText = (element, value) => {
+        element.textContent = String(value ?? "");
+        return element;
+      };
+      const make = (tag, className, value) => {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (value !== undefined) setText(element, value);
+        return element;
+      };
+      const appendCell = (row, value, className = "") => {
+        const cell = make("td", className);
+        if (value instanceof Node) cell.appendChild(value);
+        else setText(cell, value);
+        row.appendChild(cell);
+        return cell;
+      };
+      const severityClass = (value) => ["critical", "high", "medium", "low"].includes(normalize(value))
+        ? normalize(value)
+        : "low";
+      const routeClass = (value) => {
+        const route = normalize(value);
+        if (route.includes("test")) return "low";
+        if (route.includes("platform") || route === "ai_assisted_change") return "high";
+        if (route === "owner_review") return "gray";
+        return "low";
+      };
+      const pill = (value, className) => make("span", `pill ${className}`, value || "Not set");
+      const titleCase = (value) => String(value || "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+      const displayVersion = (value) => String(value || "").trim() || "Not captured";
+      const displayAffectedVersion = (finding) => finding.affected_version || finding.min_supported_version || "—";
+      const savedLabel = (hours, percent) => `${Number(hours || 0).toFixed(2).replace(/\.00$/, "")}h / ${Number(percent || 0)}%`;
+      const scopeLabel = (finding) => finding.project_name || finding.environment || "Unknown scope";
+      const severityRank = { critical: 0, high: 1, medium: 2, low: 3 };
+      const monthNumbers = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+      const deadlineRank = (value) => {
+        const parts = String(value || "").split(" ");
+        if (parts.length !== 3 || monthNumbers[parts[1]] === undefined) return Number.POSITIVE_INFINITY;
+        return Date.UTC(Number(parts[2]), monthNumbers[parts[1]], Number(parts[0]));
+      };
+      const unique = (values) => [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
+      const nearestDeadline = (findings) => {
+        const dated = findings.filter((finding) => deadlineRank(finding.deadline) !== Number.POSITIVE_INFINITY);
+        if (!dated.length) return "No date";
+        return dated.reduce((nearest, finding) => deadlineRank(finding.deadline) < deadlineRank(nearest.deadline) ? finding : nearest).deadline;
+      };
+      const contextTags = (cell, entries) => {
+        const values = entries.filter(([, value]) => String(value || "").trim());
+        if (!values.length) return;
+        const container = make("div", "finding-context");
+        values.forEach(([label, value]) => {
+          const tag = make("span", "context-tag");
+          const strong = make("strong", "", `${label}:`);
+          tag.append(strong, document.createTextNode(` ${value}`));
+          container.appendChild(tag);
+        });
+        cell.appendChild(container);
+      };
+
+      const findings = readData("findings-data");
+      const findingsById = new Map(findings.map((finding) => [String(finding.id), finding]));
+      const findingsBody = document.querySelector("#top-findings-table tbody");
+      const findingsStatus = document.getElementById("findings-filter-status");
+      const findingsPageLabel = document.getElementById("findings-page-label");
+      const findingsPrev = document.getElementById("findings-prev-page");
+      const findingsNext = document.getElementById("findings-next-page");
+      const groupedButton = document.getElementById("findings-grouped-view");
+      const flatButton = document.getElementById("findings-flat-view");
+      const findingControls = {
+        search: document.getElementById("findings-search"),
+        severity: document.getElementById("findings-severity-filter"),
+        product: document.getElementById("findings-product-filter"),
+        route: document.getElementById("findings-route-filter"),
+      };
+      let findingsPage = 1;
+      let findingsView = "grouped";
+      const expandedGroups = new Set();
+
+      const filteredFindings = () => {
+        const search = normalize(findingControls.search?.value);
+        const severity = normalize(findingControls.severity?.value);
+        const product = normalize(findingControls.product?.value);
+        const route = normalize(findingControls.route?.value);
+        return findings.filter((finding) => {
+          const searchable = normalize([
+            finding.feature_or_package,
+            finding.project_name,
+            finding.environment,
+            finding.status,
+            finding.version,
+            finding.affected_version,
+            finding.min_supported_version,
+          ].join(" "));
+          return (!search || searchable.includes(search))
+            && (!severity || normalize(finding.severity) === severity)
+            && (!product || normalize(finding.product) === product)
+            && (!route || normalize(finding.route) === route);
+        });
+      };
+
+      const groupFindings = (rows) => {
+        const grouped = new Map();
+        rows.forEach((finding) => {
+          const key = normalize(finding.feature_or_package) || String(finding.id);
+          if (!grouped.has(key)) grouped.set(key, { key, feature: finding.feature_or_package, findings: [] });
+          grouped.get(key).findings.push(finding);
+        });
+        return [...grouped.values()];
+      };
+
+      const evidenceButton = (finding) => {
+        const button = make("button", "evidence-button", "View evidence");
+        button.type = "button";
+        button.dataset.findingId = String(finding.id);
+        return button;
+      };
+
+      const appendFindingRow = (finding, child = false) => {
+        const row = make("tr", child ? "finding-row child-row" : "finding-row flat-row");
+        appendCell(row, pill(titleCase(finding.severity), severityClass(finding.severity)));
+        appendCell(row, finding.product);
+        const findingCell = appendCell(row, "");
+        findingCell.appendChild(make("div", "finding-title", child ? scopeLabel(finding) : finding.feature_or_package));
+        contextTags(findingCell, child
+          ? [["Status", titleCase(finding.status)], ["Confidence", titleCase(finding.confidence)]]
+          : [["Project", finding.project_name], ["Environment", finding.environment], ["Status", titleCase(finding.status)]]);
+        appendCell(row, displayVersion(finding.version));
+        appendCell(row, displayAffectedVersion(finding));
+        appendCell(row, finding.deadline || "No date");
+        appendCell(row, pill(finding.route || "Owner review", routeClass(finding.route)));
+        appendCell(row, savedLabel(finding.hours_saved, finding.percent_saved));
+        appendCell(row, evidenceButton(finding));
+        findingsBody.appendChild(row);
+      };
+
+      const appendGroupRow = (group) => {
+        const members = group.findings;
+        const representative = [...members].sort((left, right) =>
+          (severityRank[normalize(left.severity)] ?? 4) - (severityRank[normalize(right.severity)] ?? 4)
+          || deadlineRank(left.deadline) - deadlineRank(right.deadline)
+        )[0];
+        const products = unique(members.map((finding) => finding.product));
+        const versions = unique(members.map((finding) => finding.version));
+        const routes = unique(members.map((finding) => finding.route));
+        const projects = unique(members.map((finding) => finding.project_name));
+        const totalHours = members.reduce((total, finding) => total + Number(finding.hours_saved || 0), 0);
+        const maxPercent = members.reduce((maximum, finding) => Math.max(maximum, Number(finding.percent_saved || 0)), 0);
+        const expanded = expandedGroups.has(group.key);
+        const row = make("tr", "finding-row group-row");
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-expanded", String(expanded));
+        const toggle = () => {
+          if (expandedGroups.has(group.key)) expandedGroups.delete(group.key);
+          else expandedGroups.add(group.key);
+          renderFindings();
+        };
+        row.addEventListener("click", toggle);
+        row.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggle();
+          }
+        });
+        appendCell(row, pill(titleCase(representative.severity), severityClass(representative.severity)));
+        appendCell(row, products.length === 1 ? products[0] : `${products.length} products`);
+        const featureCell = appendCell(row, "");
+        const expand = make("button", "expand-button", expanded ? "▾" : "▸");
+        expand.type = "button";
+        expand.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${group.feature}`);
+        expand.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggle();
+        });
+        featureCell.append(expand, make("span", "finding-title", group.feature));
+        appendCell(row, versions.length === 0 ? "Not captured" : versions.length === 1 ? versions[0] : `${versions.length} versions`);
+        appendCell(row, projects.length ? `${projects.length} project${projects.length === 1 ? "" : "s"}` : `${members.length} finding${members.length === 1 ? "" : "s"}`);
+        appendCell(row, nearestDeadline(members));
+        appendCell(row, pill(routes.length === 1 ? routes[0] : `${routes.length} routes`, routeClass(representative.route)));
+        appendCell(row, savedLabel(totalHours, maxPercent));
+        appendCell(row, `${members.length} record${members.length === 1 ? "" : "s"}`);
+        findingsBody.appendChild(row);
+        if (expanded) members.forEach((finding) => appendFindingRow(finding, true));
+      };
+
+      const renderFindings = () => {
+        if (!findingsBody) return;
+        const matching = filteredFindings();
+        const items = findingsView === "grouped" ? groupFindings(matching) : matching;
+        const pages = Math.ceil(items.length / PAGE_SIZE);
+        findingsPage = pages ? Math.min(Math.max(findingsPage, 1), pages) : 0;
+        const start = findingsPage ? (findingsPage - 1) * PAGE_SIZE : 0;
+        const currentItems = items.slice(start, start + PAGE_SIZE);
+        findingsBody.replaceChildren();
+        if (!currentItems.length) {
+          const empty = make("tr", "no-filter-results");
+          const cell = appendCell(empty, "No findings match these filters.");
+          cell.colSpan = 9;
+          findingsBody.appendChild(empty);
+        } else if (findingsView === "grouped") {
+          currentItems.forEach(appendGroupRow);
+        } else {
+          currentItems.forEach((finding) => appendFindingRow(finding));
+        }
+        if (findingsStatus) {
+          findingsStatus.textContent = findingsView === "grouped"
+            ? `Showing ${matching.length} finding${matching.length === 1 ? "" : "s"} in ${items.length} group${items.length === 1 ? "" : "s"}`
+            : `Showing ${matching.length} of ${findings.length} finding${findings.length === 1 ? "" : "s"}`;
+        }
+        if (findingsPageLabel) findingsPageLabel.textContent = `Page ${findingsPage} of ${pages}`;
+        if (findingsPrev) findingsPrev.disabled = findingsPage <= 1;
+        if (findingsNext) findingsNext.disabled = findingsPage === 0 || findingsPage >= pages;
+        groupedButton?.setAttribute("aria-pressed", String(findingsView === "grouped"));
+        flatButton?.setAttribute("aria-pressed", String(findingsView === "flat"));
+      };
+
+      Object.values(findingControls).forEach((control) => {
+        const eventName = control?.type === "search" ? "input" : "change";
+        control?.addEventListener(eventName, () => {
+          findingsPage = 1;
+          renderFindings();
+        });
+      });
+      groupedButton?.addEventListener("click", () => {
+        findingsView = "grouped";
+        findingsPage = 1;
+        renderFindings();
+      });
+      flatButton?.addEventListener("click", () => {
+        findingsView = "flat";
+        findingsPage = 1;
+        renderFindings();
+      });
+      findingsPrev?.addEventListener("click", () => {
+        findingsPage = Math.max(1, findingsPage - 1);
+        renderFindings();
+      });
+      findingsNext?.addEventListener("click", () => {
+        findingsPage += 1;
+        renderFindings();
+      });
+
+      const drawer = document.getElementById("evidence-drawer");
+      const drawerOverlay = document.getElementById("evidence-overlay");
+      const drawerTitle = document.getElementById("evidence-drawer-title");
+      const drawerBody = document.getElementById("evidence-drawer-body");
+      const drawerClose = document.getElementById("evidence-drawer-close");
+      let lastEvidenceTrigger = null;
+      const closeDrawer = () => {
+        drawer?.classList.remove("open");
+        drawer?.setAttribute("aria-hidden", "true");
+        if (drawerOverlay) drawerOverlay.hidden = true;
+        document.body.classList.remove("drawer-open");
+        lastEvidenceTrigger?.focus();
+      };
+      const openDrawer = (finding, trigger) => {
+        if (!drawer || !drawerBody) return;
+        lastEvidenceTrigger = trigger;
+        if (drawerTitle) drawerTitle.textContent = `${finding.feature_or_package} — ${scopeLabel(finding)}`;
+        drawerBody.innerHTML = finding.evidence_html || '<p class="muted">Evidence is missing.</p>';
+        drawer.classList.add("open");
+        drawer.setAttribute("aria-hidden", "false");
+        if (drawerOverlay) drawerOverlay.hidden = false;
+        document.body.classList.add("drawer-open");
+        drawerClose?.focus();
+      };
+      document.addEventListener("click", (event) => {
+        const trigger = event.target.closest(".evidence-button");
+        if (!trigger) return;
+        event.stopPropagation();
+        const finding = findingsById.get(String(trigger.dataset.findingId));
+        if (finding) openDrawer(finding, trigger);
+      });
+      drawerClose?.addEventListener("click", closeDrawer);
+      drawerOverlay?.addEventListener("click", closeDrawer);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && drawer?.classList.contains("open")) closeDrawer();
+      });
+
+      const coverageGaps = readData("coverage-gaps-data");
+      const coverageBody = document.querySelector("#coverage-gaps-table tbody");
+      const coverageSearch = document.getElementById("coverage-search");
+      const coverageStatus = document.getElementById("coverage-filter-status");
+      const coveragePageLabel = document.getElementById("coverage-page-label");
+      const coveragePrev = document.getElementById("coverage-prev-page");
+      const coverageNext = document.getElementById("coverage-next-page");
+      let coveragePage = 1;
+      const renderCoverage = () => {
+        if (!coverageBody) return;
+        const search = normalize(coverageSearch?.value);
+        const matching = coverageGaps.filter((gap) => !search || normalize([gap.product, gap.type, gap.message].join(" ")).includes(search));
+        const pages = Math.ceil(matching.length / PAGE_SIZE);
+        coveragePage = pages ? Math.min(Math.max(coveragePage, 1), pages) : 0;
+        const start = coveragePage ? (coveragePage - 1) * PAGE_SIZE : 0;
+        coverageBody.replaceChildren();
+        const current = matching.slice(start, start + PAGE_SIZE);
+        if (!current.length) {
+          const empty = make("tr", "no-filter-results");
+          const cell = appendCell(empty, coverageGaps.length ? "No coverage gaps match this search." : "No coverage gaps.");
+          cell.colSpan = 3;
+          coverageBody.appendChild(empty);
+        } else {
+          current.forEach((gap) => {
+            const row = document.createElement("tr");
+            appendCell(row, gap.product);
+            appendCell(row, titleCase(gap.type));
+            appendCell(row, gap.message);
+            coverageBody.appendChild(row);
+          });
+        }
+        if (coverageStatus) coverageStatus.textContent = `Showing ${matching.length} of ${coverageGaps.length} coverage gaps`;
+        if (coveragePageLabel) coveragePageLabel.textContent = `Page ${coveragePage} of ${pages}`;
+        if (coveragePrev) coveragePrev.disabled = coveragePage <= 1;
+        if (coverageNext) coverageNext.disabled = coveragePage === 0 || coveragePage >= pages;
+      };
+      coverageSearch?.addEventListener("input", () => {
+        coveragePage = 1;
+        renderCoverage();
+      });
+      coveragePrev?.addEventListener("click", () => {
+        coveragePage = Math.max(1, coveragePage - 1);
+        renderCoverage();
+      });
+      coverageNext?.addEventListener("click", () => {
+        coveragePage += 1;
+        renderCoverage();
+      });
+
+      renderFindings();
+      renderCoverage();
+    })();
+    """
 
 
 def _appendix_table(findings: list[dict[str, Any]]) -> str:
