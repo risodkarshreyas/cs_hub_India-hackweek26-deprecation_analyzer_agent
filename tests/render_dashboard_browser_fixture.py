@@ -10,11 +10,13 @@ from reports import build_common_report_payload, render_html_dashboard_report
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
-        raise SystemExit("Usage: render_dashboard_browser_fixture.py OUTPUT_PATH")
+    if len(sys.argv) not in (2, 3):
+        raise SystemExit("Usage: render_dashboard_browser_fixture.py OUTPUT_PATH [ACTION_GROUP_COUNT]")
+
+    group_count = int(sys.argv[2]) if len(sys.argv) == 3 else 30
 
     findings = []
-    for group_index in range(30):
+    for group_index in range(group_count):
         for project_index in range(2):
             index = group_index * 2 + project_index
             product = "R&D <Core>" if group_index == 29 else ("Orchestrator" if group_index % 2 else "Apps")
@@ -46,7 +48,7 @@ def main() -> int:
         analysis_date="2026-07-10",
         coverage_gaps=[
             {"type": "missing_context", "product": "Apps", "message": f"Missing export {index + 1}."}
-            for index in range(30)
+            for index in range(group_count)
         ],
     )
     output = Path(sys.argv[1])

@@ -11,7 +11,12 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from normalizer import normalize_client_finding, normalize_server_finding
-from reports import build_common_report_payload, render_html_dashboard_report, render_markdown_report
+from reports import (
+    _unique_recommended_actions,
+    build_common_report_payload,
+    render_html_dashboard_report,
+    render_markdown_report,
+)
 from server_inventory import scan_server_inputs
 from server_matcher import match_server_deprecations
 from server_rules import normalize_server_rules_from_html
@@ -501,6 +506,53 @@ class ServerSideAnalyzerTests(unittest.TestCase):
         self.assertIn("No findings match these filters.", html)
         self.assertIn('readData("findings-data")', html)
         self.assertIn('findingsView = "grouped"', html)
+
+    def test_recommended_actions_are_deduplicated_without_mutating_findings(self):
+        findings = [
+            {
+                "id": "lower-priority-duplicate",
+                "feature_or_package": " UiPath.OCR.Activities ",
+                "recommended_action": "No direct replacement stated - review manually.",
+                "severity": "high",
+                "deadline": "2026-01-01",
+                "product": "Studio/Robot activity packages",
+            },
+            {
+                "id": "highest-priority-duplicate",
+                "feature_or_package": "uipath.ocr.activities",
+                "recommended_action": "  no direct replacement stated   - REVIEW manually. ",
+                "severity": "critical",
+                "deadline": "2026-12-01",
+                "product": "Studio/Robot activity packages",
+            },
+            {
+                "id": "different-action",
+                "feature_or_package": "UiPath.OCR.Activities",
+                "recommended_action": "Replace with a supported OCR package.",
+                "severity": "medium",
+                "deadline": "2027-01-01",
+                "product": "Studio/Robot activity packages",
+            },
+            {
+                "id": "different-feature",
+                "feature_or_package": "UiPath.Abbyy.Activities",
+                "recommended_action": "No direct replacement stated - review manually.",
+                "severity": "low",
+                "deadline": "2027-02-01",
+                "product": "Studio/Robot activity packages",
+            },
+        ]
+        original = json.loads(json.dumps(findings))
+
+        actions = _unique_recommended_actions(findings)
+
+        self.assertEqual(3, len(actions))
+        self.assertEqual("highest-priority-duplicate", actions[0]["id"])
+        self.assertEqual(
+            {"highest-priority-duplicate", "different-action", "different-feature"},
+            {action["id"] for action in actions},
+        )
+        self.assertEqual(original, findings)
 
     def test_html_dashboard_labels_client_scope_as_project(self):
         finding = normalize_client_finding(

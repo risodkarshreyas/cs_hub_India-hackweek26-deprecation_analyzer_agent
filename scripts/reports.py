@@ -9,6 +9,9 @@ from typing import Any, Optional, Union
 from xml.sax.saxutils import escape
 
 
+_ACTION_PAGE_SIZE = 5
+
+
 def build_report_payload(
     inventory: dict[str, Any],
     timeline_entries: list[dict[str, Any]],
@@ -245,10 +248,11 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     coverage_gaps = payload.get("coverage_gaps", [])
     summary = _dashboard_summary(payload)
     top_findings = _sort_findings_for_dashboard(findings)
-    actions = _sort_findings_for_dashboard(findings)
+    actions = _unique_recommended_actions(findings)
     analysis_date = payload.get("analysis_date", "")
     product_rows = _product_risk_rows(findings)
     timeline_items = _timeline_items(findings, analysis_date)
+    summary_rail = _summary_rail_html(findings, product_rows, coverage_gaps, summary)
     product_options = _filter_options(row["product"] for row in product_rows)
     route_options = _filter_options(finding.get("recommended_skill") or finding.get("mitigation_route") for finding in findings)
     findings_data = _dashboard_json(_findings_dashboard_data(findings))
@@ -299,7 +303,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       border-bottom: 1px solid var(--line);
     }}
     .shell {{
-      width: min(1180px, calc(100% - 32px));
+      width: min(1560px, calc(100% - 40px));
       margin: 0 auto;
     }}
     .topbar {{
@@ -427,6 +431,57 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       margin: 0 0 14px;
       font-size: 18px;
       letter-spacing: 0;
+    }}
+    .desktop-rail {{
+      display: none;
+    }}
+    .summary-rail {{
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }}
+    .rail-block {{
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--line);
+    }}
+    .rail-block:last-child {{
+      padding-bottom: 0;
+      border-bottom: 0;
+    }}
+    .rail-label {{
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }}
+    .rail-list {{
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }}
+    .rail-item {{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+      color: var(--slate);
+      font-size: 13px;
+    }}
+    .rail-item strong,
+    .rail-item span:first-child {{
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }}
+    .rail-metric {{
+      color: var(--ink);
+      font-weight: 800;
+      white-space: nowrap;
     }}
     .bar-row {{
       display: grid;
@@ -590,8 +645,11 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       border-collapse: collapse;
       table-layout: fixed;
     }}
+    .table-wrap {{
+      overflow-x: auto;
+    }}
     #top-findings-table {{
-      min-width: 1120px;
+      min-width: 1280px;
     }}
     th {{
       text-align: left;
@@ -849,6 +907,17 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       background: #fbfcff;
       margin-bottom: 10px;
     }}
+    .action-card[hidden] {{
+      display: none;
+    }}
+    .actions-footer {{
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }}
+    .actions-footer .pagination {{
+      margin-left: 0;
+    }}
     .rank {{
       width: 30px;
       height: 30px;
@@ -926,7 +995,23 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
       font-size: 12px;
       padding: 18px 0 0;
     }}
-    @media (max-width: 900px) {{
+    @media (min-width: 1280px) {{
+      .overview-grid {{
+        grid-template-columns: minmax(320px, 0.9fr) minmax(440px, 1.15fr) minmax(280px, 0.65fr);
+      }}
+      .desktop-rail {{
+        display: block;
+      }}
+      .bar-row {{
+        grid-template-columns: minmax(170px, 220px) minmax(180px, 1fr) 50px;
+      }}
+    }}
+    @media (max-width: 1279px) {{
+      .shell {{
+        width: min(1180px, calc(100% - 32px));
+      }}
+    }}
+    @media (max-width: 899px) {{
       .topbar,
       .grid,
       .savings-grid {{
@@ -1003,7 +1088,7 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
 
     {_decision_summary_html(payload.get("decision_summary", {}))}
 
-    <section class="grid">
+    <section class="grid overview-grid">
       <article class="panel">
         <h2>Risk By Product</h2>
         {_product_risk_bars(product_rows)}
@@ -1015,6 +1100,11 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
           {_timeline_item_cards(timeline_items)}
         </div>
       </article>
+
+      <article class="panel desktop-rail" aria-label="Action focus">
+        <h2>Action Focus</h2>
+        {summary_rail}
+      </article>
     </section>
 
     <section id="findings" class="panel">
@@ -1025,7 +1115,10 @@ def render_html_dashboard_report(payload: dict[str, Any]) -> str:
     <section class="grid" style="margin-top: 16px;">
       <article class="panel">
         <h2>Recommended Actions</h2>
-        {_action_cards(actions[:5])}
+        <div id="recommended-actions-list">
+          {_action_cards(actions)}
+        </div>
+        {_action_pagination(len(actions))}
       </article>
 
       <article id="ai-savings" class="panel">
@@ -1226,6 +1319,25 @@ def _sort_findings_for_dashboard(findings: list[dict[str, Any]]) -> list[dict[st
     )
 
 
+def _unique_recommended_actions(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for finding in _sort_findings_for_dashboard(findings):
+        key = (
+            _normalize_action_value(_action_feature(finding)),
+            _normalize_action_value(_action_recommendation(finding)),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        actions.append(finding)
+    return actions
+
+
+def _normalize_action_value(value: Any) -> str:
+    return " ".join(str(value or "").split()).casefold()
+
+
 def _command_center_kpi(label: str, value: Any, note: Any, value_class: str) -> str:
     css = f" {value_class}" if value_class else ""
     return (
@@ -1234,6 +1346,71 @@ def _command_center_kpi(label: str, value: Any, note: Any, value_class: str) -> 
         f'<span class="value{css}">{_h(value)}</span>'
         f'<span class="note">{_h(note)}</span>'
         "</div>"
+    )
+
+
+def _summary_rail_html(
+    findings: list[dict[str, Any]],
+    product_rows: list[dict[str, Any]],
+    coverage_gaps: list[dict[str, Any]],
+    summary: dict[str, Any],
+) -> str:
+    critical_items = [
+        finding
+        for finding in _sort_findings_for_dashboard(findings)
+        if str(finding.get("severity", "")).lower() == "critical"
+        or str(finding.get("status", "")).lower() == "removed"
+    ]
+    critical_seen: set[str] = set()
+    critical_rows = []
+    for finding in critical_items:
+        label = str(finding.get("feature_or_package") or finding.get("product") or "Unnamed finding")
+        if label in critical_seen:
+            continue
+        critical_seen.add(label)
+        critical_rows.append(
+            '<li class="rail-item">'
+            f'<span>{_h(label)}</span>'
+            f'<span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("status", "review")).replace("_", " ").title())}</span>'
+            '</li>'
+        )
+        if len(critical_rows) == 4:
+            break
+
+    package_counts = Counter(
+        str(finding.get("feature_or_package") or finding.get("product") or "Unknown")
+        for finding in findings
+    )
+    impacted_rows = [
+        '<li class="rail-item">'
+        f'<span>{_h(name)}</span>'
+        f'<span class="rail-metric">{_h(count)}</span>'
+        '</li>'
+        for name, count in package_counts.most_common(4)
+    ]
+    product_total = sum(row.get("total", 0) for row in product_rows)
+    critical_html = "".join(critical_rows) or '<li class="rail-item"><span>No critical packages</span><span class="rail-metric">0</span></li>'
+    impacted_html = "".join(impacted_rows) or '<li class="rail-item"><span>No impacted packages</span><span class="rail-metric">0</span></li>'
+
+    return (
+        '<div class="summary-rail">'
+        '<div class="rail-block">'
+        '<span class="rail-label">Critical removed packages</span>'
+        f'<ul class="rail-list">{critical_html}</ul>'
+        '</div>'
+        '<div class="rail-block">'
+        '<span class="rail-label">Most impacted packages</span>'
+        f'<ul class="rail-list">{impacted_html}</ul>'
+        '</div>'
+        '<div class="rail-block">'
+        '<span class="rail-label">Portfolio signals</span>'
+        '<ul class="rail-list">'
+        f'<li class="rail-item"><span>Coverage gaps</span><span class="rail-metric">{_h(len(coverage_gaps))}</span></li>'
+        f'<li class="rail-item"><span>Product findings</span><span class="rail-metric">{_h(product_total)}</span></li>'
+        f'<li class="rail-item"><span>AI hours saved</span><span class="rail-metric">{_h(summary["total_hours_saved"])}</span></li>'
+        '</ul>'
+        '</div>'
+        '</div>'
     )
 
 
@@ -1415,15 +1592,30 @@ def _action_cards(findings: list[dict[str, Any]]) -> str:
     if not findings:
         return '<p class="muted">No recommended actions.</p>'
     return "\n".join(
-        '<div class="action-card">'
+        f'<div class="action-card" data-action-index="{index}"{" hidden" if index > _ACTION_PAGE_SIZE else ""}>'
         f'<div class="rank">{index}</div>'
         "<div>"
         f'<strong>{_h(_action_title(finding))}</strong>'
-        f'<div class="muted">{_h(finding.get("recommended_action", "Review UiPath migration guidance."))}</div>'
+        f'<div class="muted">{_h(_action_recommendation(finding))}</div>'
         "</div>"
         f'<span class="pill {_pill_class(finding.get("severity"))}">{_h(str(finding.get("severity", "low")).title())}</span>'
         "</div>"
         for index, finding in enumerate(findings, 1)
+    )
+
+
+def _action_pagination(action_count: int) -> str:
+    if action_count <= _ACTION_PAGE_SIZE:
+        return ""
+    pages = (action_count + _ACTION_PAGE_SIZE - 1) // _ACTION_PAGE_SIZE
+    return (
+        '<div class="actions-footer">'
+        '<div class="pagination" aria-label="Recommended action pages">'
+        '<button id="actions-prev-page" class="page-button" type="button">Previous</button>'
+        f'<span id="actions-page-label" class="page-label">Page 1 of {_h(pages)}</span>'
+        '<button id="actions-next-page" class="page-button" type="button">Next</button>'
+        "</div>"
+        "</div>"
     )
 
 
@@ -1679,11 +1871,19 @@ def _environment_label(findings: list[dict[str, Any]]) -> str:
 
 
 def _action_title(finding: dict[str, Any]) -> str:
-    feature = finding.get("feature_or_package") or finding.get("product") or "Deprecation finding"
+    feature = _action_feature(finding)
     severity = str(finding.get("severity", "")).lower()
     if severity == "critical":
         return f"Remediate {feature}"
     return f"Plan remediation for {feature}"
+
+
+def _action_feature(finding: dict[str, Any]) -> str:
+    return finding.get("feature_or_package") or finding.get("product") or "Deprecation finding"
+
+
+def _action_recommendation(finding: dict[str, Any]) -> str:
+    return finding.get("recommended_action") or "Review UiPath migration guidance."
 
 
 def _product_risk_table(rows: list[dict[str, Any]]) -> str:
@@ -2030,6 +2230,34 @@ def _dashboard_javascript() -> str:
         renderFindings();
       });
 
+      const ACTION_PAGE_SIZE = 5;
+      const actionCards = Array.from(document.querySelectorAll("#recommended-actions-list .action-card"));
+      const actionsPageLabel = document.getElementById("actions-page-label");
+      const actionsPrev = document.getElementById("actions-prev-page");
+      const actionsNext = document.getElementById("actions-next-page");
+      let actionsPage = 1;
+      const renderActions = () => {
+        if (!actionCards.length) return;
+        const pages = Math.ceil(actionCards.length / ACTION_PAGE_SIZE);
+        actionsPage = Math.min(Math.max(actionsPage, 1), pages);
+        const start = (actionsPage - 1) * ACTION_PAGE_SIZE;
+        const end = start + ACTION_PAGE_SIZE;
+        actionCards.forEach((card, index) => {
+          card.hidden = index < start || index >= end;
+        });
+        if (actionsPageLabel) actionsPageLabel.textContent = `Page ${actionsPage} of ${pages}`;
+        if (actionsPrev) actionsPrev.disabled = actionsPage <= 1;
+        if (actionsNext) actionsNext.disabled = actionsPage >= pages;
+      };
+      actionsPrev?.addEventListener("click", () => {
+        actionsPage = Math.max(1, actionsPage - 1);
+        renderActions();
+      });
+      actionsNext?.addEventListener("click", () => {
+        actionsPage += 1;
+        renderActions();
+      });
+
       const drawer = document.getElementById("evidence-drawer");
       const drawerOverlay = document.getElementById("evidence-overlay");
       const drawerTitle = document.getElementById("evidence-drawer-title");
@@ -2117,6 +2345,7 @@ def _dashboard_javascript() -> str:
       });
 
       renderFindings();
+      renderActions();
       renderCoverage();
     })();
     """

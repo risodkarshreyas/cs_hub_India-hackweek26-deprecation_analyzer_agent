@@ -7,6 +7,7 @@ const { test, expect } = require("@playwright/test");
 
 let fixtureDirectory;
 let dashboardUrl;
+let smallDashboardUrl;
 
 test.beforeAll(() => {
   fixtureDirectory = mkdtempSync(path.join(tmpdir(), "uipath-dashboard-filter-"));
@@ -17,6 +18,14 @@ test.beforeAll(() => {
     { stdio: "inherit" },
   );
   dashboardUrl = pathToFileURL(dashboardPath).href;
+
+  const smallDashboardPath = path.join(fixtureDirectory, "small-dashboard.html");
+  execFileSync(
+    process.platform === "win32" ? "python.exe" : "python3",
+    [path.join(__dirname, "render_dashboard_browser_fixture.py"), smallDashboardPath, "5"],
+    { stdio: "inherit" },
+  );
+  smallDashboardUrl = pathToFileURL(smallDashboardPath).href;
 });
 
 test.afterAll(() => {
@@ -79,4 +88,42 @@ test("groups, pages, searches, and opens evidence without eagerly rendering ever
   await expect(coverageRows).toHaveCount(5);
   await page.locator("#coverage-search").fill("Missing export 30");
   await expect(coverageRows).toHaveCount(1);
+});
+
+test("deduplicates and pages recommended actions in groups of five", async ({ page }) => {
+  await page.goto(dashboardUrl);
+
+  const allActions = page.locator("#recommended-actions-list .action-card");
+  const visibleActions = page.locator("#recommended-actions-list .action-card:visible");
+  const previous = page.locator("#actions-prev-page");
+  const next = page.locator("#actions-next-page");
+
+  await expect(allActions).toHaveCount(30);
+  await expect(visibleActions).toHaveCount(5);
+  await expect(visibleActions.locator(".rank")).toHaveText(["1", "2", "3", "4", "5"]);
+  await expect(page.locator("#actions-page-label")).toHaveText("Page 1 of 6");
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
+
+  await next.click();
+  await expect(visibleActions.locator(".rank")).toHaveText(["6", "7", "8", "9", "10"]);
+  await expect(page.locator("#actions-page-label")).toHaveText("Page 2 of 6");
+  await expect(previous).toBeEnabled();
+
+  for (let pageNumber = 3; pageNumber <= 6; pageNumber += 1) {
+    await next.click();
+  }
+  await expect(page.locator("#actions-page-label")).toHaveText("Page 6 of 6");
+  await expect(next).toBeDisabled();
+  await expect(visibleActions).toHaveCount(5);
+});
+
+test("omits recommended action paging for five or fewer unique actions", async ({ page }) => {
+  await page.goto(smallDashboardUrl);
+
+  await expect(page.locator("#recommended-actions-list .action-card")).toHaveCount(5);
+  await expect(page.locator("#recommended-actions-list .action-card:visible")).toHaveCount(5);
+  await expect(page.locator("#actions-prev-page")).toHaveCount(0);
+  await expect(page.locator("#actions-page-label")).toHaveCount(0);
+  await expect(page.locator("#actions-next-page")).toHaveCount(0);
 });
