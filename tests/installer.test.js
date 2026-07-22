@@ -117,7 +117,9 @@ test("install copies runtime assets and excludes development artifacts", () => {
   const target = result.installs[0].targetPath;
   assert.equal(fs.existsSync(path.join(target, "SKILL.md")), true);
   assert.equal(fs.existsSync(path.join(target, "scripts", "uipath_deprecation_analyzer.py")), true);
+  assert.equal(fs.existsSync(path.join(target, "scripts", "xlsx_inventory.py")), true);
   assert.equal(fs.existsSync(path.join(target, "references", "common_analysis_rules.md")), true);
+  assert.equal(fs.existsSync(path.join(target, "references", "client_inventory_xlsx.md")), true);
   assert.equal(fs.existsSync(path.join(target, "agents", "openai.yaml")), true);
   assert.equal(fs.existsSync(path.join(target, "tests")), false);
   assert.equal(fs.existsSync(path.join(target, ".git")), false);

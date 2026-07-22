@@ -21,9 +21,7 @@ def match_deprecations(
     remediation guidance, and impact estimates.
     """
     as_of = _parse_date(analysis_date) or date.today()
-    projects = {
-        project.get("name"): project for project in inventory.get("projects", [])
-    }
+    projects = _project_lookup(inventory)
     findings: list[dict[str, Any]] = []
 
     # Evaluate every scanned package against every normalized timeline entry.
@@ -34,11 +32,17 @@ def match_deprecations(
         for entry in timeline_entries:
             if package_name.lower() != entry.get("package_name", "").lower():
                 continue
-            project = projects.get(package.get("project_name"), {})
+            project = _project_for_package(projects, package)
 
             # Compatibility and version checks are separate so reviewers can see
             # why a potential timeline match was intentionally skipped.
             if not _entry_applies_to_project(entry, project, package, strict):
+                continue
+            if (
+                str(package.get("source", "")).startswith("xlsx")
+                and entry.get("affected_version")
+                and not package.get("version_reliable", False)
+            ):
                 continue
             if not _version_applies(package.get("version", ""), entry.get("affected_version", "")):
                 continue
@@ -49,6 +53,8 @@ def match_deprecations(
             findings.append(
                 {
                     "project_name": package.get("project_name", ""),
+                    "environment_name": package.get("environment_name", ""),
+                    "automation_owner": package.get("automation_owner", ""),
                     "package_name": package_name,
                     "current_version": package.get("version", ""),
                     "classification": classification,
@@ -93,7 +99,7 @@ def match_activities_lifecycle(
     version below that floor is out of support.
     """
     as_of = _parse_date(analysis_date) or date.today()
-    projects = {project.get("name"): project for project in inventory.get("projects", [])}
+    projects = _project_lookup(inventory)
     entries_by_package = {
         entry.get("package_name", "").lower(): entry for entry in lifecycle_entries
     }
@@ -118,7 +124,7 @@ def match_activities_lifecycle(
         if owning:
             release_label = owning.get("release_label", "")
             out_of_support_since = out_of_support_trains.get(owning.get("release_train", ""), "")
-        project = projects.get(package.get("project_name"), {})
+        project = _project_for_package(projects, package)
         recommendation = (
             f"Upgrade {package.get('package_name', '')} to at least {floor['version']} "
             f"({floor['release_label']}) to return to a supported release."
@@ -126,6 +132,8 @@ def match_activities_lifecycle(
         findings.append(
             {
                 "project_name": package.get("project_name", ""),
+                "environment_name": package.get("environment_name", ""),
+                "automation_owner": package.get("automation_owner", ""),
                 "package_name": package.get("package_name", ""),
                 "current_version": current_version,
                 "classification": OUT_OF_SUPPORT_CLASSIFICATION,
@@ -229,6 +237,10 @@ def _entry_applies_to_project(
     if compatibility in {"windows", "cross_platform"}:
         return False
 
+    # Spreadsheet inventory cannot prove Windows-Legacy scope when compatibility is absent.
+    if project.get("source") == "xlsx" or package.get("source") == "xlsx":
+        return False
+
     # Unknown compatibility is included by default so auditors can review it.
     # In strict mode, unknown projects are skipped to minimize false positives.
     return not strict
@@ -322,11 +334,20 @@ def _impact_estimate(
     missing, the output lowers confidence instead of pretending precision.
     """
     project_name = package.get("project_name")
-    workflow_count = sum(
-        1
-        for workflow in inventory.get("workflow_inventory", [])
-        if workflow.get("project_name") == project_name
-    )
+    inventory_key = package.get("inventory_key")
+    package_name = str(package.get("package_name", "")).lower()
+    matching_references = {
+        reference.get("path")
+        for reference in inventory.get("xaml_references", [])
+        if str(reference.get("package_name", "")).lower() == package_name
+        and (
+            reference.get("inventory_key") == inventory_key
+            if inventory_key
+            else reference.get("project_name") == project_name
+        )
+        and reference.get("path")
+    }
+    workflow_count = len(matching_references)
     effort = "medium"
     if classification == "Already Removed":
         effort = "high"
@@ -346,11 +367,41 @@ def _impact_estimate(
 
 def _combined_confidence(entry: dict[str, Any], package: dict[str, Any]) -> str:
     """Combine timeline extraction confidence with local evidence strength."""
+    evidence_confidence = str(package.get("evidence_confidence", "")).lower()
+    if evidence_confidence in {"low", "medium", "high"}:
+        rank = {"low": 0, "medium": 1, "high": 2}
+        source_confidence = str(entry.get("confidence", "medium")).lower()
+        if source_confidence not in rank:
+            source_confidence = "medium"
+        return min((evidence_confidence, source_confidence), key=lambda value: rank[value])
+    if package.get("source") == "xlsx":
+        if not package.get("version_reliable", False):
+            return "low"
+        if not package.get("workflow_evidence"):
+            return "medium"
     if entry.get("confidence") == "high" and package.get("evidence"):
         return "high"
     if package.get("evidence"):
         return "medium"
     return "low"
+
+
+def _project_lookup(inventory: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    projects: dict[str, dict[str, Any]] = {}
+    for project in inventory.get("projects", []):
+        inventory_key = project.get("inventory_key")
+        if inventory_key:
+            projects[str(inventory_key)] = project
+        name = project.get("name")
+        if name and name not in projects:
+            projects[str(name)] = project
+    return projects
+
+
+def _project_for_package(
+    projects: dict[str, dict[str, Any]], package: dict[str, Any]
+) -> dict[str, Any]:
+    return projects.get(str(package.get("inventory_key") or package.get("project_name") or ""), {})
 
 
 def _parse_date(value: Optional[str]) -> Optional[date]:

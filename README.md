@@ -128,7 +128,7 @@ python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --ou
 
 ## Input Examples
 
-- Client inputs: UiPath source projects, GitHub checkouts, `project.json`, `.xaml`, `.nupkg`, and folders of package files.
+- Client inputs: UiPath source projects, GitHub checkouts, `project.json`, `.xaml`, `.nupkg`, folders of package files, and flat `.xlsx` client inventories.
 - Server inputs: exported JSON/CSV/XML/text from Orchestrator, Apps, Automation Suite, Integration Service, AI Center, API collections, tenant settings, service versions, and platform configuration.
 - Mixed inputs: one folder that contains both RPA source/package evidence and tenant/platform export evidence.
 
@@ -140,6 +140,7 @@ Use the [`resources` folder](resources/) to understand how to request an analysi
 2. Review the [client-side HTML dashboard example](resources/Sample%20Outputs/Client%20Side%20Findings%20Dashboard%20example/uipath_deprecation_dashboard.html) to preview a report generated from RPA project, package, and XAML evidence.
 3. Review the [combined client/server HTML dashboard example](resources/Sample%20Outputs/Client%20Server%20Side%20Findings%20Dashboard%20example/uipath_deprecation_dashboard.html) to preview a unified report that includes both project and platform findings.
 4. Browse [`resources/Sample Outputs/Other Files`](resources/Sample%20Outputs/Other%20Files/) for representative Markdown, JSON, CSV, XLSX, and normalized server-rule artifacts.
+5. Use the copyable template in [`references/client_inventory_xlsx.md`](references/client_inventory_xlsx.md) to create an XLSX client inventory when source projects are unavailable.
 
 The sample dashboards illustrate the expected layout and report sections. Actual findings, metrics, deadlines, evidence, coverage gaps, and recommended actions are generated from the supplied input and may differ from the examples.
 
@@ -153,12 +154,14 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 |-- scripts/
 |   |-- uipath_deprecation_analyzer.py
 |   |-- project_inventory.py
+|   |-- xlsx_inventory.py
 |   |-- timeline.py
 |   |-- matcher.py
 |   `-- reports.py
 |-- references/
 |   |-- common_analysis_rules.md
 |   |-- client_side_analyzer.md
+|   |-- client_inventory_xlsx.md
 |   |-- server_side_analyzer.md
 |   |-- reporting-dashboard-ideas.md
 |   |-- server_rule_schema.md
@@ -184,7 +187,7 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 
 Use `SKILL.md` as the agent entrypoint:
 
-- Client route: RPA source projects, GitHub checkouts, XAML workflows, `project.json`, `.nupkg`, package dependencies, package replacements, and Windows-Legacy/.NET Framework package compatibility.
+- Client route: RPA source projects, GitHub checkouts, XAML workflows, `project.json`, `.nupkg`, flat `.xlsx` inventories, package dependencies, package replacements, and Windows-Legacy/.NET Framework package compatibility.
 - Server route: Orchestrator tenant/folder resources, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, Task Mining, High Availability Add-On, APIs, service versions, and platform/infrastructure configuration.
 - Mixed route: source projects plus tenant exports, package evidence plus platform API/configuration evidence, or folders where both client and server artifacts are credible.
 
@@ -247,6 +250,14 @@ Client-side RPA source project or package folder:
 ```bash
 python3 scripts/uipath_deprecation_analyzer.py --input ./path/to/uipath/repo --output ./reports --mode client --format markdown,json,csv,xlsx,html
 ```
+
+Client-side XLSX inventory:
+
+```bash
+python3 scripts/uipath_deprecation_analyzer.py --input ./client-inventory.xlsx --output ./reports --mode client --format markdown,json,csv,xlsx,html
+```
+
+By default, `--xlsx-mode auto` prefers the documented structured inventory schema and falls back to conservative evidence-table extraction for repository/search exports. Exact package/version declarations in JSON, NuGet XML, or split package/version columns are eligible for findings; runtime-only, assembly-only, malformed, and ambiguous evidence is kept as a coverage gap. Use `--xlsx-mode strict` to require the original `Automation / Project Name`, `Dependency Name`, and `Dependency Version` contract, or `--xlsx-mode evidence` to force fallback extraction. See [`references/client_inventory_xlsx.md`](references/client_inventory_xlsx.md). Legacy `.xls` files are reported as unsupported and must be converted to `.xlsx`.
 
 Server-side tenant/platform export:
 

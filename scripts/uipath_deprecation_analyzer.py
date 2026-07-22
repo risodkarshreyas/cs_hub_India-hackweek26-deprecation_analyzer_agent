@@ -34,7 +34,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Analyze UiPath client and server artifacts for deprecation risk."
     )
-    parser.add_argument("--input", required=True, help="Project, repository, or nupkg folder to scan.")
+    parser.add_argument(
+        "--input",
+        required=True,
+        help="Project, repository, nupkg folder, or XLSX client inventory to scan.",
+    )
     parser.add_argument("--output", required=True, help="Directory for generated reports.")
     parser.add_argument(
         "--mode",
@@ -83,6 +87,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--include-xaml", action="store_true", default=True)
     parser.add_argument("--include-nupkg", action="store_true", default=True)
+    parser.add_argument(
+        "--xlsx-mode",
+        choices=("auto", "strict", "evidence"),
+        default="auto",
+        help=(
+            "XLSX parsing strategy: auto prefers the structured inventory and falls back to "
+            "evidence tables; strict requires the documented inventory headers; evidence "
+            "forces conservative evidence-table extraction."
+        ),
+    )
     parser.add_argument("--strict", action="store_true", help="Skip Windows-Legacy-only entries for non-legacy projects.")
     parser.add_argument("--analysis-date", default=date.today().isoformat())
     parser.add_argument("--timeline-url", default=DEFAULT_TIMELINE_URL)
@@ -133,7 +147,9 @@ def main() -> int:
             input_path,
             include_xaml=args.include_xaml,
             include_nupkg=args.include_nupkg,
+            xlsx_mode=args.xlsx_mode,
         )
+        coverage_gaps.extend(client_inventory.get("coverage_gaps", []))
         timeline_entries = fetch_timeline(
             source_url=args.timeline_url,
             cache_path=timeline_cache,
@@ -199,6 +215,7 @@ def main() -> int:
         for product in client_inventory.get("product_inventory", []):
             product_records.append({**product, "domain": "client"})
         inventory_summary["client"] = client_inventory.get("summary", {})
+        inventory_summary["client_xlsx"] = client_inventory.get("xlsx_diagnostics", [])
 
     if route in {"server", "mixed"}:
         server_cache = Path(args.server_rule_cache) if args.server_rule_cache else output_dir / "normalized_server_rules.json"
@@ -209,11 +226,12 @@ def main() -> int:
             refresh=args.refresh_timeline,
             use_cache_only=use_cache_only,
         )
-        server_findings, coverage_gaps = match_server_deprecations(
+        server_findings, server_coverage_gaps = match_server_deprecations(
             server_inventory,
             server_rules,
             analysis_date=args.analysis_date,
         )
+        coverage_gaps.extend(server_coverage_gaps)
         start = len(normalized_findings) + 1
         normalized_findings.extend(
             normalize_server_finding(finding, start + index, args.analysis_date)
@@ -251,7 +269,7 @@ def main() -> int:
 def _resolve_route(mode: str, input_path: Path) -> str:
     if mode != "auto":
         return mode
-    client_markers = {".xaml", ".nupkg"}
+    client_markers = {".xaml", ".nupkg", ".xlsx", ".xls"}
     files = [input_path] if input_path.is_file() else list(input_path.rglob("*")) if input_path.exists() else []
     has_client = any(path.name == "project.json" or path.suffix.lower() in client_markers for path in files)
     has_server = looks_like_server_input(input_path)

@@ -1825,6 +1825,7 @@ def _write_excel(payload: dict[str, Any], path: Path) -> None:
         ],
     )
     _sheet_from_rows(wb, "Manual Review", payload.get("manual_review", []))
+    _sheet_from_rows(wb, "Coverage Gaps", payload.get("coverage_gaps", []))
     _sheet_from_rows(wb, "Remediation Roadmap", payload.get("remediation_roadmap", []))
     wb.save(path)
 
@@ -1856,6 +1857,7 @@ def _write_excel_stdlib(payload: dict[str, Any], path: Path) -> None:
             ],
         ),
         ("Manual Review", payload.get("manual_review", [])),
+        ("Coverage Gaps", payload.get("coverage_gaps", [])),
         ("Remediation Roadmap", payload.get("remediation_roadmap", [])),
     ]
 

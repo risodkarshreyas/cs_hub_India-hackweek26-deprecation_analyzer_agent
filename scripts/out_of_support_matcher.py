@@ -61,6 +61,7 @@ def match_out_of_support_products(
                 "severity": "high",
                 "environment": environment,
                 "project_name": record.get("project_name", ""),
+                "automation_owner": record.get("automation_owner", ""),
                 "tenant_or_service": record.get("tenant_or_service", ""),
                 "service_version": raw_version if domain == "server" else "",
                 "deadline": end_of_support,

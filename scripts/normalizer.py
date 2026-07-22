@@ -21,7 +21,7 @@ def normalize_client_finding(raw: dict[str, Any], index: int, analysis_date: str
         status=status,
         product="Studio/Robot activity packages",
         feature_or_package=raw.get("package_name", ""),
-        environment=raw.get("project_name", ""),
+        environment=raw.get("environment_name") or raw.get("project_name", ""),
         evidence=raw.get("evidence", []),
         impact=raw.get("impact", {}).get("value_added")
         if isinstance(raw.get("impact"), dict)
@@ -42,6 +42,8 @@ def normalize_client_finding(raw: dict[str, Any], index: int, analysis_date: str
             "project_compatibility": raw.get("project_compatibility", ""),
         }
     )
+    if raw.get("automation_owner"):
+        finding["owner_hint"] = raw["automation_owner"]
     return finding
 
 
@@ -68,6 +70,8 @@ def normalize_product_finding(raw: dict[str, Any], index: int, analysis_date: st
     finding["current_version"] = raw.get("current_version", "")
     if domain == "client":
         finding["project_name"] = raw.get("project_name", "")
+        if raw.get("automation_owner"):
+            finding["owner_hint"] = raw["automation_owner"]
     else:
         finding["tenant_or_service"] = raw.get("tenant_or_service", "")
         finding["service_version"] = raw.get("service_version", "")

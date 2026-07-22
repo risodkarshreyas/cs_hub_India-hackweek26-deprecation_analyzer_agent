@@ -6,6 +6,13 @@ from pathlib import Path
 from typing import Any, Optional, Union
 from xml.etree import ElementTree as ET
 
+from xlsx_inventory import (
+    discover_legacy_xls,
+    discover_xlsx,
+    scan_xlsx_workbook,
+    unsupported_xls_gap,
+)
+
 
 NUPKG_LIB_TARGETS = [
     "net6.0-windows7.0",
@@ -27,6 +34,7 @@ def scan_inputs(
     input_path: Union[Path, str],
     include_xaml: bool = True,
     include_nupkg: bool = True,
+    xlsx_mode: str = "auto",
 ) -> dict[str, Any]:
     """Scan a source tree, nupkg folder, or mixed folder for UiPath package evidence."""
     root = Path(input_path).resolve()
@@ -40,14 +48,17 @@ def scan_inputs(
         "product_inventory": [],
         "workflow_inventory": [],
         "xaml_references": [],
+        "coverage_gaps": [],
         "errors": [],
+        "xlsx_diagnostics": [],
     }
     seen_packages: dict[tuple[str, str], dict[str, Any]] = {}
 
     def add_package(record: dict[str, Any]) -> None:
         project_name = record.get("project_name") or "(unknown)"
         package_name = record.get("package_name") or ""
-        key = (project_name.lower(), package_name.lower())
+        inventory_key = record.get("inventory_key") or project_name.lower()
+        key = (str(inventory_key).lower(), package_name.lower())
         if not package_name:
             return
         if key not in seen_packages:
@@ -92,12 +103,45 @@ def scan_inputs(
             except Exception as exc:  # noqa: BLE001 - collect scan errors per package
                 inventory["errors"].append({"path": str(nupkg_path), "error": str(exc)})
 
+    evidence_root = root.parent if root.is_file() else root
+    for xlsx_path in discover_xlsx(root):
+        workbook = scan_xlsx_workbook(xlsx_path, evidence_root, xlsx_mode=xlsx_mode)
+        inventory["projects"].extend(workbook["projects"])
+        inventory["workflow_inventory"].extend(workbook["workflows"])
+        inventory["xaml_references"].extend(workbook["xaml_references"])
+        for package in workbook["packages"]:
+            add_package(package)
+        inventory["product_inventory"].extend(workbook["products"])
+        inventory["coverage_gaps"].extend(workbook["coverage_gaps"])
+        inventory["errors"].extend(workbook["errors"])
+        diagnostics = dict(workbook.get("diagnostics", {}))
+        diagnostics["path"] = str(_relative(xlsx_path, evidence_root))
+        inventory["xlsx_diagnostics"].append(diagnostics)
+
+    for xls_path in discover_legacy_xls(root):
+        inventory["coverage_gaps"].append(unsupported_xls_gap(xls_path, evidence_root))
+
+    xlsx_diagnostics = inventory["xlsx_diagnostics"]
     inventory["summary"] = {
         "project_count": len(inventory["projects"]),
         "package_count": len(inventory["package_inventory"]),
         "product_count": len(inventory["product_inventory"]),
         "workflow_count": len(inventory["workflow_inventory"]),
         "xaml_reference_count": len(inventory["xaml_references"]),
+        "coverage_gap_count": len(inventory["coverage_gaps"]),
+        "xlsx_workbook_count": len(xlsx_diagnostics),
+        "xlsx_sheet_count": sum(item.get("sheets_scanned", 0) for item in xlsx_diagnostics),
+        "xlsx_rows_scanned": sum(item.get("rows_scanned", 0) for item in xlsx_diagnostics),
+        "xlsx_exact_dependencies_found": sum(
+            item.get("exact_dependencies_found", 0) for item in xlsx_diagnostics
+        ),
+        "xlsx_inferred_records_rejected": sum(
+            item.get("inferred_records_rejected", 0) for item in xlsx_diagnostics
+        ),
+        "xlsx_unresolved_rows": sum(item.get("unresolved_rows", 0) for item in xlsx_diagnostics),
+        "xlsx_extraction_methods": sorted(
+            {item.get("extraction_method", "none") for item in xlsx_diagnostics}
+        ),
     }
     return inventory
 

@@ -47,7 +47,7 @@ Choose the analyzer by evidence type:
 
 | Input or request mentions | Route |
 |---|---|
-| RPA source project, workflow, XAML, `project.json`, `.nupkg`, Studio, Robot, activity package, NuGet dependency, package replacement, Windows-Legacy package compatibility | Client-side analyzer |
+| RPA source project, workflow, XAML, `project.json`, `.nupkg`, `.xlsx` client inventory, Studio, Robot, activity package, NuGet dependency, package replacement, Windows-Legacy package compatibility | Client-side analyzer |
 | Orchestrator tenant/folder resources, Orchestrator Testing Module, Test Cases, Test Sets, Test Set/Test Case Executions, Test Manager migration, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Document Understanding service configuration, Insights, Process Mining, Automation Hub, Automation Ops, Maestro, tenant/platform administration, APIs, infrastructure, service versions | Server-side analyzer |
 | Repo plus tenant export, source code plus platform export, package dependencies plus Orchestrator/API/service configuration, unclear mixed folder | Both analyzers |
 
@@ -75,7 +75,7 @@ The existing client scripts remain unchanged. When their raw output uses legacy 
 
 Use `scripts/uipath_deprecation_analyzer.py` for deterministic analysis when local artifacts are available:
 
-- `--mode client`: scan RPA source, XAML, `.nupkg`, and package dependencies.
+- `--mode client`: scan RPA source, XAML, `.nupkg`, `.xlsx` client inventories, and package dependencies.
 - `--mode server`: scan tenant/platform/API/service/infrastructure artifacts and match server-side deprecation rules.
 - `--mode mixed`: run both routes and merge normalized findings.
 - `--mode auto`: choose client, server, or mixed based on detected artifacts.
@@ -108,6 +108,8 @@ python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --ou
 ```
 
 Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server-side report output should include HTML. Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.
+
+Client evidence workbooks must use modern `.xlsx`; legacy `.xls` inputs produce a conversion coverage gap. `--xlsx-mode auto` prefers the structured inventory schema and then conservatively extracts exact package/version evidence from recognizable repository/search tables. Use `strict` to require the documented headers or `evidence` to force fallback extraction. The schemas, confidence rules, diagnostics, and coverage behavior are documented in `references/client_inventory_xlsx.md`.
 
 Every run also refreshes two support-lifecycle pages to surface `out_of_support` findings (severity `high`):
 

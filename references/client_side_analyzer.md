@@ -10,6 +10,7 @@ Use this analyzer for UiPath client-side automation artifacts:
 - XAML workflows and coded workflow project structure when package usage is visible.
 - `project.json` dependency declarations.
 - `.nupkg` packages and Orchestrator package exports.
+- `.xlsx` structured inventories and recognizable repository/search evidence tables containing exact package/version declarations.
 - Studio, Robot, activity package, NuGet dependency, replacement package, and Windows-Legacy/.NET Framework 4.6.1 compatibility requests.
 
 Do not use this analyzer for tenant/platform configuration unless it appears only as package-export context. Route Orchestrator, Automation Cloud/Suite, Apps, Integration Service, Test Manager, Action Center, AI Center, Insights, Process Mining, Automation Ops, Maestro, and platform API/configuration evidence to `references/server_side_analyzer.md`.
@@ -23,6 +24,7 @@ Valid evidence sources include:
 - `.nuspec` dependency declarations.
 - Extracted `.nupkg` metadata and packaged `project.json`.
 - Folder names, package file names, and project compatibility metadata when corroborated by project files.
+- XLSX inventory or evidence-table rows with workbook, worksheet, row, repository, source artifact, source line, and workflow provenance.
 
 For `.nupkg` files, use `package.nupkg!/path/inside/package` for internal evidence paths.
 
@@ -41,7 +43,7 @@ Both checks degrade gracefully: when a page cannot be fetched and no cache exist
 
 ## Workflow
 
-1. Identify the input: source project folder, GitHub checkout, folder of `.nupkg` packages, Orchestrator package export, or mixed folder.
+1. Identify the input: source project folder, GitHub checkout, folder of `.nupkg` packages, Orchestrator package export, `.xlsx` client inventory, or mixed folder.
 2. If Orchestrator package download is needed, use available UiPath/Orchestrator tooling in the environment. Do not ask for or store secrets; use existing authenticated CLI/session state.
 3. Run the analyzer when client artifacts are present:
 
@@ -61,6 +63,7 @@ Keep these scripts unchanged unless the user explicitly requests implementation 
 
 - `scripts/uipath_deprecation_analyzer.py`: CLI entrypoint.
 - `scripts/project_inventory.py`: scans source projects and `.nupkg` packages using embedded UiPath project discovery and package inventory logic.
+- `scripts/xlsx_inventory.py`: reads structured `.xlsx` inventories and conservatively extracts exact dependency evidence from recognizable repository/search tables. See `references/client_inventory_xlsx.md`.
 - `scripts/timeline.py`: fetches, filters, normalizes, and caches package-like timeline entries.
 - `scripts/activities_lifecycle.py`: fetches and normalizes the activity package version-per-release-train matrix.
 - `scripts/out_of_support_versions.py`: fetches and normalizes product version end-of-support entries and derives out-of-support release trains.
@@ -85,10 +88,13 @@ CLI flags:
 --include-xaml
 --include-nupkg
 --strict
+--xlsx-mode auto|strict|evidence
 --analysis-date YYYY-MM-DD
 ```
 
 Live timeline refresh is the default. Use `--use-cache-only` with `--timeline-cache` for offline or repeatable audits. Use `--analysis-date` for repeatable classification and tests. Use `--strict` to skip Windows-Legacy-only timeline entries for non-legacy projects.
+
+`--xlsx-mode auto` is the default. It uses the structured schema when exactly one matching inventory sheet exists, otherwise it scans recognizable evidence tables. Only exact dependency declarations can create findings; runtime-only, assembly-only, malformed, or uncertain matches remain coverage gaps. `--xlsx-mode strict` preserves the original one-inventory-sheet contract, and `--xlsx-mode evidence` forces the evidence-table path.
 
 ## Raw Client References
 
