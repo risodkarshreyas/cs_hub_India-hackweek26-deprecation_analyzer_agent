@@ -16,7 +16,7 @@ Use this skill as the agent-facing entrypoint for UiPath deprecation analysis in
 4. Read only the route-specific analyzer reference needed for the request.
 5. For an Orchestrator URL or tenant/folder request, use an authenticated browser or UiPath API capability for read-only inspection when available. Resolve the folder name and capture only supported GET resources; never create, edit, execute, publish, migrate, delete, or open mutation menus.
 6. Prefer `<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py` when local artifacts are available and deterministic output is useful. Resolve `<SKILL_DIR>` as described under CLI Usage; do not assume the session is running from the skill folder.
-7. Read `references/reporting-dashboard-ideas.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
+7. Read `references/reporting_dashboard_spec.md` when the user asks for an HTML dashboard, executive dashboard, reporting UI, dashboard-ready output, or server-side report output.
 8. Review generated JSON, Markdown, and HTML reports before responding when those outputs are requested or required.
 9. Return an executive summary, normalized finding list, and coverage gaps. Keep coverage gaps separate from deprecation findings.
 
@@ -41,7 +41,7 @@ Then read only the analyzer reference needed for the request:
 - `references/example_findings.md`: examples of normalized client, server, and mixed findings.
 - `references/package_matching_rules.md` and `references/risk_scoring_model.md`: client matching, false-positive, and legacy risk details.
 - `references/server_rule_schema.md` and `references/server_inventory_schema.md`: server rule catalog and evidence record details.
-- `references/reporting-dashboard-ideas.md`: static HTML dashboard contract, dashboard-ready data shape, and required dashboard sections. Read when the user requests dashboard/reporting UI output or server-side report output.
+- `references/reporting_dashboard_spec.md`: static HTML dashboard contract, dashboard-ready data shape, and required dashboard sections. Read when the user requests dashboard/reporting UI output or server-side report output.
 
 ## Routing
 

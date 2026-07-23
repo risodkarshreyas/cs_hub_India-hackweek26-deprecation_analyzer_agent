@@ -110,7 +110,7 @@ If the user has no export, ask for the minimum inventory needed for the requeste
 
 6. Generate server-side report outputs:
    - Server-side report output must include the static HTML dashboard by default.
-   - Read `references/reporting-dashboard-ideas.md` before generating the dashboard.
+   - Read `references/reporting_dashboard_spec.md` before generating the dashboard.
    - Keep JSON and XLSX outputs alongside HTML so downstream tools can consume normalized findings.
 
 ## CLI Usage

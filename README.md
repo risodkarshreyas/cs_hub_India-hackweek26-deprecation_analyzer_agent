@@ -171,7 +171,7 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 |   |-- client_side_analyzer.md
 |   |-- client_inventory_xlsx.md
 |   |-- server_side_analyzer.md
-|   |-- reporting-dashboard-ideas.md
+|   |-- reporting_dashboard_spec.md
 |   |-- server_rule_schema.md
 |   |-- server_inventory_schema.md
 |   |-- normalized_timeline_schema.md
