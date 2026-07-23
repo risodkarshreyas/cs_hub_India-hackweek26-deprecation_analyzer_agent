@@ -156,8 +156,16 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 |   |-- project_inventory.py
 |   |-- xlsx_inventory.py
 |   |-- timeline.py
+|   |-- activities_lifecycle.py
+|   |-- out_of_support_versions.py
 |   |-- matcher.py
-|   `-- reports.py
+|   |-- out_of_support_matcher.py
+|   |-- server_inventory.py
+|   |-- server_rules.py
+|   |-- server_matcher.py
+|   |-- normalizer.py
+|   |-- reports.py
+|   `-- __init__.py
 |-- references/
 |   |-- common_analysis_rules.md
 |   |-- client_side_analyzer.md
@@ -167,6 +175,8 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 |   |-- server_rule_schema.md
 |   |-- server_inventory_schema.md
 |   |-- normalized_timeline_schema.md
+|   |-- activities_lifecycle_schema.md
+|   |-- out_of_support_versions_schema.md
 |   |-- package_matching_rules.md
 |   |-- report_schema.md
 |   |-- risk_scoring_model.md
@@ -177,10 +187,18 @@ The sample dashboards illustrate the expected layout and report sections. Actual
 |       |-- Client Side Findings Dashboard example/
 |       |-- Client Server Side Findings Dashboard example/
 |       `-- Other Files/
-`-- tests/
-    |-- test_deprecation_analyzer.py
-    |-- test_skill_contract.py
-    `-- fixtures/
+|-- tests/
+|   |-- test_deprecation_analyzer.py
+|   |-- test_out_of_support.py
+|   |-- test_server_side_analyzer.py
+|   |-- test_skill_contract.py
+|   |-- installer.test.js
+|   |-- dashboard_filters.spec.js
+|   |-- render_dashboard_browser_fixture.py
+|   `-- fixtures/
+|-- bin/
+|-- installer/
+`-- package.json
 ```
 
 ## Analyzer Routes
@@ -222,6 +240,15 @@ Depending on `--format`, the CLI writes these files under the output directory:
 Coverage gaps, such as missing exports or unavailable context, are reported separately from deprecation findings.
 
 The HTML dashboard is generated from the same normalized findings payload as the JSON, Markdown, CSV, and XLSX reports. It is an additive static dashboard output and does not replace JSON or Excel artifacts.
+
+In addition to the report files above, when no explicit cache path is supplied the analyzer writes the normalized source data it fetched into the output directory so later runs can reuse it with `--offline`/`--use-cache-only`:
+
+- `normalized_deprecation_timeline.json`
+- `normalized_activities_lifecycle.json`
+- `normalized_out_of_support_versions.json`
+- `normalized_server_rules.json` (server and mixed routes)
+
+These are refreshed inputs, not deprecation reports.
 
 ## Analyzer Scripts
 
@@ -291,12 +318,18 @@ Run against a folder of `.nupkg` files:
 python3 scripts/uipath_deprecation_analyzer.py --input ./packages --output ./reports --include-nupkg
 ```
 
-Cache options:
+Cache and source options:
 
 - `--offline`: use cache files only and do not fetch live UiPath docs.
+- `--use-cache-only`: use the normalized timeline cache without fetching the live UiPath timeline.
 - `--timeline-cache`: alias for `--client-timeline-cache`.
 - `--client-timeline-cache`: normalized client deprecation timeline cache JSON.
 - `--server-rule-cache`: normalized server-side deprecation rule cache JSON.
+- `--activities-lifecycle-cache`: normalized activities-lifecycle cache JSON.
+- `--out-of-support-cache`: normalized out-of-support product versions cache JSON.
+- `--activities-lifecycle-url`: override the UiPath activities-lifecycle documentation URL.
+- `--out-of-support-url`: override the UiPath out-of-support versions documentation URL.
+- `--timeline-url`: override the UiPath deprecation-timeline documentation URL.
 
 ## Validation
 

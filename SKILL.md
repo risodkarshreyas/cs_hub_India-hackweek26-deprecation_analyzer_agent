@@ -33,6 +33,8 @@ Then read only the analyzer reference needed for the request:
 
 - `references/common_analysis_rules.md`: required for every route, output schema, severity/status rules, evidence rules, KPI rules, and guardrails.
 - `references/client_side_analyzer.md`: client route workflow, evidence sources, script behavior, and legacy-to-common field mapping.
+- `references/client_inventory_xlsx.md`: XLSX client-inventory schema, parsing modes, and evidence-table extraction rules.
+- `references/normalized_timeline_schema.md`: normalized client package-timeline entry shape used by timeline fetching and matching.
 - `references/server_side_analyzer.md`: server route workflow, product scope, server evidence extraction, and matching guidance.
 - `references/activities_lifecycle_schema.md` and `references/out_of_support_versions_schema.md`: activity-package lifecycle matrix and product version end-of-support datasets used for `out_of_support` findings.
 - `references/report_schema.md`: legacy client report payload interpretation and mapping to common fields.
@@ -104,7 +106,7 @@ For an authenticated Orchestrator tenant or folder, collect only read-only testi
 Recommended default after resolving the placeholder:
 
 ```bash
-python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --output <reports> --mode auto --format markdown,json,html
+python3 "<SKILL_DIR>/scripts/uipath_deprecation_analyzer.py" --input <path> --output <reports> --mode auto --format markdown,json,xlsx,html
 ```
 
 Use `html` in `--format` to generate `uipath_deprecation_dashboard.html`. Server-side report output should include HTML. Use `--offline` to avoid live UiPath docs fetches. Use `--timeline-cache` or `--client-timeline-cache` for normalized client timeline cache JSON. Use `--server-rule-cache` for normalized server-side rule cache JSON. Use `--analysis-date YYYY-MM-DD` for repeatable classification.

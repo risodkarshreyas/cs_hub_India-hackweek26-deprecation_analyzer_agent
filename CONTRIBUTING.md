@@ -1,5 +1,10 @@
 # Contributing Guide
 
+This repository is a coding-agent skill: Python analysis scripts under `scripts/`, a Node.js
+installer under `installer/` and `bin/`, agent-facing docs (`SKILL.md`, `README.md`), and reference
+material under `references/`. It is **not** a UiPath Studio project, so day-to-day work uses ordinary
+Git from the CLI or your editor.
+
 ## Branching Strategy
 
 | Branch | Purpose |
@@ -8,37 +13,43 @@
 | `develop` | Integration branch for ongoing work |
 | `feature/your-name-description` | Personal feature branches |
 
-Always branch off `develop`, not `main`. Open PRs back to `develop`; `develop` is periodically merged to `main` after review.
+Always branch off `develop`, not `main`. Open PRs back to `develop`; `develop` is periodically merged
+to `main` after review.
 
 ## Commit Message Format
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat: add claims extraction workflow
-fix: handle null queue item response
-docs: update setup instructions
-refactor: extract helper activities into shared library
+feat: add server-side out-of-support version matching
+fix: handle missing timeline cache gracefully
+docs: sync README structure with scripts folder
+refactor: extract shared normalizer helpers
 ```
-
-## UiPath Studio Git Workflow
-
-> **Important:** Always use Studio's built-in **Team > Git Init** for the very first commit on a new repo. Do NOT run `git init` from the CLI on a UiPath project — Studio writes its own project metadata during init.
-
-- Only enable branch protection on `main` **after** the first Studio push succeeds.
-- Use Studio's Git panel for day-to-day commits and branch switches to avoid corrupting Studio project metadata.
 
 ## Pull Request Requirements
 
 - At least **1 reviewer** must approve before merging to `main`
 - PR description should include: what changed, how to test, any config changes needed
 
+## How to Test
+
+Run the test suites before opening a PR:
+
+```bash
+python3 -m unittest discover -s tests   # Python unit + contract tests
+npm test                                # Node installer tests (node --test tests/*.test.js)
+npm run test:browser                    # Playwright dashboard-filter test
+```
+
 ## What NOT to Commit
 
-Never commit the following:
+The following are already covered by `.gitignore`; never commit them:
 
-- `.local/`, `.objects/`, `.autopilot/` — Studio runtime artifacts
-- `*.lck` — lock files
-- `.env`, `appsettings.Production.json`, `credentials.json`, `connection_strings.json` — environment config with secrets
-- Any file containing Orchestrator tokens, API keys, or client secrets
-- `node_modules/`, `bin/`, `obj/`, `.venv/` — build/dependency artifacts (these are in .gitignore)
+- `.env` and any file containing Orchestrator tokens, API keys, or client secrets
+- `__pycache__/`, `*.pyc`, `*.pyo`, `.venv/`, `venv/`, `*.egg-info/` — Python artifacts
+- `node_modules/`, `dist/`, `build/`, `.next/`, `test-results/`, `playwright-report/` — Node/build artifacts
+- `packages/`, `*.lck` — local package and lock files
+
+Note: `bin/` **is** tracked — `.gitignore` deliberately re-includes it (`!bin/`) because it holds the
+`uipath-deprecation-skill` CLI entrypoint. Do not add `bin/` to `.gitignore`.
